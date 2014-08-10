@@ -1,0 +1,29 @@
+{
+  "name": "cuisine-front",
+  "version": "0.0.0",
+  "homepage": "https://github.com/lahaxearnaud/cuisine-front",
+  "authors": [
+    "LAHAXE Arnaud <lahaxe.arnaud@gmail.com>"
+  ],
+  "description": "Fron app from the cook project",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.2.0",
+    "angular": "~1.2.21",
+    "angular-bootstrap": "~0.11.0",
+    "restangular": "~1.4.0",
+    "angular-route": "~1.2.21",
+    "angular-loading-bar": "~0.5.0"
+  }
+}
