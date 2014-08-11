@@ -7,8 +7,24 @@ var gulp = require("gulp"),
     connect = require('gulp-angular-filesort'),
     inject = require("gulp-inject"),
     angularFilesort = require('gulp-angular-filesort')
-    imagemin = require('gulp-imagemin');
+    imagemin = require('gulp-imagemin')
+    rewriteCSS = require('gulp-rewrite-css');
 
+
+var bowerJsToIntegrate = [
+    './bower_components/angular/angular.js',
+    './bower_components/angular-route/angular-route.js',
+    './bower_components/lodash/dist/lodash.js',
+    './bower_components/restangular/dist/restangular.js',
+];
+
+var bowerCssToIntegrate = [
+    './bower_components/bootstrap/dist/css/bootstrap.css',
+];
+
+var buildPath = "./build/";
+
+var mainHtmlFile = "app/index.html";
 /**
  * [
         "app/js/app.js",
@@ -21,19 +37,37 @@ var gulp = require("gulp"),
     ]
  */
 
+gulp.task("bower", ["inject"], function () {
+    gulp.src(bowerJsToIntegrate)
+        .pipe(concat("libs.js"))
+        .pipe(gulp.dest(buildPath));
+
+    gulp.src(bowerCssToIntegrate)
+        .pipe(rewriteCSS({
+            destination:buildPath
+        }))
+        .pipe(cssshrink())
+        .pipe(concat("libs.css"))
+        .pipe(gulp.dest(buildPath))
+        .pipe(notify("CSS done !"));
+});
+
 gulp.task("js", ["inject"], function () {
     gulp.src("app/js/**/*.js")
         .pipe(angularFilesort())
         .pipe(concat("app.js"))
-        .pipe(gulp.dest("./build/"))
+        .pipe(gulp.dest(buildPath))
         .pipe(notify("Js done !"));
 });
 
 gulp.task("css", ["inject"], function () {
     gulp.src(["app/css/**.css"])
+        .pipe(rewriteCSS({
+            destination:buildPath
+        }))
         .pipe(cssshrink())
         .pipe(concat("app.css"))
-        .pipe(gulp.dest("./build/"))
+        .pipe(gulp.dest(buildPath))
         .pipe(notify("CSS done !"));
 });
 
@@ -44,7 +78,6 @@ gulp.task("html", [], function () {
 
 gulp.task("img", [], function () {
     gulp.src(["app/**/*"])
-        .pipe(connect.reload())
         .pipe(imagemin())
         .pipe(gulp.dest('./build/img'))
         .pipe(notify("Image done !"));
@@ -52,19 +85,16 @@ gulp.task("img", [], function () {
 
 
 gulp.task('inject', function () {
-  var target = gulp.src('app/index.html');
+  var target = gulp.src(mainHtmlFile);
   var sources = gulp.src([
-    './bower_components/angular/angular.js',
-    './bower_components/angular-route/angular-route.js',
-    './bower_components/lodash/dist/lodash.js',
-    './bower_components/restangular/dist/restangular.js',
+    './build/libs.js',
     './build/app.js',
-    './bower_components/bootstrap/dist/css/bootstrap.css',
+    './build/libs.css',
     './build/app.css'
     ], {read: false});
 
   return target.pipe(inject(sources))
-    .pipe(gulp.dest('app/index.html'))
+    .pipe(gulp.dest(mainHtmlFile))
     .pipe(connect.reload());
 });
 
@@ -73,6 +103,7 @@ gulp.task("watch", [], function () {
     gulp.watch("app/css/**/*.css", ["css"]);
     gulp.watch("app/**/*.html", ["html"]);
     gulp.watch("app/img/**/*", ["img"]);
+    gulp.watch(["bower_components/**/*.js", "bower_components/**/*.css"], ["bower"]);
 });
 
 gulp.task('webserver', function () {
