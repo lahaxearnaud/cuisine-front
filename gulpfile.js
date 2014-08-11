@@ -6,7 +6,8 @@ var gulp = require("gulp"),
     connect = require('gulp-connect'),
     connect = require('gulp-angular-filesort'),
     inject = require("gulp-inject"),
-    angularFilesort = require('gulp-angular-filesort');
+    angularFilesort = require('gulp-angular-filesort')
+    imagemin = require('gulp-imagemin');
 
 /**
  * [
@@ -41,6 +42,15 @@ gulp.task("html", [], function () {
         .pipe(connect.reload());
 });
 
+gulp.task("img", [], function () {
+    gulp.src(["app/**/*"])
+        .pipe(connect.reload())
+        .pipe(imagemin())
+        .pipe(gulp.dest('./build/img'))
+        .pipe(notify("Image done !"));
+});
+
+
 gulp.task('inject', function () {
   var target = gulp.src('app/index.html');
   var sources = gulp.src([
@@ -62,6 +72,7 @@ gulp.task("watch", [], function () {
     gulp.watch("app/js/**/*.js", ["js"]);
     gulp.watch("app/css/**/*.css", ["css"]);
     gulp.watch("app/**/*.html", ["html"]);
+    gulp.watch("app/img/**/*", ["img"]);
 });
 
 gulp.task('webserver', function () {
