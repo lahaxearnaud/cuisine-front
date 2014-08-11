@@ -9,8 +9,8 @@ var app = angular.module('cook', [
     'cook.services',
     'cook.directives',
     'cook.controllers'
-]).
-    config(['$routeProvider', function ($routeProvider) {
+])
+    .config(['$routeProvider', function ($routeProvider) {
         $routeProvider.when('/view1', {
             templateUrl: 'partials/partial1.html',
             controller: 'MyCtrl1'
@@ -26,7 +26,13 @@ var app = angular.module('cook', [
         $routeProvider.otherwise({
             redirectTo: '/view1'
         });
-    }]);
+    }])
+
+    .value('authentification', {
+        'token': '',
+        'id': 0,
+        'username': ''
+    });
 'use strict';
 
 /* Services */
@@ -78,40 +84,54 @@ angular.module('cook.directives', []).
 /**
  * Created by arnaud on 10/08/14.
  */
-var refreshAccesstoken = function () {
-    var deferred = $q.defer();
-
-    // Refresh access-token logic
-
-    return deferred.promise;
-};
-
-
-app.config(function (RestangularProvider) {
-    console.log('Restangular OK');
+app.config(['RestangularProvider', function (RestangularProvider) {
     RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
-    RestangularProvider.setDefaultHeaders({"X-Auth-Token": "x-restangular"});
-
     RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
-        if (response.status === 403) {
-            refreshAccesstoken().then(function () {
-                // Repeat the request and then call the handlers the usual way.
-                $http(response.config).then(responseHandler, deferred.reject);
-                // Be aware that no request interceptors are called this way.
-            });
-
-            return false; // error handled
-        }
 
         return true; // error not handled
     });
-})
+
+        RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
+        var extractedData;
+
+        if (operation === 'post' && what === 'auth') {
+            extractedData = {
+                'token': data.token,
+                'username': data.user.username,
+                'id': data.user.id,
+                'email': data.user.email,
+                'logged': true
+            };
+        } else if (operation === "getList") {
+            extractedData = data.data;
+            extractedData.meta = {
+                'perPage': data.per_page,
+                'total': data.total,
+                'currentPage': data.current_page,
+                'from': data.from,
+                'to': data.to
+            };
+        } else {
+            extractedData = data.data;
+        }
+        return extractedData;
+    });
+}]);
 
 /**
  * Created by arnaud on 10/08/14.
  */
 app.controller('login', ['$scope', 'Restangular', function ($scope, Restangular) {
-    var articles = Restangular.all("articles").getList();
-    console.log(articles);
+    /** var articles = Restangular.all("articles").getList().then(function(articles) {
+        $scope.articles = articles;
+    }); **/
+    $scope.submitForm = function() {
+        if ($scope.loginForm.$valid) {
+            Restangular.all('auth').post($scope.login).then(function(auth) {
+                app.value('authentification', auth);
+                Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
+            });
+        }
+    };
 }]);

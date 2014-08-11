@@ -1,9 +1,9 @@
-<form name="loginForm">
+<form name="loginForm" ng-submit="submitForm(loginForm.$valid)">
     <label for="username">Username:</label>
-    <input type="text" id="username">
+    <input type="text" id="username" name="username" ng-model="login.username" required ng-required="true">
 
     <label for="password">Password:</label>
-    <input type="password" id="password">
+    <input type="password" id="password" name="password" ng-model="login.password" required ng-required="true">
 
     <button type="submit">Login</button>
 </form>

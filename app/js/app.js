@@ -9,8 +9,8 @@ var app = angular.module('cook', [
     'cook.services',
     'cook.directives',
     'cook.controllers'
-]).
-    config(['$routeProvider', function ($routeProvider) {
+])
+    .config(['$routeProvider', function ($routeProvider) {
         $routeProvider.when('/view1', {
             templateUrl: 'partials/partial1.html',
             controller: 'MyCtrl1'
@@ -26,4 +26,10 @@ var app = angular.module('cook', [
         $routeProvider.otherwise({
             redirectTo: '/view1'
         });
-    }]);
+    }])
+
+    .value('authentification', {
+        'token': '',
+        'id': 0,
+        'username': ''
+    });

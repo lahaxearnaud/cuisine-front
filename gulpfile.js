@@ -4,18 +4,17 @@ var gulp = require("gulp"),
     cssshrink = require("gulp-cssshrink"),
     notify = require("gulp-notify"),
     connect = require('gulp-connect'),
-    connect = require('gulp-angular-filesort'),
     inject = require("gulp-inject"),
-    angularFilesort = require('gulp-angular-filesort')
-    imagemin = require('gulp-imagemin')
+    imagemin = require('gulp-imagemin'),
     rewriteCSS = require('gulp-rewrite-css');
 
 
 var bowerJsToIntegrate = [
-    './bower_components/angular/angular.js',
-    './bower_components/angular-route/angular-route.js',
-    './bower_components/lodash/dist/lodash.js',
-    './bower_components/restangular/dist/restangular.js',
+    'bower_components/angular/angular.js',
+    'bower_components/angular-route/angular-route.js',
+    'bower_components/lodash/dist/lodash.js',
+    'bower_components/restangular/dist/restangular.js',
+    'bower_components/angular-cookies/angular-cookies.js'
 ];
 
 var bowerCssToIntegrate = [
@@ -25,8 +24,8 @@ var bowerCssToIntegrate = [
 var buildPath = "./build/";
 
 var mainHtmlFile = "app/index.html";
-/**
- * [
+
+var appFiles =  [
         "app/js/app.js",
         "app/js/services.js",
         "app/js/controllers.js",
@@ -34,10 +33,9 @@ var mainHtmlFile = "app/index.html";
         "app/js/directives.js",
         "app/js/restangular.js",
         "app/js/controllers/*.js"
-    ]
- */
+    ];
 
-gulp.task("bower", ["inject"], function () {
+gulp.task("bower", [], function () {
     gulp.src(bowerJsToIntegrate)
         .pipe(concat("libs.js"))
         .pipe(gulp.dest(buildPath));
@@ -48,19 +46,18 @@ gulp.task("bower", ["inject"], function () {
         }))
         .pipe(cssshrink())
         .pipe(concat("libs.css"))
-        .pipe(gulp.dest(buildPath))
-        .pipe(notify("CSS done !"));
+        .pipe(gulp.dest(buildPath));
 });
 
-gulp.task("js", ["inject"], function () {
-    gulp.src("app/js/**/*.js")
-        .pipe(angularFilesort())
+gulp.task("js", [], function () {
+    gulp.src(appFiles)
         .pipe(concat("app.js"))
         .pipe(gulp.dest(buildPath))
-        .pipe(notify("Js done !"));
+        .pipe(notify("Js done !"))
+        .pipe(connect.reload());
 });
 
-gulp.task("css", ["inject"], function () {
+gulp.task("css", [], function () {
     gulp.src(["app/css/**.css"])
         .pipe(rewriteCSS({
             destination:buildPath
@@ -68,7 +65,8 @@ gulp.task("css", ["inject"], function () {
         .pipe(cssshrink())
         .pipe(concat("app.css"))
         .pipe(gulp.dest(buildPath))
-        .pipe(notify("CSS done !"));
+        .pipe(notify("CSS done !"))
+        .pipe(connect.reload());
 });
 
 gulp.task("html", [], function () {
@@ -77,7 +75,7 @@ gulp.task("html", [], function () {
 });
 
 gulp.task("img", [], function () {
-    gulp.src(["app/**/*"])
+    gulp.src(["app/**/*.(png|jpg)"])
         .pipe(imagemin())
         .pipe(gulp.dest('./build/img'))
         .pipe(notify("Image done !"));
@@ -94,7 +92,7 @@ gulp.task('inject', function () {
     ], {read: false});
 
   return target.pipe(inject(sources))
-    .pipe(gulp.dest(mainHtmlFile))
+    .pipe(gulp.dest('./app/'))
     .pipe(connect.reload());
 });
 
@@ -102,11 +100,11 @@ gulp.task("watch", [], function () {
     gulp.watch("app/js/**/*.js", ["js"]);
     gulp.watch("app/css/**/*.css", ["css"]);
     gulp.watch("app/**/*.html", ["html"]);
-    gulp.watch("app/img/**/*", ["img"]);
+    gulp.watch("app/img/**/*.(png|jpg)", ["img"]);
     gulp.watch(["bower_components/**/*.js", "bower_components/**/*.css"], ["bower"]);
 });
 
-gulp.task('webserver', function () {
+gulp.task('webserver', ["bower", "js", "css", "img", "inject"],function () {
     connect.server({
         livereload: true,
         port: 3333
