@@ -27,15 +27,11 @@ var mainHtmlFile = "app/index.html";
 
 var appFiles =  [
         "app/js/app.js",
-        "app/js/services.js",
-        "app/js/controllers.js",
-        "app/js/filters.js",
-        "app/js/directives.js",
-        "app/js/restangular.js",
         "app/js/services/*.js",
-        "app/js/directives/*.js",
+        "app/js/controllers/*.js",
         "app/js/filters/*.js",
-        "app/js/controllers/*.js"
+        "app/js/directives/*.js",
+        "app/js/config/*.js"
     ];
 
 gulp.task("bower", [], function () {

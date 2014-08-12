@@ -32,6 +32,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
         } else {
             extractedData = data.data;
         }
+
         return extractedData;
     });
 }]);
