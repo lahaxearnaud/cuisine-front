@@ -6,6 +6,7 @@ var app = angular.module('cook', [
     'ngRoute',
     'restangular',
     'angular-loading-bar',
+    'ngCookies',
     'cook.filters',
     'cook.services',
     'cook.directives',
@@ -28,5 +29,6 @@ var app = angular.module('cook', [
     .value('authentification', {
         'token': '',
         'id': 0,
-        'username': ''
+        'username': '',
+        'logged': false
     });

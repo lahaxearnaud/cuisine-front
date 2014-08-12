@@ -7,3 +7,12 @@
 
     <button type="submit">Login</button>
 </form>
+
+<div ng-if="authentification.logged">
+LOGGED
+</div>
+<div ng-if="!authentification.logged">
+NOT LOGGED
+</div>
+
+{{ authentification | json }}

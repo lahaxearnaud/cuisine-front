@@ -6,6 +6,7 @@ var app = angular.module('cook', [
     'ngRoute',
     'restangular',
     'angular-loading-bar',
+    'ngCookies',
     'cook.filters',
     'cook.services',
     'cook.directives',
@@ -28,7 +29,8 @@ var app = angular.module('cook', [
     .value('authentification', {
         'token': '',
         'id': 0,
-        'username': ''
+        'username': '',
+        'logged': false
     });
 'use strict';
 
@@ -52,18 +54,22 @@ angular.module('cook.controllers', [])
 /**
  * Created by arnaud on 10/08/14.
  */
-app.controller('login', ['$scope', 'Restangular', function ($scope, Restangular) {
-    /** var articles = Restangular.all("articles").getList().then(function(articles) {
+app.controller('login', ['$scope', 'Restangular', '$cookieStore', 'authentification', function ($scope, Restangular, $cookieStore, authentification) {
+     var articles = Restangular.all("articles").getList().then(function(articles) {
         $scope.articles = articles;
-    }); **/
+    });
     $scope.submitForm = function() {
         if ($scope.loginForm.$valid) {
             Restangular.all('auth').post($scope.login).then(function(auth) {
                 app.value('authentification', auth);
                 Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
+                $cookieStore.put("authentification", auth);
+                scope.$apply();
             });
         }
     };
+
+    $scope.authentification = authentification;
 }]);
 'use strict';
 
@@ -86,7 +92,7 @@ angular.module('cook.directives', []).
     return function(scope, elm, attrs) {
       elm.text(version);
     };
-  }]);
+}]);
 
 /**
  * Created by arnaud on 10/08/14.
@@ -94,8 +100,8 @@ angular.module('cook.directives', []).
 app.config(['RestangularProvider', function (RestangularProvider) {
     RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
-    RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
 
+    RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
         return true; // error not handled
     });
 
@@ -125,4 +131,13 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
         return extractedData;
     });
+}]);
+
+app.run(['Restangular' , '$cookieStore', 'authentification', function (Restangular, $cookieStore, authentification) {
+    // Reload authentification from cookie
+    var authentification = $cookieStore.get("authentification");
+    if(authentification !== undefined) {
+        Restangular.setDefaultHeaders({"X-Auth-Token": authentification.token});
+        app.value('authentification', authentification);
+    }
 }]);
