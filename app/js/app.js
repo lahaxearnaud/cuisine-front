@@ -5,6 +5,7 @@
 var app = angular.module('cook', [
     'ngRoute',
     'restangular',
+    'angular-loading-bar',
     'cook.filters',
     'cook.services',
     'cook.directives',
