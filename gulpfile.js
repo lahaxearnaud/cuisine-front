@@ -32,6 +32,9 @@ var appFiles =  [
         "app/js/filters.js",
         "app/js/directives.js",
         "app/js/restangular.js",
+        "app/js/services/*.js",
+        "app/js/directives/*.js",
+        "app/js/filters/*.js",
         "app/js/controllers/*.js"
     ];
 
