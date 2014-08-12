@@ -5,26 +5,23 @@
 var app = angular.module('cook', [
     'ngRoute',
     'restangular',
+    'angular-loading-bar',
     'cook.filters',
     'cook.services',
     'cook.directives',
     'cook.controllers'
 ])
     .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/view1', {
-            templateUrl: 'partials/partial1.html',
-            controller: 'MyCtrl1'
-        });
-        $routeProvider.when('/view2', {
-            templateUrl: 'partials/partial2.html',
-            controller: 'MyCtrl2'
+        $routeProvider.when('/home', {
+            templateUrl: 'partials/home.html',
+            controller: 'main'
         });
         $routeProvider.when('/login', {
             templateUrl: 'partials/login.html',
             controller: 'login'
         });
         $routeProvider.otherwise({
-            redirectTo: '/view1'
+            redirectTo: '/home'
         });
     }])
 
@@ -48,16 +45,26 @@ angular.module('cook.services', []).
 /* Controllers */
 
 angular.module('cook.controllers', [])
-    .controller('MyCtrl1', ['$scope', function ($scope) {
+	.controller('main', ['$scope', function ($scope) {
 
-    }])
-    .controller('MyCtrl2', ['$scope', function ($scope) {
+}]);
 
-    }]);
-
-
-
-
+/**
+ * Created by arnaud on 10/08/14.
+ */
+app.controller('login', ['$scope', 'Restangular', function ($scope, Restangular) {
+    /** var articles = Restangular.all("articles").getList().then(function(articles) {
+        $scope.articles = articles;
+    }); **/
+    $scope.submitForm = function() {
+        if ($scope.loginForm.$valid) {
+            Restangular.all('auth').post($scope.login).then(function(auth) {
+                app.value('authentification', auth);
+                Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
+            });
+        }
+    };
+}]);
 'use strict';
 
 /* Filters */
@@ -115,23 +122,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
         } else {
             extractedData = data.data;
         }
+
         return extractedData;
     });
-}]);
-
-/**
- * Created by arnaud on 10/08/14.
- */
-app.controller('login', ['$scope', 'Restangular', function ($scope, Restangular) {
-    /** var articles = Restangular.all("articles").getList().then(function(articles) {
-        $scope.articles = articles;
-    }); **/
-    $scope.submitForm = function() {
-        if ($scope.loginForm.$valid) {
-            Restangular.all('auth').post($scope.login).then(function(auth) {
-                app.value('authentification', auth);
-                Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
-            });
-        }
-    };
 }]);

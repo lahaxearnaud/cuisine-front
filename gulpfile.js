@@ -14,11 +14,14 @@ var bowerJsToIntegrate = [
     'bower_components/angular-route/angular-route.js',
     'bower_components/lodash/dist/lodash.js',
     'bower_components/restangular/dist/restangular.js',
-    'bower_components/angular-cookies/angular-cookies.js'
+    'bower_components/angular-cookies/angular-cookies.js',
+    'bower_components/angular-loading-bar/build/loading-bar.js'
 ];
 
 var bowerCssToIntegrate = [
     './bower_components/bootstrap/dist/css/bootstrap.css',
+    'bower_components/angular-loading-bar/build/loading-bar.css'
+
 ];
 
 var buildPath = "./build/";

@@ -2,6 +2,7 @@
 
 /* Controllers */
 
-app.controller('main', ['$scope', function ($scope) {
+angular.module('cook.controllers', [])
+	.controller('main', ['$scope', function ($scope) {
 
 }]);
