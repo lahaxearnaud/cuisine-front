@@ -22,10 +22,38 @@
     "bootstrap": "~3.2.0",
     "angular": "~1.2.21",
     "angular-bootstrap": "~0.11.0",
+    "lodash": "~2.4.0",
     "restangular": "~1.4.0",
     "angular-route": "~1.2.21",
     "angular-loading-bar": "~0.5.0",
     "angular-cookies": "~1.2.22",
     "angular-gravatar": "~0.2.1"
-  }
+  },
+
+  "overrides": {
+        "angular": {
+          "main": "angular.js"
+        },
+        "angular-route": {
+          "main": "angular-route.js"
+        },
+        "lodash": {
+          "main": "dist/lodash.js"
+        },
+        "restangular": {
+          "main": "dist/restangular.js"
+        },
+        "angular-cookies": {
+          "main": "angular-cookies.js"
+        },
+        "angular-loading-bar": {
+          "main": "build/loading-bar.js"
+        },
+        "angular-gravatar": {
+          "main": [
+            "build/md5.js",
+            "build/angular-gravatar.js",
+          ]
+        },
+    }
 }

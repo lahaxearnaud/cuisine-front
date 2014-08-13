@@ -17,7 +17,8 @@
         "gulp-imagemin": "*",
         "gulp-rewrite-css": "*",
         "gulp-bower": "*",
-        "gulp-jsbeautifier": "*"
+        "gulp-jsbeautifier": "*",
+        "gulp-bower-files": "*"
     },
     "scripts": {
         "postinstall": "bower install",

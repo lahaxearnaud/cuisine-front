@@ -8,7 +8,8 @@ var gulp = require("gulp"),
     imagemin = require('gulp-imagemin'),
     rewriteCSS = require('gulp-rewrite-css')
     bower = require('gulp-bower'),
-    prettify = require('gulp-jsbeautifier');
+    prettify = require('gulp-jsbeautifier'),
+    gulpBowerFiles = require('gulp-bower-files');
 
 
 
@@ -17,7 +18,7 @@ var gulp = require("gulp"),
  *  Configs
  * =============================================
  */
-var bowerJsToIntegrate = [
+/**
     'bower_components/angular/angular.js',
     'bower_components/angular-route/angular-route.js',
     'bower_components/lodash/dist/lodash.js',
@@ -27,11 +28,11 @@ var bowerJsToIntegrate = [
     'bower_components/angular-gravatar/build/md5.js',
     'bower_components/angular-gravatar/build/angular-gravatar.js'
 ];
+**/
 
 var bowerCssToIntegrate = [
-    './bower_components/bootstrap/dist/css/bootstrap.css',
+    'bower_components/bootstrap/dist/css/bootstrap.css',
     'bower_components/angular-loading-bar/build/loading-bar.css'
-
 ];
 
 var buildPath = "./build/";
@@ -148,7 +149,10 @@ gulp.task('bower:install', function() {
 });
 
 gulp.task("bower:build", [], function () {
-    gulp.src(bowerJsToIntegrate)
+    gulpBowerFiles({
+        'debugging' : true,
+        'checkExistence' true
+    })
         .pipe(concat("libs.js"))
         .pipe(gulp.dest(buildPath));
 
