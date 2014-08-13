@@ -15,7 +15,9 @@ var bowerJsToIntegrate = [
     'bower_components/lodash/dist/lodash.js',
     'bower_components/restangular/dist/restangular.js',
     'bower_components/angular-cookies/angular-cookies.js',
-    'bower_components/angular-loading-bar/build/loading-bar.js'
+    'bower_components/angular-loading-bar/build/loading-bar.js',
+    'bower_components/angular-gravatar/build/md5.js',
+    'bower_components/angular-gravatar/build/angular-gravatar.js'
 ];
 
 var bowerCssToIntegrate = [
