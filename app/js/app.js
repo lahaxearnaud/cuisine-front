@@ -21,12 +21,12 @@ var app = angular.module('cook', [
             });
             $routeProvider.when('/login', {
                 templateUrl: 'partials/login.html',
-                controller: 'login',
+                controller: 'user.login',
                 publicAccess: true
             });
             $routeProvider.when('/logout', {
                 templateUrl: 'partials/home.html',
-                controller: 'logout'
+                controller: 'user.logout'
             });
             $routeProvider.otherwise({
                 redirectTo: '/app'

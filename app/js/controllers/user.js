@@ -1,7 +1,7 @@
 /**
  * Created by arnaud on 10/08/14.
  */
-app.controller('login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
 
     // if we are already logged we can go home
     if($rootScope.authentification.logged) {
@@ -28,7 +28,7 @@ app.controller('login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', 
     };
 }]);
 
-app.controller('logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
     // set header to the rest client
     Restangular.setDefaultHeaders({"X-Auth-Token": ''});
     // set auth in a cookie
