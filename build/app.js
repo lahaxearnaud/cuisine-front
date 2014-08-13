@@ -1,77 +1,79 @@
 'use strict';
 
-
 // Declare app level module which depends on filters, and services
 var app = angular.module('cook', [
     'ngRoute',
     'restangular',
     'angular-loading-bar',
     'ngCookies',
+    'ui.gravatar',
+    'angular-blocks',
     'cook.filters',
     'cook.services',
     'cook.directives',
     'cook.controllers'
 ])
-    .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/app', {
-            templateUrl: 'partials/home.html',
-            controller: 'main'
-        });
-        $routeProvider.when('/login', {
-            templateUrl: 'partials/login.html',
-            controller: 'login',
-            publicAccess : true
-        });
-        $routeProvider.otherwise({
-            redirectTo: '/app'
-        });
+    .config(['$routeProvider',
+        function($routeProvider) {
+            $routeProvider.when('/app', {
+                templateUrl: 'partials/home.html',
+                controller: 'main'
+            });
+            $routeProvider.when('/login', {
+                templateUrl: 'partials/login.html',
+                controller: 'login',
+                publicAccess: true
+            });
+            $routeProvider.when('/logout', {
+                templateUrl: 'partials/home.html',
+                controller: 'logout'
+            });
+            $routeProvider.otherwise({
+                redirectTo: '/app'
+            });
     }]);
 
-app.run(['Restangular' , '$cookieStore', '$rootScope', '$route', '$location', function (Restangular, $cookieStore, $rootScope, $route, $location) {
-    // Reload authentification from cookie
-    var authentification = $cookieStore.get("authentification");
-    if(authentification !== undefined) {
-        Restangular.setDefaultHeaders({"X-Auth-Token": authentification.token});
-        $rootScope.authentification = authentification;
-    }else{
-        $rootScope.authentification = {
-            'token': '',
-            'id': 0,
-            'username': '',
-            'logged': false
-        };
+app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
+    function(Restangular, $cookieStore, $rootScope, $route, $location) {
 
-        var routesOpenToPublic = [];
-        angular.forEach($route.routes, function(route, path) {
-            // push route onto routesOpenToPublic if it has a truthy publicAccess value
-            route.publicAccess && (routesOpenToPublic.push(path));
-        });
+        // Reload authentification from cookie
+        var authentification = $cookieStore.get("authentification");
+        if (authentification !== undefined) {
+            Restangular.setDefaultHeaders({
+                "X-Auth-Token": authentification.token
+            });
+            $rootScope.authentification = authentification;
+        } else {
+            $rootScope.authentification = {
+                'token': '',
+                'id': 0,
+                'username': '',
+                'logged': false
+            };
 
-        var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
+            var routesOpenToPublic = [];
+            angular.forEach($route.routes, function(route, path) {
+                // push route onto routesOpenToPublic if it has a truthy publicAccess value
+                route.publicAccess && (routesOpenToPublic.push(path));
+            });
 
-        if(closedToPublic) {
-            $location.path('/login');
-        }
-
-        $rootScope.$on('$routeChangeStart', function(event, nextLoc, currentLoc) {
             var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
 
-            if(closedToPublic) {
+            if (closedToPublic) {
                 $location.path('/login');
             }
-        });
-    }
 
-    $rootScope.$apply();
+            $rootScope.$on('$routeChangeStart', function(event, nextLoc, currentLoc) {
+                var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
+
+                if (closedToPublic) {
+                    $location.path('/login');
+                }
+            });
+        }
+
+        $rootScope.$apply();
 }]);
-
-
-
-
-
-
-
-
 
 'use strict';
 
@@ -95,32 +97,49 @@ angular.module('cook.controllers', [])
 /**
  * Created by arnaud on 10/08/14.
  */
-app.controller('login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', function ($scope, Restangular, $cookieStore, $rootScope) {
+app.controller('login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+
+    // if we are already logged we can go home
+    if($rootScope.authentification.logged) {
+        $location.path('/home');
+    }
 
     $scope.submitForm = function() {
         if ($scope.loginForm.$valid) {
             Restangular.all('auth').post($scope.login).then(function(auth) {
+                // set header to the rest client
                 Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
+                // set auth in a cookie
                 $cookieStore.put("authentification", auth);
+                // set auth in global scope
                 $rootScope.authentification = auth;
-                $scope.authentification = auth;
+                // this avoid digest error (@todo dig why this error happen...)
                 if(!$rootScope.$$phase) {
                     $rootScope.$apply();
                 }
+                // go home
+                $location.path('/app');
             });
         }
     };
+}]);
 
-    $scope.$watch('loginForm', function(theForm) {
-        if(theForm) {
-            $scope.formDebugText = 'Form in Scope';
-        }
-        else {
-            $scope.formDebugText = 'Form is Undefined';
-        }
-    });
+app.controller('logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+    // set header to the rest client
+    Restangular.setDefaultHeaders({"X-Auth-Token": ''});
+    // set auth in a cookie
+    $cookieStore.remove("authentification");
+    // set auth in global scope
+    $rootScope.authentification.logged = false;
+    $rootScope.authentification.token = '';
+    $rootScope.authentification.username = '';
+    $rootScope.authentification.id = 0;
 
-    $scope.authentification = $rootScope.authentification;
+    if(!$rootScope.$$phase) {
+        $rootScope.$apply();
+    }
+
+    $location.path('/login');
 }]);
 'use strict';
 

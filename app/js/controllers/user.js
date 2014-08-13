@@ -22,8 +22,26 @@ app.controller('login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', 
                     $rootScope.$apply();
                 }
                 // go home
-                $location.path('/home');
+                $location.path('/app');
             });
         }
     };
+}]);
+
+app.controller('logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+    // set header to the rest client
+    Restangular.setDefaultHeaders({"X-Auth-Token": ''});
+    // set auth in a cookie
+    $cookieStore.remove("authentification");
+    // set auth in global scope
+    $rootScope.authentification.logged = false;
+    $rootScope.authentification.token = '';
+    $rootScope.authentification.username = '';
+    $rootScope.authentification.id = 0;
+
+    if(!$rootScope.$$phase) {
+        $rootScope.$apply();
+    }
+
+    $location.path('/login');
 }]);

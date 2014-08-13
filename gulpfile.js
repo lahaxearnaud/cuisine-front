@@ -151,7 +151,7 @@ gulp.task('bower:install', function() {
 gulp.task("bower:build", [], function () {
     gulpBowerFiles({
         'debugging' : true,
-        'checkExistence' true
+        'checkExistence': true
     })
         .pipe(concat("libs.js"))
         .pipe(gulp.dest(buildPath));
@@ -184,9 +184,9 @@ gulp.task('webserver', ["bower:install", "bower:build", "assets:js", "assets:css
  * =============================================
  */
 gulp.task("watch", [], function () {
-    gulp.watch("app/js/**/*.js", ["format:js", "assets:js"], logWatch);
-    gulp.watch("app/css/**/*.css", ["format:css", "assets:css"], logWatch);
-    gulp.watch("app/**/*.html", ["format:html", "html"], logWatch);
+    gulp.watch("app/js/**/*.js", ["assets:js"], logWatch);
+    gulp.watch("app/css/**/*.css", ["assets:css"], logWatch);
+    gulp.watch("app/**/*.html", ["html"], logWatch);
     gulp.watch("app/img/**/*.(png|jpg)", ["assets:img"], logWatch);
     gulp.watch(["bower_components/**/*.js", "bower_components/**/*.css"], ["bower:build"], logWatch);
     gulp.watch(["bower.json"], ["bower:install"], logWatch);

@@ -27,10 +27,14 @@
     "angular-route": "~1.2.21",
     "angular-loading-bar": "~0.5.0",
     "angular-cookies": "~1.2.22",
-    "angular-gravatar": "~0.2.1"
+    "angular-gravatar": "~0.2.1",
+    "angular-blocks": "~0.1.9"
   },
 
   "overrides": {
+        "bootstrap": {
+          "ignore": true
+        },
         "angular": {
           "main": "angular.js"
         },
@@ -52,8 +56,11 @@
         "angular-gravatar": {
           "main": [
             "build/md5.js",
-            "build/angular-gravatar.js",
+            "build/angular-gravatar.js"
           ]
         },
+        "angular-blocks": {
+          "main": "dist/angular-blocks.js"
+        }
     }
 }
