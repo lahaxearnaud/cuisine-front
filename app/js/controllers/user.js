@@ -1,6 +1,8 @@
 /**
  * Created by arnaud on 10/08/14.
  */
+'use strict';
+
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
 
     // if we are already logged we can go home

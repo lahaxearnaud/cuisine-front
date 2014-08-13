@@ -14,7 +14,8 @@ var app = angular.module('cook', [
     'cook.controllers'
 ])
     .config(['$routeProvider',
-        function($routeProvider) {
+        function($routeProvider, $locationProvider) {
+
             $routeProvider.when('/app', {
                 templateUrl: 'partials/home.html',
                 controller: 'main'
@@ -28,6 +29,17 @@ var app = angular.module('cook', [
                 templateUrl: 'partials/home.html',
                 controller: 'user.logout'
             });
+
+            $routeProvider.when('/recipes/:id', {
+                templateUrl: 'partials/article/get.html',
+                controller: 'article.get'
+            });
+
+            $routeProvider.when('/recipes', {
+                templateUrl: 'partials/article/liste.html',
+                controller: 'article.list'
+            });
+
             $routeProvider.otherwise({
                 redirectTo: '/app'
             });
@@ -35,7 +47,6 @@ var app = angular.module('cook', [
 
 app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
     function(Restangular, $cookieStore, $rootScope, $route, $location) {
-
         // Reload authentification from cookie
         var authentification = $cookieStore.get("authentification");
         if (authentification !== undefined) {
@@ -87,6 +98,20 @@ angular.module('cook.services', []).
 
 'use strict';
 
+app.controller('article.list', ['$scope', 'Restangular', function ($scope, Restangular, $cookieStore) {
+	var articles = Restangular.all("articles").getList().then(function(articles) {
+        $scope.articles = articles;
+    });
+}]);
+
+app.controller('article.get', ['$scope', 'Restangular', '$routeParams', function ($scope, Restangular, $cookieStore, $routeParams) {
+	console.log($routeParams);
+	var articles = Restangular.all("articles").get($routeParams.id).then(function(article) {
+        $scope.article = article;
+    });
+}]);
+'use strict';
+
 /* Controllers */
 
 angular.module('cook.controllers', [])
@@ -97,6 +122,8 @@ angular.module('cook.controllers', [])
 /**
  * Created by arnaud on 10/08/14.
  */
+'use strict';
+
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
 
     // if we are already logged we can go home

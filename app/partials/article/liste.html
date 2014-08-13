@@ -1,0 +1,11 @@
+<ng-include src="'/app/partials/layout/menu.html'"></ng-include>
+
+<div class="container">
+	<ul class="list-group">
+		<li class="list-group-item" ng-repeat="article in articles">
+			<a href="#/recipes/{{article.id}}">{{article.title}}</a>
+		</li>
+	</ul>
+</div>
+
+<ng-include src="'/app/partials/layout/footer.html'"></ng-include>

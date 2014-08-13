@@ -14,7 +14,8 @@ var app = angular.module('cook', [
     'cook.controllers'
 ])
     .config(['$routeProvider',
-        function($routeProvider) {
+        function($routeProvider, $locationProvider) {
+
             $routeProvider.when('/app', {
                 templateUrl: 'partials/home.html',
                 controller: 'main'
@@ -28,6 +29,17 @@ var app = angular.module('cook', [
                 templateUrl: 'partials/home.html',
                 controller: 'user.logout'
             });
+
+            $routeProvider.when('/recipes/:id', {
+                templateUrl: 'partials/article/get.html',
+                controller: 'article.get'
+            });
+
+            $routeProvider.when('/recipes', {
+                templateUrl: 'partials/article/liste.html',
+                controller: 'article.list'
+            });
+
             $routeProvider.otherwise({
                 redirectTo: '/app'
             });
@@ -35,7 +47,6 @@ var app = angular.module('cook', [
 
 app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
     function(Restangular, $cookieStore, $rootScope, $route, $location) {
-
         // Reload authentification from cookie
         var authentification = $cookieStore.get("authentification");
         if (authentification !== undefined) {
