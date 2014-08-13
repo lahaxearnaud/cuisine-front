@@ -1,18 +1,19 @@
-<form name="loginForm" ng-submit="submitForm(loginForm.$valid)">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" ng-model="login.username" required ng-required="true">
-
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" ng-model="login.password" required ng-required="true">
-
-    <button type="submit">Login</button>
-</form>
-
 <div ng-if="authentification.logged">
-LOGGED
+	<span>Logged as {{ authentification.username }}</span>
 </div>
-<div ng-if="!authentification.logged">
-NOT LOGGED
+
+<div ng-show="!authentification.logged">
+	<form name="loginForm" ng-submit="submitForm(loginForm.$valid)" ng-init="setFormScope()">
+	    <label for="username">Username:</label>
+	    <input type="text" id="username" name="username" ng-model="login.username" required ng-required="true">
+
+	    <label for="password">Password:</label>
+	    <input type="password" id="password" name="password" ng-model="login.password" required ng-required="true">
+
+	    <button type="submit">Login</button>
+	</form>
 </div>
 
 {{ authentification | json }}
+
+{{ formDebugText }}

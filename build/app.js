@@ -13,25 +13,66 @@ var app = angular.module('cook', [
     'cook.controllers'
 ])
     .config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.when('/home', {
+        $routeProvider.when('/app', {
             templateUrl: 'partials/home.html',
             controller: 'main'
         });
         $routeProvider.when('/login', {
             templateUrl: 'partials/login.html',
-            controller: 'login'
+            controller: 'login',
+            publicAccess : true
         });
         $routeProvider.otherwise({
-            redirectTo: '/home'
+            redirectTo: '/app'
         });
-    }])
+    }]);
 
-    .value('authentification', {
-        'token': '',
-        'id': 0,
-        'username': '',
-        'logged': false
-    });
+app.run(['Restangular' , '$cookieStore', '$rootScope', '$route', '$location', function (Restangular, $cookieStore, $rootScope, $route, $location) {
+    // Reload authentification from cookie
+    var authentification = $cookieStore.get("authentification");
+    if(authentification !== undefined) {
+        Restangular.setDefaultHeaders({"X-Auth-Token": authentification.token});
+        $rootScope.authentification = authentification;
+    }else{
+        $rootScope.authentification = {
+            'token': '',
+            'id': 0,
+            'username': '',
+            'logged': false
+        };
+
+        var routesOpenToPublic = [];
+        angular.forEach($route.routes, function(route, path) {
+            // push route onto routesOpenToPublic if it has a truthy publicAccess value
+            route.publicAccess && (routesOpenToPublic.push(path));
+        });
+
+        var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
+
+        if(closedToPublic) {
+            $location.path('/login');
+        }
+
+        $rootScope.$on('$routeChangeStart', function(event, nextLoc, currentLoc) {
+            var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
+
+            if(closedToPublic) {
+                $location.path('/login');
+            }
+        });
+    }
+
+    $rootScope.$apply();
+}]);
+
+
+
+
+
+
+
+
+
 'use strict';
 
 /* Services */
@@ -54,21 +95,32 @@ angular.module('cook.controllers', [])
 /**
  * Created by arnaud on 10/08/14.
  */
-app.controller('login', ['$scope', 'Restangular', '$cookieStore', 'authentification', function ($scope, Restangular, $cookieStore, authentification) {
+app.controller('login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', function ($scope, Restangular, $cookieStore, $rootScope) {
 
     $scope.submitForm = function() {
         if ($scope.loginForm.$valid) {
             Restangular.all('auth').post($scope.login).then(function(auth) {
-                app.value('authentification', auth);
                 Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
                 $cookieStore.put("authentification", auth);
+                $rootScope.authentification = auth;
                 $scope.authentification = auth;
-                $scope.$apply();
+                if(!$rootScope.$$phase) {
+                    $rootScope.$apply();
+                }
             });
         }
     };
 
-    $scope.authentification = authentification;
+    $scope.$watch('loginForm', function(theForm) {
+        if(theForm) {
+            $scope.formDebugText = 'Form in Scope';
+        }
+        else {
+            $scope.formDebugText = 'Form is Undefined';
+        }
+    });
+
+    $scope.authentification = $rootScope.authentification;
 }]);
 'use strict';
 
@@ -130,13 +182,4 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
         return extractedData;
     });
-}]);
-
-app.run(['Restangular' , '$cookieStore', 'authentification', function (Restangular, $cookieStore, authentification) {
-    // Reload authentification from cookie
-    var authentification = $cookieStore.get("authentification");
-    if(authentification !== undefined) {
-        Restangular.setDefaultHeaders({"X-Auth-Token": authentification.token});
-        app.value('authentification', authentification);
-    }
 }]);

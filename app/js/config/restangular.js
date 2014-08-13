@@ -36,12 +36,3 @@ app.config(['RestangularProvider', function (RestangularProvider) {
         return extractedData;
     });
 }]);
-
-app.run(['Restangular' , '$cookieStore', 'authentification', function (Restangular, $cookieStore, authentification) {
-    // Reload authentification from cookie
-    var authentification = $cookieStore.get("authentification");
-    if(authentification !== undefined) {
-        Restangular.setDefaultHeaders({"X-Auth-Token": authentification.token});
-        app.value('authentification', authentification);
-    }
-}]);
