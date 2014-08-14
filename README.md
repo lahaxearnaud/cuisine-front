@@ -15,3 +15,7 @@ bower install
 ```
 	gulp
 ```
+
+=== Dependencies
+
+https://github.com/picardy/angular-fontawesome

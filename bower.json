@@ -28,7 +28,7 @@
     "angular-loading-bar": "~0.5.0",
     "angular-cookies": "~1.2.22",
     "angular-gravatar": "~0.2.1",
-    "angular-blocks": "~0.1.9",
+    "angular-fontawesome": "~0.1.0",
     "angular-logex" : "~0.0.7"
   },
 
@@ -66,11 +66,11 @@
             "build/angular-gravatar.js"
           ]
         },
-        "angular-blocks": {
-          "main": "dist/angular-blocks.js"
-        },
         "angular-logex": {
           "main": "dist/log-ex-unobtrusive.js"
+        },
+        "angular-fontawesome": {
+          "main": "dist/angular-fontawesome.js"
         }
     }
 }
