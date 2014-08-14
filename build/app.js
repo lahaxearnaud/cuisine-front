@@ -15,97 +15,47 @@ var app = angular.module('cook', [
     'cook.services',
     'cook.directives',
     'cook.controllers'
-])
-    .config(['$routeProvider',
-        function($routeProvider, $locationProvider) {
+]);
 
-            $routeProvider.when('/app', {
-                templateUrl: 'partials/home.html',
-                controller: 'main'
-            });
-            $routeProvider.when('/login', {
-                templateUrl: 'partials/login.html',
-                controller: 'user.login',
-                publicAccess: true
-            });
-            $routeProvider.when('/logout', {
-                templateUrl: 'partials/home.html',
-                controller: 'user.logout'
-            });
+app.config(['$routeProvider',
+    function($routeProvider, $locationProvider) {
+        $routeProvider.when('/app', {
+            templateUrl: 'partials/home.html',
+            controller: 'main'
+        });
 
-            $routeProvider.when('/recipes/:id', {
-                templateUrl: 'partials/article/get.html',
-                controller: 'article.get'
-            });
-
-            $routeProvider.when('/recipes', {
-                templateUrl: 'partials/article/liste.html',
-                controller: 'article.list'
-            });
-
-            $routeProvider.otherwise({
-                redirectTo: '/app'
-            });
-    }]);
-
-app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
-    function(Restangular, $cookieStore, $rootScope, $route, $location, $log) {
-        $log = $log.getInstance('app.run');
-
-        // Reload authentification from cookie
-        var authentification = $cookieStore.get("authentification");
-        if (authentification !== undefined) {
-            Restangular.setDefaultHeaders({
-                "X-Auth-Token": authentification.token
-            });
-            $rootScope.authentification = authentification;
-            $log.debug('Connected as ' + authentification.username);
-        } else {
-            $log.debug('Guest user');
-            $rootScope.authentification = {
-                'token': '',
-                'id': 0,
-                'username': '',
-                'logged': false
-            };
-
-            var routesOpenToPublic = [];
-            angular.forEach($route.routes, function(route, path) {
-                // push route onto routesOpenToPublic if it has a truthy publicAccess value
-                route.publicAccess && (routesOpenToPublic.push(path));
-            });
-
-            var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
-
-            if (closedToPublic) {
-                $log.debug('Try to access ' + $location.path() + ' when no connected')
-                $location.path('/login');
-            }
-
-            $rootScope.$on('$routeChangeStart', function(event, nextLoc, currentLoc) {
-                var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
-
-                if (closedToPublic) {
-                    $log.debug('Try to access ' + $location.path() + ' when no connected')
-                    $location.path('/login');
-                }
-            });
-        }
-
-        $rootScope.$apply();
+        $routeProvider.otherwise({
+            redirectTo: '/app'
+        });
 }]);
 
-'use strict';
 
-/* Services */
+app.config(['$routeProvider',
+    function($routeProvider) {
+        $routeProvider.when('/recipes/:id', {
+            templateUrl: 'partials/article/get.html',
+            controller: 'article.get'
+        });
 
-
-// Demonstrate how to register services
-// In this case it is a simple value service.
+        $routeProvider.when('/recipes', {
+            templateUrl: 'partials/article/liste.html',
+            controller: 'article.list'
+        });
+}]);
+app.config(['$routeProvider',
+    function($routeProvider) {
+        $routeProvider.when('/login', {
+            templateUrl: 'partials/login.html',
+            controller: 'user.login',
+            publicAccess: true
+        });
+        $routeProvider.when('/logout', {
+            templateUrl: 'partials/home.html',
+            controller: 'user.logout'
+        });
+}]);
 angular.module('cook.services', []).
   value('version', '0.1');
-
-'use strict';
 
 app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $cookieStore, $routeParams, $log) {
 	$log = $log.getInstance('article.list');
@@ -114,6 +64,7 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 	if($routeParams.page) {
 		page = $routeParams.page;
 	}
+
 	$log.debug('Page ' + page );
 
 	Restangular.all("articles").getList('', {'page': page}).then(function(articles) {
@@ -123,8 +74,8 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 		    $scope.itemsPerPage = articles.meta.perPage;
     });
 
-    $scope.setPage = function (pageNo) {
-        $scope.currentPage = pageNo;
+    $scope.setPage = function (pageNumber) {
+        $scope.currentPage = pageNumber;
     };
 
     $scope.pageChanged = function() {
@@ -136,27 +87,18 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 
 }]);
 
-app.controller('article.get', ['$scope', 'Restangular', '$routeParams', function ($scope, Restangular, $cookieStore, $routeParams) {
-	console.log($routeParams);
-	console.log('ID ' + $routeParams.id );
+app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $cookieStore, $routeParams, $log) {
+	$log.log($routeParams);
+	$log.debug('Get article #' + $routeParams.id );
 
 	var articles = Restangular.all("articles").get($routeParams.id).then(function(article) {
         $scope.article = article;
     });
 }]);
-'use strict';
-
-/* Controllers */
-
 angular.module('cook.controllers', [])
 	.controller('main', ['$scope', function ($scope) {
 
 }]);
-
-/**
- * Created by arnaud on 10/08/14.
- */
-'use strict';
 
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
 
@@ -214,8 +156,6 @@ app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootSc
 
     $location.path('/login');
 }]);
-'use strict';
-
 /* Filters */
 
 angular.module('cook.filters', []).
@@ -225,11 +165,6 @@ angular.module('cook.filters', []).
     };
   }]);
 
-'use strict';
-
-/* Directives */
-
-
 angular.module('cook.directives', []).
   directive('appVersion', ['version', function(version) {
     return function(scope, elm, attrs) {
@@ -237,8 +172,59 @@ angular.module('cook.directives', []).
     };
 }]);
 
-'use strict';
+app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
+    function(Restangular, $cookieStore, $rootScope, $route, $location, $log) {
+        $log = $log.getInstance('authentification');
 
+        // Reload authentification from cookie
+        var authentification = $cookieStore.get("authentification");
+        if (authentification !== undefined) {
+            Restangular.setDefaultHeaders({
+                "X-Auth-Token": authentification.token
+            });
+            $rootScope.authentification = authentification;
+            $log.debug('Connected as ' + authentification.username);
+        }else{
+            $log.debug('Guest user');
+            $rootScope.authentification = {
+                'token': '',
+                'id': 0,
+                'username': '',
+                'logged': false
+            };
+        }
+
+        $rootScope.$apply();
+}]);
+
+app.run(['$rootScope', '$route', '$location', '$log',
+    function($rootScope, $route, $location, $log) {
+        $log = $log.getInstance('firewall');
+
+        var routesOpenToPublic = [];
+        angular.forEach($route.routes, function(route, path) {
+            route.publicAccess && (routesOpenToPublic.push(path));
+        });
+
+        isAllowOrRedirect($log, $location, routesOpenToPublic, $location.path(), $rootScope.authentification.logged)
+
+        $rootScope.$on('$routeChangeStart', function(event, nextLoc, currentLoc) {
+            isAllowOrRedirect($log, $location, routesOpenToPublic, $location.path(), $rootScope.authentification.logged)
+        });
+
+
+        $rootScope.$apply();
+}]);
+
+
+function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
+    var closedToPublic = (-1 === publicRoutes.indexOf(current));
+
+    if (closedToPublic && !isLogged) {
+        $log.debug('Try to access ' + current + ' when no connected')
+        $location.path('/login');
+    }
+}
 app.config(['logExProvider', function(logExProvider) {
     logExProvider.enableLogging(true);
 }]);

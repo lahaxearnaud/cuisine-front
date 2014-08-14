@@ -1,8 +1,3 @@
-'use strict';
-
-/* Directives */
-
-
 angular.module('cook.directives', []).
   directive('appVersion', ['version', function(version) {
     return function(scope, elm, attrs) {

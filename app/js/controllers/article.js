@@ -1,5 +1,3 @@
-'use strict';
-
 app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $cookieStore, $routeParams, $log) {
 	$log = $log.getInstance('article.list');
 
@@ -7,6 +5,7 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 	if($routeParams.page) {
 		page = $routeParams.page;
 	}
+
 	$log.debug('Page ' + page );
 
 	Restangular.all("articles").getList('', {'page': page}).then(function(articles) {
@@ -16,8 +15,8 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 		    $scope.itemsPerPage = articles.meta.perPage;
     });
 
-    $scope.setPage = function (pageNo) {
-        $scope.currentPage = pageNo;
+    $scope.setPage = function (pageNumber) {
+        $scope.currentPage = pageNumber;
     };
 
     $scope.pageChanged = function() {
@@ -29,9 +28,9 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 
 }]);
 
-app.controller('article.get', ['$scope', 'Restangular', '$routeParams', function ($scope, Restangular, $cookieStore, $routeParams) {
-	console.log($routeParams);
-	console.log('ID ' + $routeParams.id );
+app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $cookieStore, $routeParams, $log) {
+	$log.log($routeParams);
+	$log.debug('Get article #' + $routeParams.id );
 
 	var articles = Restangular.all("articles").get($routeParams.id).then(function(article) {
         $scope.article = article;

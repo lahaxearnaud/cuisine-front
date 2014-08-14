@@ -1,8 +1,3 @@
-/**
- * Created by arnaud on 10/08/14.
- */
-'use strict';
-
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
 
 

@@ -1,5 +1,3 @@
-'use strict';
-
 app.config(['logExProvider', function(logExProvider) {
     logExProvider.enableLogging(true);
 }]);
