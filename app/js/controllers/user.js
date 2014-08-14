@@ -32,12 +32,14 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
                 }
                 // go home
                 $location.path('/app');
+            }, function (auth) {
+                $log.warn('Connection failed for user ' + $scope.login.username);
             });
         }
     };
 }]);
 
-app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
     Restangular.all('auth').logout();
     // set header to the rest client
     Restangular.setDefaultHeaders({"X-Auth-Token": ''});
