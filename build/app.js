@@ -7,6 +7,9 @@ var app = angular.module('cook', [
     'angular-loading-bar',
     'ngCookies',
     'ui.gravatar',
+    'ui.bootstrap',
+    'ui.bootstrap.tpls',
+    'log.ex.uo',
     'angular-blocks',
     'cook.filters',
     'cook.services',
@@ -45,8 +48,10 @@ var app = angular.module('cook', [
             });
     }]);
 
-app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
-    function(Restangular, $cookieStore, $rootScope, $route, $location) {
+app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
+    function(Restangular, $cookieStore, $rootScope, $route, $location, $log) {
+        $log = $log.getInstance('app.run');
+
         // Reload authentification from cookie
         var authentification = $cookieStore.get("authentification");
         if (authentification !== undefined) {
@@ -54,7 +59,9 @@ app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
                 "X-Auth-Token": authentification.token
             });
             $rootScope.authentification = authentification;
+            $log.debug('Connected as ' + authentification.username);
         } else {
+            $log.debug('Guest user');
             $rootScope.authentification = {
                 'token': '',
                 'id': 0,
@@ -71,6 +78,7 @@ app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
             var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
 
             if (closedToPublic) {
+                $log.debug('Try to access ' + $location.path() + ' when no connected')
                 $location.path('/login');
             }
 
@@ -78,6 +86,7 @@ app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
                 var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
 
                 if (closedToPublic) {
+                    $log.debug('Try to access ' + $location.path() + ' when no connected')
                     $location.path('/login');
                 }
             });
@@ -98,14 +107,39 @@ angular.module('cook.services', []).
 
 'use strict';
 
-app.controller('article.list', ['$scope', 'Restangular', function ($scope, Restangular, $cookieStore) {
-	var articles = Restangular.all("articles").getList().then(function(articles) {
+app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $cookieStore, $routeParams, $log) {
+	$log = $log.getInstance('article.list');
+
+	var page = 1;
+	if($routeParams.page) {
+		page = $routeParams.page;
+	}
+	$log.debug('Page ' + page );
+
+	Restangular.all("articles").getList('', {'page': page}).then(function(articles) {
         $scope.articles = articles;
+            $scope.totalItems = articles.meta.total;
+		    $scope.currentPage = page;
+		    $scope.itemsPerPage = articles.meta.perPage;
     });
+
+    $scope.setPage = function (pageNo) {
+        $scope.currentPage = pageNo;
+    };
+
+    $scope.pageChanged = function() {
+        $log.debug('Page changed to: ' + $scope.currentPage);
+        Restangular.all("articles").getList('', {'page': $scope.currentPage}).then(function(articles) {
+			$scope.articles = articles;
+		});
+    };
+
 }]);
 
 app.controller('article.get', ['$scope', 'Restangular', '$routeParams', function ($scope, Restangular, $cookieStore, $routeParams) {
 	console.log($routeParams);
+	console.log('ID ' + $routeParams.id );
+
 	var articles = Restangular.all("articles").get($routeParams.id).then(function(article) {
         $scope.article = article;
     });
@@ -124,7 +158,10 @@ angular.module('cook.controllers', [])
  */
 'use strict';
 
-app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
+
+
+    $log = $log.getInstance('user.login');
 
     // if we are already logged we can go home
     if($rootScope.authentification.logged) {
@@ -132,26 +169,33 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
     }
 
     $scope.submitForm = function() {
+        $log.debug('Auth form submitted');
         if ($scope.loginForm.$valid) {
-            Restangular.all('auth').post($scope.login).then(function(auth) {
+            Restangular.all('auth').login($scope.login).then(function(auth) {
                 // set header to the rest client
                 Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
                 // set auth in a cookie
                 $cookieStore.put("authentification", auth);
                 // set auth in global scope
                 $rootScope.authentification = auth;
+
+                $log.info('Connection succeeded with user '+ auth.username);
+
                 // this avoid digest error (@todo dig why this error happen...)
                 if(!$rootScope.$$phase) {
                     $rootScope.$apply();
                 }
                 // go home
                 $location.path('/app');
+            }, function (auth) {
+                $log.warn('Connection failed for user ' + $scope.login.username);
             });
         }
     };
 }]);
 
-app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
+    Restangular.all('auth').logout();
     // set header to the rest client
     Restangular.setDefaultHeaders({"X-Auth-Token": ''});
     // set auth in a cookie
@@ -161,6 +205,8 @@ app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootSc
     $rootScope.authentification.token = '';
     $rootScope.authentification.username = '';
     $rootScope.authentification.id = 0;
+
+    $log.info('Logout succeeded');
 
     if(!$rootScope.$$phase) {
         $rootScope.$apply();
@@ -191,6 +237,23 @@ angular.module('cook.directives', []).
     };
 }]);
 
+'use strict';
+
+app.config(['logExProvider', function(logExProvider) {
+    logExProvider.enableLogging(true);
+}]);
+
+app.config(['logExProvider', function(logExProvider) {
+    logExProvider.overrideLogPrefix(function (className) {
+        var $injector = angular.injector([ 'ng' ]);
+        var $filter = $injector.get('$filter');
+        var separator = " >> ";
+        var format = "hh:mm:ss";
+        var now = $filter('date')(new Date(), format);
+
+        return "" + now + (!angular.isString(className) ? "" : "::" + className) + separator;
+    });
+}]);
 /**
  * Created by arnaud on 10/08/14.
  */
@@ -228,4 +291,24 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
         return extractedData;
     });
+
+    /**
+     * ===============================================
+     * User specific WS
+     * ===============================================
+     */
+
+    RestangularProvider.addElementTransformer('auth', false, function(auth) {
+            auth.addRestangularMethod('logout', 'delete', '');
+
+            return auth;
+    });
+
+    RestangularProvider.addElementTransformer('auth', true, function(auth) {
+            auth.addRestangularMethod('login', 'post', '');
+
+            return auth;
+    });
+
 }]);
+

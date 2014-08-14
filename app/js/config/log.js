@@ -9,7 +9,7 @@ app.config(['logExProvider', function(logExProvider) {
         var $injector = angular.injector([ 'ng' ]);
         var $filter = $injector.get('$filter');
         var separator = " >> ";
-        var format = "h:mm:ssa";
+        var format = "hh:mm:ss";
         var now = $filter('date')(new Date(), format);
 
         return "" + now + (!angular.isString(className) ? "" : "::" + className) + separator;

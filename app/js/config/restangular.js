@@ -35,22 +35,24 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
         return extractedData;
     });
+
+    /**
+     * ===============================================
+     * User specific WS
+     * ===============================================
+     */
+
+    RestangularProvider.addElementTransformer('auth', false, function(auth) {
+            auth.addRestangularMethod('logout', 'delete', '');
+
+            return auth;
+    });
+
+    RestangularProvider.addElementTransformer('auth', true, function(auth) {
+            auth.addRestangularMethod('login', 'post', '');
+
+            return auth;
+    });
+
 }]);
 
-/**
- * ===============================================
- * User specific WS
- * ===============================================
- */
-
-RestangularProvider.addElementTransformer('auth', false, function(auth) {
-        auth.addRestangularMethod('logout', 'delete', '');
-
-        return auth;
-});
-
-RestangularProvider.addElementTransformer('auth', true, function(auth) {
-        auth.addRestangularMethod('login', 'post', '');
-
-        return auth;
-});

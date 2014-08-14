@@ -7,6 +7,8 @@ var app = angular.module('cook', [
     'angular-loading-bar',
     'ngCookies',
     'ui.gravatar',
+    'ui.bootstrap',
+    'ui.bootstrap.tpls',
     'log.ex.uo',
     'angular-blocks',
     'cook.filters',

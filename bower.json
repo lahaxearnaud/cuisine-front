@@ -36,6 +36,12 @@
         "bootstrap": {
           "ignore": true
         },
+        "angular-bootstrap": {
+          "main": [
+            "ui-bootstrap-tpls.js",
+            "ui-bootstrap.js"
+          ]
+        },
         "angular": {
           "main": "angular.js"
         },
