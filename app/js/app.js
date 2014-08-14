@@ -7,6 +7,7 @@ var app = angular.module('cook', [
     'angular-loading-bar',
     'ngCookies',
     'ui.gravatar',
+    'log.ex.uo',
     'angular-blocks',
     'cook.filters',
     'cook.services',
@@ -45,8 +46,10 @@ var app = angular.module('cook', [
             });
     }]);
 
-app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
-    function(Restangular, $cookieStore, $rootScope, $route, $location) {
+app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
+    function(Restangular, $cookieStore, $rootScope, $route, $location, $log) {
+        $log = $log.getInstance('app.run');
+
         // Reload authentification from cookie
         var authentification = $cookieStore.get("authentification");
         if (authentification !== undefined) {
@@ -54,7 +57,9 @@ app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
                 "X-Auth-Token": authentification.token
             });
             $rootScope.authentification = authentification;
+            $log.debug('Connected as ' + authentification.username);
         } else {
+            $log.debug('Guest user');
             $rootScope.authentification = {
                 'token': '',
                 'id': 0,
@@ -71,6 +76,7 @@ app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
             var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
 
             if (closedToPublic) {
+                $log.debug('Try to access ' + $location.path() + ' when no connected')
                 $location.path('/login');
             }
 
@@ -78,6 +84,7 @@ app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location',
                 var closedToPublic = (-1 === routesOpenToPublic.indexOf($location.path()));
 
                 if (closedToPublic) {
+                    $log.debug('Try to access ' + $location.path() + ' when no connected')
                     $location.path('/login');
                 }
             });

@@ -3,7 +3,10 @@
  */
 'use strict';
 
-app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
+
+
+    $log = $log.getInstance('user.login');
 
     // if we are already logged we can go home
     if($rootScope.authentification.logged) {
@@ -11,14 +14,18 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
     }
 
     $scope.submitForm = function() {
+        $log.debug('Auth form submitted');
         if ($scope.loginForm.$valid) {
-            Restangular.all('auth').post($scope.login).then(function(auth) {
+            Restangular.all('auth').login($scope.login).then(function(auth) {
                 // set header to the rest client
                 Restangular.setDefaultHeaders({"X-Auth-Token": auth.token});
                 // set auth in a cookie
                 $cookieStore.put("authentification", auth);
                 // set auth in global scope
                 $rootScope.authentification = auth;
+
+                $log.info('Connection succeeded with user '+ auth.username);
+
                 // this avoid digest error (@todo dig why this error happen...)
                 if(!$rootScope.$$phase) {
                     $rootScope.$apply();
@@ -31,6 +38,7 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
 }]);
 
 app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', function ($scope, Restangular, $cookieStore, $rootScope, $location) {
+    Restangular.all('auth').logout();
     // set header to the rest client
     Restangular.setDefaultHeaders({"X-Auth-Token": ''});
     // set auth in a cookie
@@ -40,6 +48,8 @@ app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootSc
     $rootScope.authentification.token = '';
     $rootScope.authentification.username = '';
     $rootScope.authentification.id = 0;
+
+    $log.info('Logout succeeded');
 
     if(!$rootScope.$$phase) {
         $rootScope.$apply();
