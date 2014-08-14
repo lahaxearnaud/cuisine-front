@@ -1,6 +1,5 @@
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
 
-
     $log = $log.getInstance('user.login');
 
     // if we are already logged we can go home

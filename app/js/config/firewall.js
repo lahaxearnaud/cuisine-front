@@ -22,7 +22,7 @@ function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
     var closedToPublic = (-1 === publicRoutes.indexOf(current));
 
     if (closedToPublic && !isLogged) {
-        $log.debug('Try to access ' + current + ' when no connected')
+        $log.debug('Try to access ' + current + ' when no connected');
         $location.path('/login');
     }
 }

@@ -11,7 +11,6 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
         var extractedData;
-
         if (operation === 'post' && what === 'auth') {
             extractedData = {
                 'token': data.token,
@@ -30,7 +29,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
                 'to': data.to
             };
         } else {
-            extractedData = data.data;
+            extractedData = data;
         }
 
         return extractedData;

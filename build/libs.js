@@ -37930,7 +37930,7 @@ module.provider('Restangular', function() {
 })();
 
 /**
- * @license AngularJS v1.2.22
+ * @license AngularJS v1.2.21
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */

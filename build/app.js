@@ -54,10 +54,136 @@ app.config(['$routeProvider',
             controller: 'user.logout'
         });
 }]);
+app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
+    function(Restangular, $cookieStore, $rootScope, $route, $location, $log) {
+        $log = $log.getInstance('authentification');
+
+        // Reload authentification from cookie
+        var authentification = $cookieStore.get("authentification");
+        if (authentification !== undefined) {
+            Restangular.setDefaultHeaders({
+                "X-Auth-Token": authentification.token
+            });
+            $rootScope.authentification = authentification;
+            $log.debug('Connected as ' + authentification.username);
+        }else{
+            $log.debug('Guest user');
+            $rootScope.authentification = {
+                'token': '',
+                'id': 0,
+                'username': '',
+                'logged': false
+            };
+        }
+
+        $rootScope.$apply();
+}]);
+
+app.run(['$rootScope', '$route', '$location', '$log',
+    function($rootScope, $route, $location, $log) {
+        $log = $log.getInstance('firewall');
+
+        var routesOpenToPublic = [];
+        angular.forEach($route.routes, function(route, path) {
+            route.publicAccess && (routesOpenToPublic.push(path));
+        });
+
+        isAllowOrRedirect($log, $location, routesOpenToPublic, $location.path(), $rootScope.authentification.logged)
+
+        $rootScope.$on('$routeChangeStart', function(event, nextLoc, currentLoc) {
+            isAllowOrRedirect($log, $location, routesOpenToPublic, $location.path(), $rootScope.authentification.logged)
+        });
+
+
+        $rootScope.$apply();
+}]);
+
+
+function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
+    var closedToPublic = (-1 === publicRoutes.indexOf(current));
+
+    if (closedToPublic && !isLogged) {
+        $log.debug('Try to access ' + current + ' when no connected');
+        $location.path('/login');
+    }
+}
+app.config(['logExProvider', function(logExProvider) {
+    logExProvider.enableLogging(true);
+}]);
+
+app.config(['logExProvider', function(logExProvider) {
+    logExProvider.overrideLogPrefix(function (className) {
+        var $injector = angular.injector([ 'ng' ]);
+        var $filter = $injector.get('$filter');
+        var separator = " >> ";
+        var format = "hh:mm:ss";
+        var now = $filter('date')(new Date(), format);
+
+        return "" + now + (!angular.isString(className) ? "" : " :: " + className) + separator;
+    });
+}]);
+/**
+ * Created by arnaud on 10/08/14.
+ */
+app.config(['RestangularProvider', function (RestangularProvider) {
+    RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
+    RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
+
+    RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
+        return true; // error not handled
+    });
+
+        RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
+        var extractedData;
+        if (operation === 'post' && what === 'auth') {
+            extractedData = {
+                'token': data.token,
+                'username': data.user.username,
+                'id': data.user.id,
+                'email': data.user.email,
+                'logged': true
+            };
+        } else if (operation === "getList") {
+            extractedData = data.data;
+            extractedData.meta = {
+                'perPage': data.per_page,
+                'total': data.total,
+                'currentPage': data.current_page,
+                'from': data.from,
+                'to': data.to
+            };
+        } else {
+            extractedData = data;
+        }
+
+        return extractedData;
+    });
+
+    /**
+     * ===============================================
+     * User specific WS
+     * ===============================================
+     */
+
+    RestangularProvider.addElementTransformer('auth', false, function(auth) {
+            auth.addRestangularMethod('logout', 'delete', '');
+
+            return auth;
+    });
+
+    RestangularProvider.addElementTransformer('auth', true, function(auth) {
+            auth.addRestangularMethod('login', 'post', '');
+
+            return auth;
+    });
+
+}]);
+
+
 angular.module('cook.services', []).
   value('version', '0.1');
 
-app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $cookieStore, $routeParams, $log) {
+app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $routeParams, $log) {
 	$log = $log.getInstance('article.list');
 
 	var page = 1;
@@ -67,7 +193,7 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 
 	$log.debug('Page ' + page );
 
-	Restangular.all("articles").getList('', {'page': page}).then(function(articles) {
+	Restangular.all("articles").getList({'page': page}).then(function(articles) {
         $scope.articles = articles;
             $scope.totalItems = articles.meta.total;
 		    $scope.currentPage = page;
@@ -80,28 +206,29 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 
     $scope.pageChanged = function() {
         $log.debug('Page changed to: ' + $scope.currentPage);
-        Restangular.all("articles").getList('', {'page': $scope.currentPage}).then(function(articles) {
+        Restangular.all("articles").getList({'page': $scope.currentPage}).then(function(articles) {
 			$scope.articles = articles;
 		});
     };
 
 }]);
 
-app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $cookieStore, $routeParams, $log) {
-	$log.log($routeParams);
+app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $routeParams, $log) {
+	$log = $log.getInstance('article.get');
+
 	$log.debug('Get article #' + $routeParams.id );
 
-	var articles = Restangular.all("articles").get($routeParams.id).then(function(article) {
-        $scope.article = article;
-    });
+	Restangular.one("articles", $routeParams.id).get().then(function(article) {
+		$log.debug(article);
+		$scope.article = article;
+	});
 }]);
 angular.module('cook.controllers', [])
-	.controller('main', ['$scope', function ($scope) {
-
+	.controller('main', ['$scope', '$log', function ($scope, $log) {
+		$log.log('Bite');
 }]);
 
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
-
 
     $log = $log.getInstance('user.login');
 
@@ -171,130 +298,3 @@ angular.module('cook.directives', []).
       elm.text(version);
     };
 }]);
-
-app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
-    function(Restangular, $cookieStore, $rootScope, $route, $location, $log) {
-        $log = $log.getInstance('authentification');
-
-        // Reload authentification from cookie
-        var authentification = $cookieStore.get("authentification");
-        if (authentification !== undefined) {
-            Restangular.setDefaultHeaders({
-                "X-Auth-Token": authentification.token
-            });
-            $rootScope.authentification = authentification;
-            $log.debug('Connected as ' + authentification.username);
-        }else{
-            $log.debug('Guest user');
-            $rootScope.authentification = {
-                'token': '',
-                'id': 0,
-                'username': '',
-                'logged': false
-            };
-        }
-
-        $rootScope.$apply();
-}]);
-
-app.run(['$rootScope', '$route', '$location', '$log',
-    function($rootScope, $route, $location, $log) {
-        $log = $log.getInstance('firewall');
-
-        var routesOpenToPublic = [];
-        angular.forEach($route.routes, function(route, path) {
-            route.publicAccess && (routesOpenToPublic.push(path));
-        });
-
-        isAllowOrRedirect($log, $location, routesOpenToPublic, $location.path(), $rootScope.authentification.logged)
-
-        $rootScope.$on('$routeChangeStart', function(event, nextLoc, currentLoc) {
-            isAllowOrRedirect($log, $location, routesOpenToPublic, $location.path(), $rootScope.authentification.logged)
-        });
-
-
-        $rootScope.$apply();
-}]);
-
-
-function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
-    var closedToPublic = (-1 === publicRoutes.indexOf(current));
-
-    if (closedToPublic && !isLogged) {
-        $log.debug('Try to access ' + current + ' when no connected')
-        $location.path('/login');
-    }
-}
-app.config(['logExProvider', function(logExProvider) {
-    logExProvider.enableLogging(true);
-}]);
-
-app.config(['logExProvider', function(logExProvider) {
-    logExProvider.overrideLogPrefix(function (className) {
-        var $injector = angular.injector([ 'ng' ]);
-        var $filter = $injector.get('$filter');
-        var separator = " >> ";
-        var format = "hh:mm:ss";
-        var now = $filter('date')(new Date(), format);
-
-        return "" + now + (!angular.isString(className) ? "" : "::" + className) + separator;
-    });
-}]);
-/**
- * Created by arnaud on 10/08/14.
- */
-app.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
-    RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
-
-    RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
-        return true; // error not handled
-    });
-
-        RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
-        var extractedData;
-
-        if (operation === 'post' && what === 'auth') {
-            extractedData = {
-                'token': data.token,
-                'username': data.user.username,
-                'id': data.user.id,
-                'email': data.user.email,
-                'logged': true
-            };
-        } else if (operation === "getList") {
-            extractedData = data.data;
-            extractedData.meta = {
-                'perPage': data.per_page,
-                'total': data.total,
-                'currentPage': data.current_page,
-                'from': data.from,
-                'to': data.to
-            };
-        } else {
-            extractedData = data.data;
-        }
-
-        return extractedData;
-    });
-
-    /**
-     * ===============================================
-     * User specific WS
-     * ===============================================
-     */
-
-    RestangularProvider.addElementTransformer('auth', false, function(auth) {
-            auth.addRestangularMethod('logout', 'delete', '');
-
-            return auth;
-    });
-
-    RestangularProvider.addElementTransformer('auth', true, function(auth) {
-            auth.addRestangularMethod('login', 'post', '');
-
-            return auth;
-    });
-
-}]);
-

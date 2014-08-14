@@ -1,6 +1,16 @@
 <ng-include src="'/app/partials/layout/menu.html'"></ng-include>
 
-<div class="container">
+<div class="container" ng-show="article">
+	<div class="col-md-12">
+	    <h1>{{ article.title }}</h1>
+	    <p>{{ article.body }}</p>
+	    <div>
+			<span class="badge">Posted {{ article.created_at }}</span>
+			<div class="pull-right">
+				<a href="#/category/{{article.category.id}}" class="label label-default">{{ article.category.name }}</a>
+			</div>
+		</div>
+     </div>
 </div>
 
 <ng-include src="'/app/partials/layout/footer.html'"></ng-include>

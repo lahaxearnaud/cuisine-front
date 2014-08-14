@@ -1,13 +1,16 @@
 <ng-include src="'/app/partials/layout/menu.html'"></ng-include>
 
-<div class="container">
+<div class="container" ng-show="articles">
 	<ul class="list-group">
 		<li class="list-group-item" ng-repeat="article in articles">
 			<a href="#/recipes/{{article.id}}">{{article.title}}</a>
+			<span class="pull-right">
+				<a href="#/category/{{article.category.id}}" class="label label-default">{{article.category.name}}</a>
+			</span>
 		</li>
 	</ul>
 
-	<pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" items-per-page="itemsPerPage"></pagination>
+	<pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" items-per-page="itemsPerPage" ng-show="itemsPerPage > 0"></pagination>
 </div>
 
 <ng-include src="'/app/partials/layout/footer.html'"></ng-include>

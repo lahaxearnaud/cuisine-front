@@ -10,6 +10,6 @@ app.config(['logExProvider', function(logExProvider) {
         var format = "hh:mm:ss";
         var now = $filter('date')(new Date(), format);
 
-        return "" + now + (!angular.isString(className) ? "" : "::" + className) + separator;
+        return "" + now + (!angular.isString(className) ? "" : " :: " + className) + separator;
     });
 }]);
