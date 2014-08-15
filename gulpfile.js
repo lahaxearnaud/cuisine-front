@@ -32,7 +32,8 @@ var gulp = require("gulp"),
 
 var bowerCssToIntegrate = [
     'bower_components/bootstrap/dist/css/bootstrap.css',
-    'bower_components/angular-loading-bar/build/loading-bar.css'
+    'bower_components/angular-loading-bar/build/loading-bar.css',
+    'bower_components/fontawesome/css/font-awesome.css'
 ];
 
 var buildPath = "./build/";

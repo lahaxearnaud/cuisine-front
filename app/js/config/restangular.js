@@ -10,30 +10,56 @@ app.config(['RestangularProvider', function (RestangularProvider) {
     });
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
-        var extractedData;
-        if (operation === 'post' && what === 'auth') {
-            extractedData = {
-                'token': data.token,
-                'username': data.user.username,
-                'id': data.user.id,
-                'email': data.user.email,
-                'logged': true
-            };
-        } else if (operation === "getList") {
-            extractedData = data.data;
-            extractedData.meta = {
-                'perPage': data.per_page,
-                'total': data.total,
-                'currentPage': data.current_page,
-                'from': data.from,
-                'to': data.to
-            };
-        } else {
-            extractedData = data;
-        }
+            if (operation === 'post') {
+                console.log(data);
+            }
+                var extractedData;
+            if (operation === 'post' && what === 'auth') {
+                extractedData = {
+                    'token': data.token,
+                    'username': data.user.username,
+                    'id': data.user.id,
+                    'email': data.user.email,
+                    'logged': true
+                };
+            } else if (operation === "getList") {
+                extractedData = data.data;
+                extractedData.meta = {
+                    'perPage': data.per_page,
+                    'total': data.total,
+                    'currentPage': data.current_page,
+                    'from': data.from,
+                    'to': data.to
+                };
+            } else {
+                extractedData = data;
+            }
 
-        return extractedData;
-    });
+            return extractedData;
+        });
+
+        RestangularProvider.addRequestInterceptor(function (element, operation, what, url) {
+
+            if (operation === 'put') {
+                delete element._links;
+                delete element.created_at;
+                delete element.updated_at;
+                delete element.id;
+
+                switch(what) {
+                    case 'articles':
+                        delete element.author;
+                        delete element.category;
+                        delete element.indexable;
+                    break;
+
+                    default:
+                    break;
+                }
+            }
+
+            return element;
+        });
 
     /**
      * ===============================================

@@ -29,48 +29,51 @@
     "angular-cookies": "~1.2.22",
     "angular-gravatar": "~0.2.1",
     "angular-fontawesome": "~0.1.0",
-    "angular-logex" : "~0.0.7"
+    "angular-logex": "~0.0.7",
+    "fontawesome": "~4.1.0"
   },
-
   "overrides": {
-        "bootstrap": {
-          "ignore": true
-        },
-        "angular": {
-          "main": "angular.js"
-        },
-        "angular-bootstrap": {
-          "main": [
-            "ui-bootstrap-tpls.js",
-            "ui-bootstrap.js"
-          ]
-        },
-        "angular-route": {
-          "main": "angular-route.js"
-        },
-        "lodash": {
-          "main": "dist/lodash.js"
-        },
-        "restangular": {
-          "main": "dist/restangular.js"
-        },
-        "angular-cookies": {
-          "main": "angular-cookies.js"
-        },
-        "angular-loading-bar": {
-          "main": "build/loading-bar.js"
-        },
-        "angular-gravatar": {
-          "main": [
-            "build/md5.js",
-            "build/angular-gravatar.js"
-          ]
-        },
-        "angular-logex": {
-          "main": "dist/log-ex-unobtrusive.js"
-        },
-        "angular-fontawesome": {
-          "main": "dist/angular-fontawesome.js"
-        }
+    "bootstrap": {
+      "ignore": true
+    },
+    "fontawesome": {
+      "ignore": true
+    },
+    "angular": {
+      "main": "angular.js"
+    },
+    "angular-bootstrap": {
+      "main": [
+        "ui-bootstrap-tpls.js",
+        "ui-bootstrap.js"
+      ]
+    },
+    "angular-route": {
+      "main": "angular-route.js"
+    },
+    "lodash": {
+      "main": "dist/lodash.js"
+    },
+    "restangular": {
+      "main": "dist/restangular.js"
+    },
+    "angular-cookies": {
+      "main": "angular-cookies.js"
+    },
+    "angular-loading-bar": {
+      "main": "build/loading-bar.js"
+    },
+    "angular-gravatar": {
+      "main": [
+        "build/md5.js",
+        "build/angular-gravatar.js"
+      ]
+    },
+    "angular-logex": {
+      "main": "dist/log-ex-unobtrusive.js"
+    },
+    "angular-fontawesome": {
+      "main": "dist/angular-fontawesome.js"
     }
+  }
 }

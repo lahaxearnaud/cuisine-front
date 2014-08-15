@@ -6,8 +6,17 @@
 	    <p>{{ article.body }}</p>
 	    <div>
 			<span class="badge">Posted {{ article.created_at }}</span>
+			<a href="#/category/{{article.category.id}}" class="label label-default">{{ article.category.name }}</a>
+
 			<div class="pull-right">
-				<a href="#/category/{{article.category.id}}" class="label label-default">{{ article.category.name }}</a>
+				<div class="btn-group">
+			        <a class="btn btn-default" href="#/recipes/{{ article.id }}/edit">
+		        		<fa name="pencil"></fa>
+			        </a>
+			        <a class="btn btn-default" href="#/recipes/{{ article.id }}/delete">
+		        		<fa name="trash-o"></fa>
+			        </a>
+			    </div>
 			</div>
 		</div>
      </div>

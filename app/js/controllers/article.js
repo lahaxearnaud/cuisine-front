@@ -34,7 +34,50 @@ app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', 
 	$log.debug('Get article #' + $routeParams.id );
 
 	Restangular.one("articles", $routeParams.id).get().then(function(article) {
-		$log.debug(article);
 		$scope.article = article;
 	});
+}]);
+
+app.controller('article.delete', ['$scope', 'Restangular', '$routeParams', '$log', '$location', function ($scope, Restangular, $routeParams, $log, $location) {
+	$log = $log.getInstance('article.delete');
+
+	$log.debug('Delete article #' + $routeParams.id );
+
+	Restangular.one("articles", $routeParams.id).get().then(function(article) {
+		$scope.article = article;
+	});
+
+	$scope.submitForm = function() {
+		$scope.article.remove();
+		$location.path('recipes');
+	};
+}]);
+
+app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log', '$location', function ($scope, Restangular, $routeParams, $log, $location) {
+	$log = $log.getInstance('article.edit');
+
+	$log.debug('Edit article #' + $routeParams.id );
+
+	Restangular.one("articles", $routeParams.id).get().then(function(article) {
+		$scope.article = article;
+	});
+
+	$scope.submitForm = function() {
+		$scope.article.put().then(function(result){
+			$log.debug(result);
+			if(result.success === undefined || !result.success) {
+				if(result.title) {
+					$scope.errors.title = result.title[0];
+				}
+				if(result.body) {
+					$scope.errors.body = result.body[0];
+				}
+				if(result.category_id) {
+					$scope.errors.category_id = result.category_id[0];
+				}
+			}
+		});
+	};
+
+	$scope.errors = {};
 }]);
