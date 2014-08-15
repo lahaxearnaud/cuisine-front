@@ -1,4 +1,4 @@
-app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
+app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
 
     $log = $log.getInstance('user.login');
 
@@ -19,6 +19,8 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
                 $rootScope.authentification = auth;
 
                 $log.info('Connection succeeded with user '+ auth.username);
+
+                loader.execute();
 
                 // this avoid digest error (@todo dig why this error happen...)
                 if(!$rootScope.$$phase) {

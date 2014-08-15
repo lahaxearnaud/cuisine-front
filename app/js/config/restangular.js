@@ -22,7 +22,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
                     'email': data.user.email,
                     'logged': true
                 };
-            } else if (operation === "getList") {
+            } else if (operation === "getList" && what !== 'categories') {
                 extractedData = data.data;
                 extractedData.meta = {
                     'perPage': data.per_page,
@@ -67,14 +67,9 @@ app.config(['RestangularProvider', function (RestangularProvider) {
      * ===============================================
      */
 
-    RestangularProvider.addElementTransformer('auth', false, function(auth) {
-            auth.addRestangularMethod('logout', 'delete', '');
-
-            return auth;
-    });
-
     RestangularProvider.addElementTransformer('auth', true, function(auth) {
             auth.addRestangularMethod('login', 'post', '');
+            auth.addRestangularMethod('logout', 'remove', '');
 
             return auth;
     });

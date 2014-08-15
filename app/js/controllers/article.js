@@ -60,11 +60,11 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
 
 	Restangular.one("articles", $routeParams.id).get().then(function(article) {
 		$scope.article = article;
+		$log.debug(article );
 	});
 
 	$scope.submitForm = function() {
 		$scope.article.put().then(function(result){
-			$log.debug(result);
 			if(result.success === undefined || !result.success) {
 				if(result.title) {
 					$scope.errors.title = result.title[0];
@@ -75,6 +75,9 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
 				if(result.category_id) {
 					$scope.errors.category_id = result.category_id[0];
 				}
+				$log.debug('Validation errors' + $scope.errors);
+			} else {
+				$log.debug('Edit of #' + $routeParams.id + ' OK ');
 			}
 		});
 	};

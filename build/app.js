@@ -117,6 +117,11 @@ function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
         $location.path('/login');
     }
 }
+app.run(['loader', function(loader) {
+        loader.execute();
+}]);
+
+
 app.config(['logExProvider', function(logExProvider) {
     logExProvider.enableLogging(true);
 }]);
@@ -156,7 +161,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
                     'email': data.user.email,
                     'logged': true
                 };
-            } else if (operation === "getList") {
+            } else if (operation === "getList" && what !== 'categories') {
                 extractedData = data.data;
                 extractedData.meta = {
                     'perPage': data.per_page,
@@ -201,20 +206,29 @@ app.config(['RestangularProvider', function (RestangularProvider) {
      * ===============================================
      */
 
-    RestangularProvider.addElementTransformer('auth', false, function(auth) {
-            auth.addRestangularMethod('logout', 'delete', '');
-
-            return auth;
-    });
-
     RestangularProvider.addElementTransformer('auth', true, function(auth) {
             auth.addRestangularMethod('login', 'post', '');
+            auth.addRestangularMethod('logout', 'remove', '');
 
             return auth;
     });
 
 }]);
 
+
+app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangular, $rootScope, $log) {
+	    this.execute = function() {
+	    	if(!$rootScope.authentification.logged) {
+				return;
+			}
+	        $log.debug('Initialisation');
+	    	$log.getInstance('dataLoader');
+		    Restangular.all("categories").getList().then(function(categories) {
+		        $rootScope.categories = categories;
+		        $log.debug('categories loadded');
+		    });
+	    };
+}]);
 
 angular.module('cook.services', []).
   value('version', '0.1');
@@ -281,11 +295,11 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
 
 	Restangular.one("articles", $routeParams.id).get().then(function(article) {
 		$scope.article = article;
+		$log.debug(article );
 	});
 
 	$scope.submitForm = function() {
 		$scope.article.put().then(function(result){
-			$log.debug(result);
 			if(result.success === undefined || !result.success) {
 				if(result.title) {
 					$scope.errors.title = result.title[0];
@@ -296,6 +310,9 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
 				if(result.category_id) {
 					$scope.errors.category_id = result.category_id[0];
 				}
+				$log.debug('Validation errors' + $scope.errors);
+			} else {
+				$log.debug('Edit of #' + $routeParams.id + ' OK ');
 			}
 		});
 	};
@@ -304,10 +321,10 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
 }]);
 angular.module('cook.controllers', [])
 	.controller('main', ['$scope', '$log', function ($scope, $log) {
-		$log.log('Bite');
+
 }]);
 
-app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
+app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
 
     $log = $log.getInstance('user.login');
 
@@ -328,6 +345,8 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
                 $rootScope.authentification = auth;
 
                 $log.info('Connection succeeded with user '+ auth.username);
+
+                loader.execute();
 
                 // this avoid digest error (@todo dig why this error happen...)
                 if(!$rootScope.$$phase) {
