@@ -84,3 +84,26 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
 
 	$scope.errors = {};
 }]);
+
+app.controller('article.search', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', '$location',
+	function ($rootScope, $scope, Restangular, $routeParams, $log, $location) {
+
+	$log = $log.getInstance('article.search');
+
+	var page = 1;
+	if($routeParams.page) {
+		page = $routeParams.page;
+	}
+	$log.debug('Page ' + page );
+
+	var query = $location.search().query;
+
+	Restangular.all("articles").search({
+		'query': query
+	}).then(function(articles) {
+        $scope.articles = articles;
+    });
+}]);
+
+
+

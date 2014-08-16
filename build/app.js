@@ -32,6 +32,12 @@ app.config(['$routeProvider',
 
 app.config(['$routeProvider',
     function($routeProvider) {
+
+        $routeProvider.when('/recipes/search', {
+            templateUrl: 'partials/article/liste.html',
+            controller: 'article.search'
+        });
+
         $routeProvider.when('/recipes/:id', {
             templateUrl: 'partials/article/get.html',
             controller: 'article.get'
@@ -117,8 +123,22 @@ function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
         $location.path('/login');
     }
 }
-app.run(['loader', function(loader) {
+app.run(['loader', '$rootScope', '$location', '$log', function(loader, $rootScope, $location, $log) {
         loader.execute();
+
+
+        $rootScope.setFormScope= function(scope){
+            this.formScope = scope;
+            this.formScope.query = $location.search().query;
+        }
+
+        $rootScope.searchForm = function() {
+            $log.debug("search " + this.formScope.query);
+            $location.search({
+                "query": this.formScope.query
+            })
+            $location.path('/recipes/search');
+        };
 }]);
 
 
@@ -149,10 +169,8 @@ app.config(['RestangularProvider', function (RestangularProvider) {
     });
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
-            if (operation === 'post') {
-                console.log(data);
-            }
-                var extractedData;
+            
+            var extractedData;
             if (operation === 'post' && what === 'auth') {
                 extractedData = {
                     'token': data.token,
@@ -161,7 +179,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
                     'email': data.user.email,
                     'logged': true
                 };
-            } else if (operation === "getList" && what !== 'categories') {
+            } else if ((operation === "getList" || operation === "search") && what !== 'categories') {
                 extractedData = data.data;
                 extractedData.meta = {
                     'perPage': data.per_page,
@@ -211,6 +229,12 @@ app.config(['RestangularProvider', function (RestangularProvider) {
             auth.addRestangularMethod('logout', 'remove', '');
 
             return auth;
+    });
+
+    RestangularProvider.addElementTransformer('articles', true, function(articles) {
+            articles.addRestangularMethod('search', 'get', 'search');
+
+            return articles;
     });
 
 }]);
@@ -319,11 +343,33 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
 
 	$scope.errors = {};
 }]);
-angular.module('cook.controllers', [])
-	.controller('main', ['$scope', '$log', function ($scope, $log) {
 
+app.controller('article.search', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', '$location',
+	function ($rootScope, $scope, Restangular, $routeParams, $log, $location) {
+
+	$log = $log.getInstance('article.search');
+
+	var page = 1;
+	if($routeParams.page) {
+		page = $routeParams.page;
+	}
+	$log.debug('Page ' + page );
+
+	var query = $location.search().query;
+
+	Restangular.all("articles").search({
+		'query': query
+	}).then(function(articles) {
+        $scope.articles = articles;
+    });
 }]);
 
+
+
+
+angular.module('cook.controllers', [])
+	.controller('main', ['$scope', '$log', function ($scope, $log) {
+}]);
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
 
     $log = $log.getInstance('user.login');

@@ -1,6 +1,12 @@
 
 app.config(['$routeProvider',
     function($routeProvider) {
+
+        $routeProvider.when('/recipes/search', {
+            templateUrl: 'partials/article/liste.html',
+            controller: 'article.search'
+        });
+
         $routeProvider.when('/recipes/:id', {
             templateUrl: 'partials/article/get.html',
             controller: 'article.get'
