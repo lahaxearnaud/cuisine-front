@@ -16,5 +16,9 @@ app.run(['loader', '$rootScope', '$location', '$log', function(loader, $rootScop
             })
             $location.path('/recipes/search');
         };
+
+        $rootScope.goArticle = function ( id ) {
+          $location.path( '/recipes/' + id );
+        };
 }]);
 

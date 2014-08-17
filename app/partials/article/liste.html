@@ -5,20 +5,55 @@
 	    <div class="col-sm-3 col-md-2 sidebar">
 			<sidebar></sidebar>
 		</div>
-	    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-show="articles">
-			<ul class="list-group">
-				<li class="list-group-item" ng-repeat="article in articles">
-					<a href="#/recipes/{{article.id}}">{{article.title}}</a>
-					<span class="pull-right">
-						<a href="#/category/{{article.category.id}}" class="label label-default">{{article.category.name}}</a>
-					</span>
-				</li>
-			</ul>
-			<pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" items-per-page="itemsPerPage" ></pagination>
-		</div>
+	    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+	    	<div ng-show="articles">
+				<div class="row">
+					<div class="col-sm-6 col-xs-6 recipe-item recipes-list" ng-repeat="article in articles">
+						<div>
+							<img alt="{{ article.title }}" src="http://placekitten.com/g/70/70" ng-click="goArticle(article.id)" class="article-link" />
+							<div class="info">
+								<h2 class="title article-link" ng-click="goArticle(article.id)">
+									{{ article.title }}
+								</h2>
+								<p class="desc">
+									{{ article.category.name }}
+								</p>
+								<ul>
+									<li style="width:50%;">
+										<a href="#website">
+											<fa name="globe"></fa> {{ article.website }}
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div class="social">
+								<ul>
+									<li class="facebook" style="width:33%;">
+										<a href="#facebook">
+											<fa name="facebook"></fa>
+										</a>
+									</li>
+									<li class="twitter" style="width:34%;">
+										<a href="#twitter">
+											<fa name="twitter"></fa>
+										</a>
+									</li>
+									<li class="google-plus" style="width:33%;">
+										<a href="#google-plus">
+											<fa name="google-plus"></fa>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" items-per-page="itemsPerPage" ></pagination>
+			</div>
 
-		<div class="container" ng-if="articles.length == 0">
-			<alert>No recipes found</alert>
+			<div ng-if="articles.length == 0">
+				<alert>No recipes found</alert>
+			</div>
 		</div>
 	</div>
 </div>

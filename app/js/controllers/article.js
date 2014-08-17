@@ -29,7 +29,6 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
             $scope.articles = articles;
         });
     };
-
 }]);
 
 app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $routeParams, $log) {

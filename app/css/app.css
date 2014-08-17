@@ -12,3 +12,7 @@ body {
 .has-error .help-inline {
 	color: #a94442;
 }
+
+.article-link {
+	cursor: pointer;
+}
