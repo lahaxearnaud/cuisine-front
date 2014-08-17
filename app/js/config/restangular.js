@@ -4,13 +4,12 @@
 app.config(['RestangularProvider', function (RestangularProvider) {
     RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
-
     RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
         return true; // error not handled
     });
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
-            
+
             var extractedData;
             if (operation === 'post' && what === 'auth') {
                 extractedData = {
@@ -74,9 +73,9 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
     RestangularProvider.addElementTransformer('articles', true, function(articles) {
             articles.addRestangularMethod('search', 'get', 'search');
+            articles.addRestangularMethod('extract', 'post', 'extractFromUrl');
 
             return articles;
     });
 
 }]);
-

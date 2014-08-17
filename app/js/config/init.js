@@ -2,9 +2,11 @@ app.run(['loader', '$rootScope', '$location', '$log', function(loader, $rootScop
         loader.execute();
 
 
-        $rootScope.setFormScope= function(scope){
+        $rootScope.setFormScope = function(scope){
             this.formScope = scope;
-            this.formScope.query = $location.search().query;
+            if($location.search().query) {
+                this.formScope.query = $location.search().query;
+            }
         }
 
         $rootScope.searchForm = function() {

@@ -7,6 +7,11 @@ app.config(['$routeProvider',
             controller: 'article.search'
         });
 
+        $routeProvider.when('/recipes/add', {
+            templateUrl: 'partials/article/add.html',
+            controller: 'article.add'
+        });
+
         $routeProvider.when('/recipes/:id', {
             templateUrl: 'partials/article/get.html',
             controller: 'article.get'

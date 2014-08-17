@@ -1,25 +1,32 @@
-<ng-include src="'/app/partials/layout/menu.html'"></ng-include>
+<menu></menu>
 
-<div class="container" ng-show="article">
-	<div class="col-md-12">
-	    <h1>{{ article.title }}</h1>
-	    <p>{{ article.body }}</p>
-	    <div>
-			<span class="badge">Posted {{ article.created_at }}</span>
-			<a href="#/category/{{article.category.id}}" class="label label-default">{{ article.category.name }}</a>
-
-			<div class="pull-right">
-				<div class="btn-group">
-			        <a class="btn btn-default" href="#/recipes/{{ article.id }}/edit">
-		        		<fa name="pencil"></fa>
-			        </a>
-			        <a class="btn btn-default" href="#/recipes/{{ article.id }}/delete">
-		        		<fa name="trash-o"></fa>
-			        </a>
-			    </div>
-			</div>
+<div class="container-fluid">
+    <div class="row">
+	    <div class="col-sm-3 col-md-2 sidebar">
+			<sidebar></sidebar>
 		</div>
-     </div>
+	    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+			<div class="col-md-12" ng-show="article">
+			    <h1>{{ article.title }}</h1>
+			    <div btf-markdown="article.body"></div>
+			    <div>
+					<span class="badge">Posted {{ article.created_at }}</span>
+					<a href="#/category/{{article.category.id}}" class="label label-default">{{ article.category.name }}</a>
+
+					<div class="pull-right">
+						<div class="btn-group">
+					        <a class="btn btn-default" href="#/recipes/{{ article.id }}/edit">
+				        		<fa name="pencil"></fa>
+					        </a>
+					        <a class="btn btn-default" href="#/recipes/{{ article.id }}/delete">
+				        		<fa name="trash-o"></fa>
+					        </a>
+					    </div>
+					</div>
+				</div>
+		     </div>
+		</div>
+	</div>
 </div>
 
-<ng-include src="'/app/partials/layout/footer.html'"></ng-include>
+<footer></footer>

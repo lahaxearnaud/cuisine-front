@@ -11,6 +11,7 @@ var app = angular.module('cook', [
     'ui.bootstrap.tpls',
     'picardy.fontawesome',
     'log.ex.uo',
+    'btford.markdown',
     'cook.filters',
     'cook.services',
     'cook.directives',
@@ -36,6 +37,11 @@ app.config(['$routeProvider',
         $routeProvider.when('/recipes/search', {
             templateUrl: 'partials/article/liste.html',
             controller: 'article.search'
+        });
+
+        $routeProvider.when('/recipes/add', {
+            templateUrl: 'partials/article/add.html',
+            controller: 'article.add'
         });
 
         $routeProvider.when('/recipes/:id', {
@@ -127,9 +133,11 @@ app.run(['loader', '$rootScope', '$location', '$log', function(loader, $rootScop
         loader.execute();
 
 
-        $rootScope.setFormScope= function(scope){
+        $rootScope.setFormScope = function(scope){
             this.formScope = scope;
-            this.formScope.query = $location.search().query;
+            if($location.search().query) {
+                this.formScope.query = $location.search().query;
+            }
         }
 
         $rootScope.searchForm = function() {
@@ -163,13 +171,12 @@ app.config(['logExProvider', function(logExProvider) {
 app.config(['RestangularProvider', function (RestangularProvider) {
     RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
-
     RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
         return true; // error not handled
     });
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
-            
+
             var extractedData;
             if (operation === 'post' && what === 'auth') {
                 extractedData = {
@@ -233,13 +240,12 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
     RestangularProvider.addElementTransformer('articles', true, function(articles) {
             articles.addRestangularMethod('search', 'get', 'search');
+            articles.addRestangularMethod('extract', 'post', 'extractFromUrl');
 
             return articles;
     });
 
 }]);
-
-
 app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangular, $rootScope, $log) {
 	    this.execute = function() {
 	    	if(!$rootScope.authentification.logged) {
@@ -257,113 +263,163 @@ app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangul
 angular.module('cook.services', []).
   value('version', '0.1');
 
-app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $routeParams, $log) {
-	$log = $log.getInstance('article.list');
+app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
+    function ($scope, Restangular, $routeParams, $log) {
 
-	var page = 1;
-	if($routeParams.page) {
-		page = $routeParams.page;
-	}
+    $log = $log.getInstance('article.list');
 
-	$log.debug('Page ' + page );
+    $scope.currentPage = 1;
+    if($routeParams.page) {
+        $scope.currentPage = $routeParams.page;
+    }
 
-	Restangular.all("articles").getList({'page': page}).then(function(articles) {
+    $log.debug('Page ' + $scope.currentPage );
+
+    Restangular.all("articles").getList({'page': $scope.currentPage}).then(function(articles) {
         $scope.articles = articles;
-            $scope.totalItems = articles.meta.total;
-		    $scope.currentPage = page;
-		    $scope.itemsPerPage = articles.meta.perPage;
+        $scope.totalItems = articles.meta.total;
+        $scope.itemsPerPage = articles.meta.perPage;
     });
 
     $scope.setPage = function (pageNumber) {
         $scope.currentPage = pageNumber;
+        $log.debug('Change to  ' + pageNumber );
     };
 
     $scope.pageChanged = function() {
         $log.debug('Page changed to: ' + $scope.currentPage);
-        Restangular.all("articles").getList({'page': $scope.currentPage}).then(function(articles) {
-			$scope.articles = articles;
-		});
+        Restangular.all("articles").getList({
+            'page': $scope.currentPage
+        }).then(function(articles) {
+            $scope.articles = articles;
+        });
     };
 
 }]);
 
 app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $routeParams, $log) {
-	$log = $log.getInstance('article.get');
+    $log = $log.getInstance('article.get');
 
-	$log.debug('Get article #' + $routeParams.id );
+    $log.debug('Get article #' + $routeParams.id );
 
-	Restangular.one("articles", $routeParams.id).get().then(function(article) {
-		$scope.article = article;
-	});
+    Restangular.one("articles", $routeParams.id).get().then(function(article) {
+        $scope.article = article;
+    });
 }]);
 
 app.controller('article.delete', ['$scope', 'Restangular', '$routeParams', '$log', '$location', function ($scope, Restangular, $routeParams, $log, $location) {
-	$log = $log.getInstance('article.delete');
+    $log = $log.getInstance('article.delete');
 
-	$log.debug('Delete article #' + $routeParams.id );
+    $log.debug('Delete article #' + $routeParams.id );
 
-	Restangular.one("articles", $routeParams.id).get().then(function(article) {
-		$scope.article = article;
-	});
+    Restangular.one("articles", $routeParams.id).get().then(function(article) {
+        $scope.article = article;
+    });
 
-	$scope.submitForm = function() {
-		$scope.article.remove();
-		$location.path('recipes');
-	};
+    $scope.submitForm = function() {
+        $scope.article.remove();
+        $location.path('recipes');
+    };
 }]);
 
 app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log', '$location', function ($scope, Restangular, $routeParams, $log, $location) {
-	$log = $log.getInstance('article.edit');
+    $log = $log.getInstance('article.edit');
 
-	$log.debug('Edit article #' + $routeParams.id );
+    $log.debug('Edit article #' + $routeParams.id );
 
-	Restangular.one("articles", $routeParams.id).get().then(function(article) {
-		$scope.article = article;
-		$log.debug(article );
-	});
+    Restangular.one("articles", $routeParams.id).get().then(function(article) {
+        $scope.article = article;
+        $log.debug(article );
+    });
 
-	$scope.submitForm = function() {
-		$scope.article.put().then(function(result){
-			if(result.success === undefined || !result.success) {
-				if(result.title) {
-					$scope.errors.title = result.title[0];
-				}
-				if(result.body) {
-					$scope.errors.body = result.body[0];
-				}
-				if(result.category_id) {
-					$scope.errors.category_id = result.category_id[0];
-				}
-				$log.debug('Validation errors' + $scope.errors);
-			} else {
-				$log.debug('Edit of #' + $routeParams.id + ' OK ');
-			}
-		});
-	};
+    $scope.submitForm = function() {
+        $scope.article.put().then(function(result){
+            if(result.success === undefined || !result.success) {
+                if(result.title) {
+                    $scope.errors.title = result.title[0];
+                }
+                if(result.body) {
+                    $scope.errors.body = result.body[0];
+                }
+                if(result.category_id) {
+                    $scope.errors.category_id = result.category_id[0];
+                }
+                $log.debug('Validation errors' + $scope.errors);
+            } else {
+                $log.debug('Edit of #' + $routeParams.id + ' OK ');
+            }
+        });
+    };
 
-	$scope.errors = {};
+    $scope.errors = {};
 }]);
 
 app.controller('article.search', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', '$location',
-	function ($rootScope, $scope, Restangular, $routeParams, $log, $location) {
+    function ($rootScope, $scope, Restangular, $routeParams, $log, $location) {
 
-	$log = $log.getInstance('article.search');
+    $log = $log.getInstance('article.search');
 
-	var page = 1;
-	if($routeParams.page) {
-		page = $routeParams.page;
-	}
-	$log.debug('Page ' + page );
+    var page = 1;
+    if($routeParams.page) {
+        page = $routeParams.page;
+    }
+    $log.debug('Page ' + page );
 
-	var query = $location.search().query;
+    var query = $location.search().query;
 
-	Restangular.all("articles").search({
-		'query': query
-	}).then(function(articles) {
+    Restangular.all("articles").search({
+        'query': query
+    }).then(function(articles) {
         $scope.articles = articles;
     });
 }]);
 
+app.controller('article.add', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', '$location',
+    function ($rootScope, $scope, Restangular, $routeParams, $log, $location) {
+
+    $log = $log.getInstance('article.add');
+
+    $log.debug('Add article');
+
+    $scope.urlExtract = function() {
+        if(!this.formScope.article.title && !this.formScope.article.body) {
+            Restangular.all('articles').extract({
+                'url': this.formScope.article.url,
+                'markdown': true
+            }).then(function(data) {
+                $scope.article.title = data.title;
+                $scope.article.body = data.body;
+            });
+        }
+    }
+
+    $scope.setFormScope= function(scope){
+        this.formScope = scope;
+    }
+
+    $scope.submitForm = function() {
+        this.formScope.article.author_id = $rootScope.authentification.id;
+        Restangular.all('articles').post(this.formScope.article).then(function(result){
+            if(result.success === undefined || !result.success) {
+                if(result.title) {
+                    $scope.errors.title = result.title[0];
+                }
+                if(result.body) {
+                    $scope.errors.body = result.body[0];
+                }
+                if(result.category_id) {
+                    $scope.errors.category_id = result.category_id[0];
+                }
+                $log.debug('Validation errors' + $scope.errors);
+            } else {
+                $log.debug('Post added ! #' + result.id);
+                $location.path("/recipes/" + result.id);
+            }
+        });
+    };
+
+    $scope.errors = {};
+}]);
 
 
 
@@ -436,6 +492,53 @@ angular.module('cook.filters', []).
     };
   }]);
 
+app.
+  directive('sidebar', function() {
+    return {
+      restrict:'E',
+      replace : true,
+      templateUrl: '/app/partials/layout/sidebar.html'
+    };
+});
+
+app.
+  directive('menu', function() {
+    return {
+      restrict:'E',
+      replace : true,
+      templateUrl: '/app/partials/layout/menu.html'
+    };
+});
+
+ app.
+  directive('footer', function() {
+    return {
+      restrict:'E',
+      replace : true,
+      templateUrl: '/app/partials/layout/footer.html'
+    };
+});
+
+
+
+app.directive('page', function () {
+    return {
+        restrict:'E',
+        scope: true,
+        transclude : true,
+        template:'<div>' +
+        '<menu></menu>' +
+        '<div class="container-fluid">' +
+	        '<div class="row">' +
+		        '<sidebar></sidebar>' +
+		        '<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-transclude></div>' +
+		        '</div>' +
+	        '</div>' +
+	        '<footer></footer>' +
+        '<div>',
+        replace : true
+    };
+});
 angular.module('cook.directives', []).
   directive('appVersion', ['version', function(version) {
     return function(scope, elm, attrs) {

@@ -1,27 +1,35 @@
-<ng-include src="'/app/partials/layout/menu.html'"></ng-include>
+<menu></menu>
 
-<div class="container">
-	<div class="row">
-	    <div class="col-md-4 col-md-offset-4">
-	        <div class="panel panel-default">
-	            <div class="panel-heading">
-	                <h3 class="panel-title">Delete recipe</h3>
-	            </div>
-	            <div class="panel-body">
-	                <form name="loginForm" ng-submit="submitForm(loginForm.$valid)" ng-init="setFormScope()" role="form">
-	                    <p>Do you really want to delete : {{ article.title }} ?</p>
-						<div class="row">
-							<div class="col-md-6">
-								<a class="btn btn-lg btn-default btn-block" href="#/recipes/{{ article.id }}">No</a>
-							</div>
-							<div class="col-md-6">
-								<input class="btn btn-lg btn-danger btn-block" type="submit" value="Yes">
-							</div>
-						</div>
-	                </form>
-	            </div>
-	        </div>
-	    </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <sidebar></sidebar>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+			<div class="row">
+			    <div class="col-md-4 col-md-offset-4">
+			        <div class="panel panel-default">
+			            <div class="panel-heading">
+			                <h3 class="panel-title">Delete recipe</h3>
+			            </div>
+			            <div class="panel-body">
+			                <form name="loginForm" ng-submit="submitForm(loginForm.$valid)" ng-init="setFormScope()" role="form">
+			                    <p>Do you really want to delete : {{ article.title }} ?</p>
+								<div class="row">
+									<div class="col-md-6">
+										<a class="btn btn-lg btn-default btn-block" href="#/recipes/{{ article.id }}">No</a>
+									</div>
+									<div class="col-md-6">
+										<input class="btn btn-lg btn-danger btn-block" type="submit" value="Yes">
+									</div>
+								</div>
+			                </form>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+		</div>
 	</div>
 </div>
-<ng-include src="'/app/partials/layout/footer.html'"></ng-include>
+
+<footer></footer>

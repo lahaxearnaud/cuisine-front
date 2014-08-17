@@ -11,6 +11,7 @@ var app = angular.module('cook', [
     'ui.bootstrap.tpls',
     'picardy.fontawesome',
     'log.ex.uo',
+    'btford.markdown',
     'cook.filters',
     'cook.services',
     'cook.directives',
