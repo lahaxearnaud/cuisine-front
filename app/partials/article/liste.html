@@ -16,7 +16,9 @@
 									{{ article.title }}
 								</h2>
 								<p class="desc">
-									{{ article.category.name }}
+									<a href="#/categories/{{ article.category.id }}/articles">
+										{{ article.category.name }}
+									</a>
 								</p>
 								<ul>
 									<li style="width:50%;">

@@ -11,7 +11,9 @@
 			    <div btf-markdown="article.body"></div>
 			    <div>
 					<span class="badge">Posted {{ article.created_at }}</span>
-					<a href="#/category/{{article.category.id}}" class="label label-default">{{ article.category.name }}</a>
+					<a href="#/categories/{{ article.category.id }}/articles" class="label label-default">
+						{{ article.category.name }}
+					</a>
 
 					<div class="pull-right">
 						<div class="btn-group">
