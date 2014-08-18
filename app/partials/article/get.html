@@ -1,34 +1,25 @@
-<menu></menu>
+<div data-extend-template="/layout.html">
+    <div data-block="content">
+		<div class="col-md-12" ng-show="article">
+		    <h1>{{ article.title }}</h1>
+		    <div btf-markdown="article.body"></div>
+		    <div>
+				<span class="badge">Posted {{ article.created_at }}</span>
+				<a href="#/categories/{{ article.category.id }}/articles" class="label label-default">
+					{{ article.category.name }}
+				</a>
 
-<div class="container-fluid">
-    <div class="row">
-	    <div class="col-sm-3 col-md-2 sidebar">
-			<sidebar></sidebar>
-		</div>
-	    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-			<div class="col-md-12" ng-show="article">
-			    <h1>{{ article.title }}</h1>
-			    <div btf-markdown="article.body"></div>
-			    <div>
-					<span class="badge">Posted {{ article.created_at }}</span>
-					<a href="#/categories/{{ article.category.id }}/articles" class="label label-default">
-						{{ article.category.name }}
-					</a>
-
-					<div class="pull-right">
-						<div class="btn-group">
-					        <a class="btn btn-default" href="#/recipes/{{ article.id }}/edit">
-				        		<fa name="pencil"></fa>
-					        </a>
-					        <a class="btn btn-default" href="#/recipes/{{ article.id }}/delete">
-				        		<fa name="trash-o"></fa>
-					        </a>
-					    </div>
-					</div>
+				<div class="pull-right">
+					<div class="btn-group">
+				        <a class="btn btn-default" href="#/recipes/{{ article.id }}/edit">
+					<fa name="pencil"></fa>
+				        </a>
+				        <a class="btn btn-default" href="#/recipes/{{ article.id }}/delete">
+					<fa name="trash-o"></fa>
+				        </a>
+				    </div>
 				</div>
-		     </div>
-		</div>
+			</div>
+	     </div>
 	</div>
 </div>
-
-<footer></footer>

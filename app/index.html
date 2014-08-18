@@ -23,6 +23,38 @@
     <script src="/build/app.js"></script>
     <!-- endinject -->
 
+    <script type="text/ng-template" id="/layout.html">
+      <header data-block="header">
+          <menu></menu>
+      </header>
+
+      <div class="container-fluid">
+          <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+            <sidebar></sidebar>
+          </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" data-block="content"></div>
+        </div>
+      </div>
+
+      <footer data-block="footer">
+          <footer></footer>
+      </footer>
+    </script>
+
+    <script type="text/ng-template" id="/simple.html">
+      <header data-block="header">
+          <menu></menu>
+      </header>
+
+      <div class="container" data-block="content">
+      </div>
+
+      <footer data-block="footer">
+          <footer></footer>
+      </footer>
+    </script>
+
 </head>
 
 <body ng-view>

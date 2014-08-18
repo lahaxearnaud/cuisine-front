@@ -42,6 +42,7 @@ var mainHtmlFile = "app/index.html";
 
 var appFiles =  [
         "app/js/app.js",
+        "app/js/modules/*.js",
         "app/js/routes/*.js",
         "app/js/config/*.js",
         "app/js/services/*.js",

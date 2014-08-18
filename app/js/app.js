@@ -9,6 +9,7 @@ var app = angular.module('cook', [
     'ui.gravatar',
     'ui.bootstrap',
     'ui.bootstrap.tpls',
+    'angular-blocks',
     'picardy.fontawesome',
     'log.ex.uo',
     'btford.markdown',

@@ -1,54 +1,46 @@
-<menu></menu>
-
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            <sidebar></sidebar>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Edit recipe</h3>
-                </div>
-                <div class="panel-body">
-                    <form name="loginForm" ng-submit="submitForm(loginForm.$valid)" ng-init="setFormScope()" role="form">
-                        <fieldset>
-                            <div class="form-group" ng-class="{'has-error': errors.title}">
-                                <label>Title</label>
-                                <input class="form-control" type="text" id="title" name="title" ng-model="article.title" required ng-required="true">
-                                <span class="help-inline" ng-if="errors.title">{{ errors.title }}</span>
+<div data-extend-template="/layout.html">
+    <div data-block="content">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Edit recipe</h3>
+            </div>
+            <div class="panel-body">
+                <form name="loginForm" ng-submit="submitForm(loginForm.$valid)" ng-init="setFormScope()" role="form">
+                    <fieldset>
+                        <div class="form-group" ng-class="{'has-error': errors.title}">
+                            <label>Title</label>
+                            <input class="form-control" type="text" id="title" name="title" ng-model="article.title" required ng-required="true">
+                            <span class="help-inline" ng-if="errors.title">{{ errors.title }}</span>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': errors.body}">
+                            <label>Recette</label>
+                              <tabset justified="true">
+                                <tab heading="Editor">
+                                    <textarea class="form-control" type="text" id="body" name="body" ng-model="article.body" required ng-required="true" rows="10"></textarea>
+                                </tab>
+                                <tab heading="Preview">
+                                    <div btf-markdown="article.body"></div>
+                                </tab>
+                              </tabset>
+                            <span class="help-inline" ng-if="errors.body">{{ errors.body }}</span>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': errors.category_id}">
+                            <label>Category</label>
+                            <select class="form-control" ng-model="article.category_id" ng-options="category.id as category.name for category in categories"></select>
+                            <span class="help-inline" ng-if="errors.body">{{ errors.category_id }}</span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a class="btn btn-lg btn-default btn-block" href="#/recipes/{{ article.id }}">Cancel</a>
                             </div>
-                            <div class="form-group" ng-class="{'has-error': errors.body}">
-                                <label>Recette</label>
-                                  <tabset justified="true">
-                                    <tab heading="Editor">
-                                        <textarea class="form-control" type="text" id="body" name="body" ng-model="article.body" required ng-required="true" rows="10"></textarea>
-                                    </tab>
-                                    <tab heading="Preview">
-                                        <div btf-markdown="article.body"></div>
-                                    </tab>
-                                  </tabset>
-                                <span class="help-inline" ng-if="errors.body">{{ errors.body }}</span>
+                            <div class="col-md-6">
+                                <input class="btn btn-lg btn-danger btn-block" type="submit" value="Save">
                             </div>
-                            <div class="form-group" ng-class="{'has-error': errors.category_id}">
-                                <label>Category</label>
-                                <select class="form-control" ng-model="article.category_id" ng-options="category.id as category.name for category in categories"></select>
-                                <span class="help-inline" ng-if="errors.body">{{ errors.category_id }}</span>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <a class="btn btn-lg btn-default btn-block" href="#/recipes/{{ article.id }}">Cancel</a>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="btn btn-lg btn-danger btn-block" type="submit" value="Save">
-                                </div>
-                            </div>
-                        </fieldset>
-                    </form>
-                </div>
+                        </div>
+                    </fieldset>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<footer></footer>
