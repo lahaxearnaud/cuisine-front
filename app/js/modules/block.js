@@ -1,6 +1,4 @@
-/* global angular */
 (function() {
-    'use strict';
 
     function extendTemplate($templateCache, $compile, $http, $q, $log) {
 
@@ -25,11 +23,14 @@
                     var $template = angular.element(document.createElement('div')).html(response.data);
 
                     function override(method, block, attr) {
-                        var name = block[0].getAttribute(attr);
+                        var name = block[0].getAttribute(attr),
+                            classes = angular.element($template[0].querySelectorAll('[data-block="' + name + '"]')).attr('class');
 
                         if (angular.element($template[0].querySelectorAll('[data-block="' + name + '"]'))[method](block).length === 0 && angular.element($template[0].querySelectorAll('[data-extend-template]')).append(block).length === 0) {
                             warnMissingBlock(name, src);
                         }
+
+                        block.attr('class', classes);
                     }
 
                     angular.forEach($clone.children(), function(el) {
@@ -50,17 +51,11 @@
                             override('append', $el, 'data-block-append');
                         }
 
-                        // TODO: angular.element does not have a `.before`
-                        // method. Potentially monkey patch this.
-                        // Insert before blocks
-                        // if (el.hasAttribute('data-block-before')) {
-                        //     override('before', $el, 'data-block-before');
-                        // }
-
                         // Insert after blocks
                         if (el.hasAttribute('data-block-after')) {
                             override('after', $el, 'data-block-after');
                         }
+                        //console.log(el);
                     });
 
                     return $template;
