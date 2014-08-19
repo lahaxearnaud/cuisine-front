@@ -71,6 +71,12 @@ app.config(['RestangularProvider', function (RestangularProvider) {
             return auth;
     });
 
+    RestangularProvider.addElementTransformer('autocomplete', true, function(auth) {
+            auth.addRestangularMethod('do', 'get', '');
+
+            return auth;
+    });
+
     RestangularProvider.addElementTransformer('articles', true, function(articles) {
             articles.addRestangularMethod('search', 'get', 'search');
             articles.addRestangularMethod('extract', 'post', 'extractFromUrl');

@@ -21,7 +21,7 @@
         <div class="col-sm-4 col-md-4" ng-controller="search.autocomplete" ng-if="authentification.logged">
             <form class="navbar-form" ng-submit="searchForm()">
                 <div class="input-group search-field">
-                  <input type="text" class="form-control" placeholder="Search" ng-model="query" name="query" typeahead-on-select='display($item);' typeahead="article as article.title for article in getArticles($viewValue) | filter:$viewValue | limitTo:8" typeahead-min-length="2" typeahead-template-url="autocompleteTemplate.html" autocomplete="off">
+                  <input type="text" class="form-control" placeholder="Search" ng-model="query" name="query" typeahead-on-select='display($item);' typeahead="article as article.title for article in getArticles($viewValue) | filter:$viewValue | limitTo:8" typeahead-min-length="2" typeahead-template-url="autocompleteTemplate.html" typeahead-wait-ms="5" autocomplete="off">
                     <div class="input-group-btn">
                         <button class="btn btn-default" type="submit"><fa name="search"></fa></button>
                     </div>

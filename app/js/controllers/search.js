@@ -1,20 +1,16 @@
-app.controller('search.autocomplete', ['$scope', '$http', '$location', '$log', 
-	function ($scope, $http, $location, $log) {
+app.controller('search.autocomplete', ['$scope', '$http', '$location', '$log', 'Restangular', 
+	function ($scope, $http, $location, $log, Restangular) {
 
 	$log = $log.getInstance('search.autocomplete');
 	$log.debug('Initiate autocompleter');
 
 	$scope.getArticles = function(val) {
 		$log.debug('Texte to autocomplete ' + val);
-	    return $http.get('http://cuisine.dev/api/v1/autocomplete', {
-	      params: {
-	        query: val
-	      }
-	    }).then(function(res){
-	      return res.data;
+		return Restangular.all("autocomplete").do({
+        	query: val
+        }).then(function(res){
+	      return res;
 	    });
-
-	    $scope.query = undefined;
 	};
 
     $scope.searchForm = function() {

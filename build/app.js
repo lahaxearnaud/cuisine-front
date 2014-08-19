@@ -325,6 +325,12 @@ app.config(['RestangularProvider', function (RestangularProvider) {
             return auth;
     });
 
+    RestangularProvider.addElementTransformer('autocomplete', true, function(auth) {
+            auth.addRestangularMethod('do', 'get', '');
+
+            return auth;
+    });
+
     RestangularProvider.addElementTransformer('articles', true, function(articles) {
             articles.addRestangularMethod('search', 'get', 'search');
             articles.addRestangularMethod('extract', 'post', 'extractFromUrl');
@@ -552,23 +558,19 @@ app.controller('category.articles', ['$scope', 'Restangular', '$routeParams', '$
 angular.module('cook.controllers', [])
 	.controller('main', ['$scope', '$log', function ($scope, $log) {
 }]);
-app.controller('search.autocomplete', ['$scope', '$http', '$location', '$log', 
-	function ($scope, $http, $location, $log) {
+app.controller('search.autocomplete', ['$scope', '$http', '$location', '$log', 'Restangular', 
+	function ($scope, $http, $location, $log, Restangular) {
 
 	$log = $log.getInstance('search.autocomplete');
 	$log.debug('Initiate autocompleter');
 
 	$scope.getArticles = function(val) {
 		$log.debug('Texte to autocomplete ' + val);
-	    return $http.get('http://cuisine.dev/api/v1/autocomplete', {
-	      params: {
-	        query: val
-	      }
-	    }).then(function(res){
-	      return res.data;
+		return Restangular.all("autocomplete").do({
+        	query: val
+        }).then(function(res){
+	      return res;
 	    });
-
-	    $scope.query = undefined;
 	};
 
     $scope.searchForm = function() {
