@@ -558,6 +558,23 @@ app.controller('category.articles', ['$scope', 'Restangular', '$routeParams', '$
 angular.module('cook.controllers', [])
 	.controller('main', ['$scope', '$log', function ($scope, $log) {
 }]);
+app.controller('search.autocomplete', ['$scope', '$http', '$location', function ($scope, $http, $location) {
+	$scope.getArticles = function(val) {
+	    return $http.get('http://cuisine.dev/api/v1/autocomplete', {
+	      params: {
+	        query: val
+	      }
+	    }).then(function(res){
+	      return res.data.results;
+	    });
+
+	    $scope.query = undefined;
+
+	    $scope.display = function ($item, $model, $label) {
+			$location.path( '/recipes/' + $model.id );
+		};
+	};
+}]);
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
 
     $log = $log.getInstance('user.login');

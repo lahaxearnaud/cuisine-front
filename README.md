@@ -19,3 +19,5 @@ bower install
 === Dependencies
 
 https://github.com/picardy/angular-fontawesome
+
+http://plnkr.co/edit/qcDLJMPOFoLREnmJQMGp?p=preview
