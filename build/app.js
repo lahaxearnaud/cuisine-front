@@ -221,7 +221,7 @@ function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
 app.run(['loader', '$rootScope', '$location', '$log', function(loader, $rootScope, $location, $log) {
         loader.execute();
 
-
+/**
         $rootScope.setFormScope = function(scope){
             this.formScope = scope;
             if($location.search().query) {
@@ -229,14 +229,8 @@ app.run(['loader', '$rootScope', '$location', '$log', function(loader, $rootScop
             }
         }
 
-        $rootScope.searchForm = function() {
-            $log.debug("search " + this.formScope.query);
-            $location.search({
-                "query": this.formScope.query
-            })
-            $location.path('/recipes/search');
-        };
 
+**/
         $rootScope.goArticle = function ( id ) {
           $location.path( '/recipes/' + id );
         };
@@ -558,21 +552,36 @@ app.controller('category.articles', ['$scope', 'Restangular', '$routeParams', '$
 angular.module('cook.controllers', [])
 	.controller('main', ['$scope', '$log', function ($scope, $log) {
 }]);
-app.controller('search.autocomplete', ['$scope', '$http', '$location', function ($scope, $http, $location) {
+app.controller('search.autocomplete', ['$scope', '$http', '$location', '$log', 
+	function ($scope, $http, $location, $log) {
+
+	$log = $log.getInstance('search.autocomplete');
+	$log.debug('Initiate autocompleter');
+
 	$scope.getArticles = function(val) {
+		$log.debug('Texte to autocomplete ' + val);
 	    return $http.get('http://cuisine.dev/api/v1/autocomplete', {
 	      params: {
 	        query: val
 	      }
 	    }).then(function(res){
-	      return res.data.results;
+	      return res.data;
 	    });
 
 	    $scope.query = undefined;
+	};
 
-	    $scope.display = function ($item, $model, $label) {
-			$location.path( '/recipes/' + $model.id );
-		};
+    $scope.searchForm = function() {
+        $log.debug("search " + $scope.query);
+        $location.search({
+            "query": $scope.query
+        })
+        $location.path('/recipes/search');
+    };
+
+	$scope.display = function ($item) {
+    	$log.debug('Select article ' + $item.id);
+		$location.path( '/recipes/' + $item.id );
 	};
 }]);
 app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {

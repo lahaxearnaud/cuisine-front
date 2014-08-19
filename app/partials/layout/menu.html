@@ -18,14 +18,13 @@
         <li ng-if="authentification.logged" ><a href="#/recipes">Recipes</a></li>
       </ul>
 
-        <div class="col-sm-4 col-md-4" ng-controller="search.autocomplete">
-            <form class="navbar-form" role="search" ng-if="authentification.logged" name="search" ng-submit="searchForm(search.$valid)" ng-init="setFormScope(this)" >
-                <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Search" ng-model="query" name="query" typeahead-on-select='display(this, query)' typeahead="article as article.title for article in articles | filter:$viewValue | limitTo:8" typeahead-min-length="3" typeahead-wait-ms="10">
+        <div class="col-sm-4 col-md-4" ng-controller="search.autocomplete" ng-if="authentification.logged">
+            <form class="navbar-form" ng-submit="searchForm()">
+                <div class="input-group search-field">
+                  <input type="text" class="form-control" placeholder="Search" ng-model="query" name="query" typeahead-on-select='display($item);' typeahead="article as article.title for article in getArticles($viewValue) | filter:$viewValue | limitTo:8" typeahead-min-length="2" typeahead-template-url="autocompleteTemplate.html" autocomplete="off">
                     <div class="input-group-btn">
                         <button class="btn btn-default" type="submit"><fa name="search"></fa></button>
                     </div>
-                    <div><pre>{{ selected }}</pre></div>
                 </div>
             </form>
         </div>
