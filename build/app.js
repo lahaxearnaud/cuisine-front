@@ -576,7 +576,7 @@ app.controller('search.autocomplete', ['$scope', '$http', '$location', '$log', '
     $scope.searchForm = function() {
         $log.debug("search " + $scope.query);
         $location.search({
-            "query": $scope.query
+            "query" : $scope.query
         })
         $location.path('/recipes/search');
     };
