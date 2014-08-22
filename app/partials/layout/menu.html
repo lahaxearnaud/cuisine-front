@@ -28,8 +28,9 @@
                 </div>
             </form>
         </div>
-      <ul class="nav navbar-nav navbar-right" ng-if="authentification.logged">
-      <li class="dropdown">
+
+      <ul class="nav navbar-nav navbar-right" ng-if="authentification.logged" ng-controller="user.current">
+        <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <fa name="plus"></fa> <fa name="caret-down"></fa>
           </a>

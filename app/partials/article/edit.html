@@ -5,12 +5,20 @@
                 <h3 class="panel-title">Edit recipe</h3>
             </div>
             <div class="panel-body">
+                <div align="center">
+                    <img src="{{ article.image }}" ng-if="article.image.length" class="img-rounded">
+                </div>
                 <form name="loginForm" ng-submit="submitForm(loginForm.$valid)" ng-init="setFormScope()" role="form">
                     <fieldset>
                         <div class="form-group" ng-class="{'has-error': errors.title}">
                             <label>Title</label>
                             <input class="form-control" type="text" id="title" name="title" ng-model="article.title" required ng-required="true">
                             <span class="help-inline" ng-if="errors.title">{{ errors.title }}</span>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': errors.title}">
+                            <label>Image</label>
+                            <input class="form-control" type="text" id="image" name="image" ng-model="article.image" required ng-required="true">
+                            <span class="help-inline" ng-if="errors.image">{{ errors.image }}</span>
                         </div>
                         <div class="form-group" ng-class="{'has-error': errors.body}">
                             <label>Recette</label>

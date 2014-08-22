@@ -2,20 +2,33 @@
     <div data-block="content">
 		<div class="col-md-12" ng-show="article">
 		    <h1>{{ article.title }}</h1>
+			<img src="{{ article.image }}" ng-if="article.image.length" class="img-rounded">
+
 		    <div btf-markdown="article.body"></div>
 		    <div>
 				<span class="badge">Posted {{ article.created_at }}</span>
-				<a href="#/categories/{{ article.category.id }}/articles" class="label label-default">
+
+				<a href="{{ article.url }}" target="_blank">
+					<span ng-if="article.sourceFavicon.length">
+						<img alt="" class="favicon" src="{{ article.sourceFavicon }}"/>
+					</span>
+					<span ng-if="!article.sourceFavicon.length">
+						<fa name="globe"></fa>
+					</span>
+					{{ article.sourceSite }}
+				</a>
+
+				<a href="#/categories/{{ article.category.id }}/articles">
 					{{ article.category.name }}
 				</a>
 
 				<div class="pull-right">
 					<div class="btn-group">
 				        <a class="btn btn-default" href="#/recipes/{{ article.id }}/edit">
-					<fa name="pencil"></fa>
+							<fa name="pencil"></fa>
 				        </a>
 				        <a class="btn btn-default" href="#/recipes/{{ article.id }}/delete">
-					<fa name="trash-o"></fa>
+							<fa name="trash-o"></fa>
 				        </a>
 				    </div>
 				</div>

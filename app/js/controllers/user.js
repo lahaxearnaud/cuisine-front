@@ -55,3 +55,8 @@ app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootSc
 
     $location.path('/login');
 }]);
+
+app.controller('user.current', ['$scope', function ($scope) {
+
+}]);
+

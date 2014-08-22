@@ -75,6 +75,9 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
                 if(result.body) {
                     $scope.errors.body = result.body[0];
                 }
+                if(result.image) {
+                    $scope.errors.image = result.image[0];
+                }
                 if(result.category_id) {
                     $scope.errors.category_id = result.category_id[0];
                 }

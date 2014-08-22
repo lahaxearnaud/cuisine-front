@@ -21,13 +21,8 @@ var app = angular.module('cook', [
 
 app.config(['$routeProvider',
     function($routeProvider, $locationProvider) {
-        $routeProvider.when('/app', {
-            templateUrl: 'partials/home.html',
-            controller: 'main'
-        });
-
         $routeProvider.otherwise({
-            redirectTo: '/app'
+            redirectTo: '/recipes'
         });
 }]);
 
@@ -218,22 +213,12 @@ function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
         $location.path('/login');
     }
 }
-app.run(['loader', '$rootScope', '$location', '$log', function(loader, $rootScope, $location, $log) {
-        loader.execute();
+app.run(['loader', '$rootScope', '$location', function(loader, $rootScope, $location ) {
+    loader.execute();
 
-/**
-        $rootScope.setFormScope = function(scope){
-            this.formScope = scope;
-            if($location.search().query) {
-                this.formScope.query = $location.search().query;
-            }
-        }
-
-
-**/
-        $rootScope.goArticle = function ( id ) {
-          $location.path( '/recipes/' + id );
-        };
+    $rootScope.goArticle = function ( id ) {
+      $location.path( '/recipes/' + id );
+    };
 }]);
 
 
@@ -433,6 +418,9 @@ app.controller('article.edit', ['$scope', 'Restangular', '$routeParams', '$log',
                 }
                 if(result.body) {
                     $scope.errors.body = result.body[0];
+                }
+                if(result.image) {
+                    $scope.errors.image = result.image[0];
                 }
                 if(result.category_id) {
                     $scope.errors.category_id = result.category_id[0];
@@ -643,6 +631,12 @@ app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootSc
 
     $location.path('/login');
 }]);
+
+app.controller('user.current', ['$scope', function ($scope) {
+
+}]);
+
+
 /* Filters */
 
 angular.module('cook.filters', []).

@@ -21,12 +21,7 @@ var app = angular.module('cook', [
 
 app.config(['$routeProvider',
     function($routeProvider, $locationProvider) {
-        $routeProvider.when('/app', {
-            templateUrl: 'partials/home.html',
-            controller: 'main'
-        });
-
         $routeProvider.otherwise({
-            redirectTo: '/app'
+            redirectTo: '/recipes'
         });
 }]);
