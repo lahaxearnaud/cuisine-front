@@ -241,7 +241,7 @@ app.config(['logExProvider', function(logExProvider) {
  * Created by arnaud on 10/08/14.
  */
 app.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
+    RestangularProvider.setBaseUrl('http://api-cuisine.lahaxe.fr/api/v1/');
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
     RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
         return true; // error not handled

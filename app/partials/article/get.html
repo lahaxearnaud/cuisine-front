@@ -33,6 +33,20 @@
 				    </div>
 				</div>
 			</div>
-	     </div>
+	    </div>
+
+	    <div class="col-md-12" ng-show="article.notes">
+			<ul class="media-list">
+			  <li class="media" ng-repeat="note in article.notes">
+			    <img class="media-object" gravatar-src="note.author.email" gravatar-size="100">
+			    <div class="media-body">
+					{{ note.body }}
+					<hr/>
+					<span>Posted {{ article.created_at }}</span>
+			    </div>
+			  </li>
+			</ul>
+			<pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" items-per-page="itemsPerPage" ></pagination>
+	    </div>
 	</div>
 </div>
