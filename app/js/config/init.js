@@ -4,5 +4,9 @@ app.run(['loader', '$rootScope', '$location', function(loader, $rootScope, $loca
     $rootScope.goArticle = function ( id ) {
       $location.path( '/recipes/' + id );
     };
-}]);
 
+    $rootScope.baseUrl = 'http://localhost:3333/';
+    $rootScope.siteUrl = function(segments) {
+        return $rootScope.baseUrl + segments;
+    }
+}]);

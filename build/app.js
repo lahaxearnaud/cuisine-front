@@ -8,6 +8,7 @@ var app = angular.module('cook', [
     'ngCookies',
     'ui.gravatar',
     'ui.bootstrap',
+    'socialLinks',
     'ui.bootstrap.tpls',
     'angular-blocks',
     'picardy.fontawesome',
@@ -219,9 +220,12 @@ app.run(['loader', '$rootScope', '$location', function(loader, $rootScope, $loca
     $rootScope.goArticle = function ( id ) {
       $location.path( '/recipes/' + id );
     };
+
+    $rootScope.baseUrl = 'http://localhost:3333/';
+    $rootScope.siteUrl = function(segments) {
+        return $rootScope.baseUrl + segments;
+    }
 }]);
-
-
 app.config(['logExProvider', function(logExProvider) {
     logExProvider.enableLogging(true);
 }]);
@@ -241,7 +245,7 @@ app.config(['logExProvider', function(logExProvider) {
  * Created by arnaud on 10/08/14.
  */
 app.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setBaseUrl('http://api-cuisine.lahaxe.fr/api/v1/');
+    RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
     RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
         return true; // error not handled
@@ -375,13 +379,62 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
     };
 }]);
 
-app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $routeParams, $log) {
+app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 
+    function ($rootScope, $scope, Restangular, $routeParams, $log) {
     $log = $log.getInstance('article.get');
 
     $log.debug('Get article #' + $routeParams.id );
 
+    $scope.currentPage = 1;
+    if($routeParams.page) {
+        $scope.currentPage = $routeParams.page;
+    }
+
+    $scope.errors = {};
+    $scope.alert = '';
+
+    var updateNotes = function (page) {
+        $scope.article.getList('notes', {
+            'page' : $scope.currentPage
+        }).then(function(notes) {
+            $scope.article.notes = notes;
+            $scope.totalItems = notes.meta.total;
+            $scope.itemsPerPage = notes.meta.perPage;
+        });
+    };
+
+    $scope.setPage = function (pageNumber) {
+        $scope.currentPage = pageNumber;
+        $log.debug('Change to  ' + pageNumber );
+    };
+
+    $scope.pageChanged = function() {
+        $log.debug('Page changed to: ' + $scope.currentPage);
+        updateNotes($scope.currentPage);
+    };
+
+    $scope.submitForm = function() {
+        $log.debug($scope.note.body);
+        Restangular.all('notes').post({
+            'article_id': $scope.article.id,
+            'user_id': $scope.authentification.id,
+            'body': $scope.note.body,
+        }).then(function(result) {
+            if(result.success === undefined || !result.success) {
+                if(result.body) {
+                    $scope.errors.body = result.body[0];
+                }
+            } else {
+                updateNotes($scope.currentPage);
+                $scope.note.body = '';
+                $scope.alert = "Note added";
+            }
+        });
+    }
+
     Restangular.one("articles", $routeParams.id).get().then(function(article) {
         $scope.article = article;
+        updateNotes($scope.currentPage);
     });
 }]);
 
@@ -574,7 +627,8 @@ app.controller('search.autocomplete', ['$scope', '$http', '$location', '$log', '
 		$location.path( '/recipes/' + $item.id );
 	};
 }]);
-app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
+app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', 
+    function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
 
     $log = $log.getInstance('user.login');
 
@@ -611,7 +665,8 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
     };
 }]);
 
-app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
+app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 
+    function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
     Restangular.all('auth').logout();
     // set header to the rest client
     Restangular.setDefaultHeaders({"X-Auth-Token": ''});

@@ -31,13 +31,62 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
     };
 }]);
 
-app.controller('article.get', ['$scope', 'Restangular', '$routeParams', '$log', function ($scope, Restangular, $routeParams, $log) {
+app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 
+    function ($rootScope, $scope, Restangular, $routeParams, $log) {
     $log = $log.getInstance('article.get');
 
     $log.debug('Get article #' + $routeParams.id );
 
+    $scope.currentPage = 1;
+    if($routeParams.page) {
+        $scope.currentPage = $routeParams.page;
+    }
+
+    $scope.errors = {};
+    $scope.alert = '';
+
+    var updateNotes = function (page) {
+        $scope.article.getList('notes', {
+            'page' : $scope.currentPage
+        }).then(function(notes) {
+            $scope.article.notes = notes;
+            $scope.totalItems = notes.meta.total;
+            $scope.itemsPerPage = notes.meta.perPage;
+        });
+    };
+
+    $scope.setPage = function (pageNumber) {
+        $scope.currentPage = pageNumber;
+        $log.debug('Change to  ' + pageNumber );
+    };
+
+    $scope.pageChanged = function() {
+        $log.debug('Page changed to: ' + $scope.currentPage);
+        updateNotes($scope.currentPage);
+    };
+
+    $scope.submitForm = function() {
+        $log.debug($scope.note.body);
+        Restangular.all('notes').post({
+            'article_id': $scope.article.id,
+            'user_id': $scope.authentification.id,
+            'body': $scope.note.body,
+        }).then(function(result) {
+            if(result.success === undefined || !result.success) {
+                if(result.body) {
+                    $scope.errors.body = result.body[0];
+                }
+            } else {
+                updateNotes($scope.currentPage);
+                $scope.note.body = '';
+                $scope.alert = "Note added";
+            }
+        });
+    }
+
     Restangular.one("articles", $routeParams.id).get().then(function(article) {
         $scope.article = article;
+        updateNotes($scope.currentPage);
     });
 }]);
 

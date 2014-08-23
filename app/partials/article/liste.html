@@ -10,13 +10,8 @@
 							<h2 class="title article-link" ng-click="goArticle(article.id)">
 								{{ article.title }}
 							</h2>
-							<p class="desc">
-								<a href="#/categories/{{ article.category.id }}/articles">
-									{{ article.category.name }}
-								</a>
-							</p>
 							<ul>
-								<li style="width:50%;">
+								<li>
 									<a href="{{ article.url }}">
 										<span ng-if="article.sourceFavicon.length">
 											<img alt="" class="favicon" src="{{ article.sourceFavicon }}"/>
@@ -25,25 +20,19 @@
 											<fa name="globe"></fa>
 										</span>
 										{{ article.sourceSite }}
+
+										<a class="pull-right" href="#/categories/{{ article.category.id }}/articles">
+											{{ article.category.name }}
+										</a>
 									</a>
 								</li>
 							</ul>
 						</div>
 						<div class="social">
 							<ul>
-								<li class="facebook" style="width:33%;">
-									<a href="#facebook">
-										<fa name="facebook"></fa>
-									</a>
-								</li>
 								<li class="twitter" style="width:34%;">
-									<a href="#twitter">
-										<fa name="twitter"></fa>
-									</a>
-								</li>
-								<li class="google-plus" style="width:33%;">
-									<a href="#google-plus">
-										<fa name="google-plus"></fa>
+									<a social-twitter status="{{ article.title }} {{ siteUrl('#/recipes/' + article.id) }}">
+										<fa name="twitter" ></fa>
 									</a>
 								</li>
 							</ul>

@@ -8,6 +8,7 @@ var app = angular.module('cook', [
     'ngCookies',
     'ui.gravatar',
     'ui.bootstrap',
+    'socialLinks',
     'ui.bootstrap.tpls',
     'angular-blocks',
     'picardy.fontawesome',

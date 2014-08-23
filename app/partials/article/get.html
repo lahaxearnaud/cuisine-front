@@ -36,13 +36,39 @@
 	    </div>
 
 	    <div class="col-md-12" ng-show="article.notes">
+	    	<h2>Notes</h2>
+
 			<ul class="media-list">
-			  <li class="media" ng-repeat="note in article.notes">
-			    <img class="media-object" gravatar-src="note.author.email" gravatar-size="100">
+			  <li class="media well">
+					<div class="pull-left">
+			    		<img class="media-object" gravatar-src="authentification.email" gravatar-size="50">
+			    	</div>
+			    	<div class="media-body">
+						<alert type="success" ng-if="alert.length">{{alert}}</alert>
+
+						<form name="noteForm" role="form" ng-submit="submitForm(noteForm.$valid)" >
+							<div class="form-group" ng-class="{'has-error': errors.body}">
+								<textarea class="form-control" type="text" name="body" ng-model="note.body" required ng-required="true" rows="5"></textarea>
+	                            <div btf-markdown="note.body"></div>
+	                            <span class="help-inline" ng-if="errors.body">{{ errors.body }}</span>
+                        	</div>
+
+                        	<div class="row">
+	                            <div class="col-md-6 col-md-offset-6">
+	                                <input class="btn btn-lg btn-primary btn-block" type="submit" value="Save">
+	                            </div>
+                        	</div>
+						</form>
+			    	</div>
+			  </li>
+			  <li class="media well" ng-repeat="note in article.notes">
+			  	<div class="pull-left">
+			    	<img class="media-object" gravatar-src="note.user.email" gravatar-size="50">
+			    </div>
 			    <div class="media-body">
-					{{ note.body }}
+					<div btf-markdown="note.body"></div>
 					<hr/>
-					<span>Posted {{ article.created_at }}</span>
+					<span>Posted by {{ note.user.username }}</span>
 			    </div>
 			  </li>
 			</ul>

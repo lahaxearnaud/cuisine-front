@@ -1,4 +1,5 @@
-app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
+app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 'loader', 
+    function ($scope, Restangular, $cookieStore, $rootScope, $location, $log, loader) {
 
     $log = $log.getInstance('user.login');
 
@@ -35,7 +36,8 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
     };
 }]);
 
-app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
+app.controller('user.logout', ['$scope', 'Restangular', '$cookieStore', '$rootScope', '$location', '$log', 
+    function ($scope, Restangular, $cookieStore, $rootScope, $location, $log) {
     Restangular.all('auth').logout();
     // set header to the rest client
     Restangular.setDefaultHeaders({"X-Auth-Token": ''});
