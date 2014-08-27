@@ -91,6 +91,12 @@ app.config(['RestangularProvider', function (RestangularProvider) {
             return auth;
     });
 
+    RestangularProvider.addElementTransformer('users', true, function(users) {
+            users.addRestangularMethod('changePassword', 'post', 'password');
+
+            return users;
+    });
+
     RestangularProvider.addElementTransformer('autocomplete', true, function(auth) {
             auth.addRestangularMethod('do', 'get', '');
 

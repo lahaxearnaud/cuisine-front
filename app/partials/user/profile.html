@@ -2,35 +2,34 @@
     <div data-block="content">
         <div class="panel panel-info">
             <div class="panel-heading">
-              <h3 class="panel-title">{{authentification.username}}</h3>
+                <h3 class="panel-title">{{ authentification.username }}</h3>
             </div>
             <div class="panel-body">
-              <div class="row">
-                <div class="col-md-3 col-lg-3 " align="center"> 
-                <img class="media-object" gravatar-src="authentification.email" gravatar-size="100">
+                <div class="row">
+                    <div class="col-md-3 col-lg-3 " align="center">
+                        <img gravatar-src="authentification.email" gravatar-size="100">
+                    </div>
+                    <div class=" col-md-9 col-lg-9 ">
+                        <table class="table table-user-information">
+                            <tbody>
+                                <tr>
+                                    <td>Username:</td>
+                                    <td>{{ authentification.username }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Email:</td>
+                                    <td>{{ authentification.email }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class=" col-md-9 col-lg-9 ">
-                  <table class="table table-user-information">
-                    <tbody>
-                      <tr>
-                        <td>Username:</td>
-                        <td>{{authentification.username}}</td>
-                      </tr>
-                      <tr>
-                        <td>Email:</td>
-                        <td>{{authentification.email}}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
-                 <div class="panel-footer">
-                    <a href="#/user/edit" data-original-title="Edit profile" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning">
-                        <fa name="edit"></fa> Edit
-                    </a>
-                </div>
-          </div>
+            <div class="panel-footer">
+                <a href="#/user/edit" data-original-title="Edit profile" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning">
+                    <fa name="edit"></fa> Edit
+                </a>
+            </div>
         </div>
     </div>
 </div>

@@ -156,13 +156,20 @@ app.config(['$routeProvider',
             controller: 'user.login',
             publicAccess: true
         });
+
         $routeProvider.when('/logout', {
             templateUrl: 'partials/home.html',
             controller: 'user.logout'
         });
-        $routeProvider.when('/profile', {
+
+        $routeProvider.when('/user/profile', {
             templateUrl: 'partials/user/profile.html',
             controller: 'user.profile'
+        });
+
+        $routeProvider.when('/user/edit', {
+            templateUrl: 'partials/user/edit.html',
+            controller: 'user.edit'
         });
 }]);
 app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
@@ -336,6 +343,12 @@ app.config(['RestangularProvider', function (RestangularProvider) {
             auth.addRestangularMethod('logout', 'remove', '');
 
             return auth;
+    });
+
+    RestangularProvider.addElementTransformer('users', true, function(users) {
+            users.addRestangularMethod('changePassword', 'post', 'password');
+
+            return users;
     });
 
     RestangularProvider.addElementTransformer('autocomplete', true, function(auth) {
@@ -725,8 +738,38 @@ app.controller('user.current', ['$scope',
 
 
 app.controller('user.profile', ['$scope',
-    function ($scope) {
-        
+    function ($scope) {}
+]);
+
+app.controller('user.edit', ['$scope', 'Restangular', '$log',
+    function ($scope, Restangular, $log) {
+        $log = $log.getInstance('user.edit');
+        $scope.alert = {
+            'type' : '',
+            'message' :''
+        };
+
+        $scope.errors = {};
+
+        $scope.submitForm = function() {
+            $log.debug($scope.user);
+            Restangular.all('users').changePassword($scope.user).then(function (result) {
+                $log.debug(result);
+                if(result.success === true) {
+                    $scope.alert.type = 'success';
+                    $scope.alert.message = 'Password changed';
+                }
+            }, function(result) {
+                $log.debug(result);
+
+                if(result.data.newPassword) {
+                    $scope.errors.newPassword = result.data.newPassword;
+                }
+                if(result.data.oldPassword) {
+                    $scope.errors.oldPassword = result.data.oldPassword;
+                }
+            });
+        }
     }
 ]);
 

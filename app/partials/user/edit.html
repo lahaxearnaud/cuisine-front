@@ -1,0 +1,36 @@
+<div data-extend-template="/layout.html">
+    <div data-block="content">
+        <h1>Change password</h1>
+        <alert type="{{ alert.type }}" ng-if="alert.message.length">{{ alert.message }}</alert>
+        <form name="changePassword" role="form" ng-submit="submitForm(changePassword.$valid)">
+            <div class="form-group" ng-class="{'has-error': errors.oldPassword}">
+                <label>Current password</label>
+                <input class="form-control" type="password" id="oldPassword" name="oldPassword" ng-model="user.oldPassword" required ng-required="true">
+                <span class="help-inline" ng-if="errors.oldPassword">{{ errors.oldPassword }}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': errors.newPassword || user.newPassword != user.newPassword_confirmation}">
+                <label>New password</label>
+                <input class="form-control" type="password" id="newPassword" name="newPassword" ng-model="user.newPassword" required ng-required="true">
+                <span class="help-inline" ng-if="errors.newPassword">{{ errors.newPassword }}</span>
+            </div>
+
+            <div class="form-group" ng-class="{'has-error': user.newPassword != user.newPassword_confirmation}">
+                <label>Comfirm new password</label>
+                <input class="form-control" type="password" id="newPassword_confirmation" name="newPassword_confirmation" ng-model="user.newPassword_confirmation" required ng-required="true">
+                <span class="help-inline" ng-if="user.newPassword != user.newPassword_confirmation">Confirmation password is not the same as the new password</span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <a class="btn btn-lg btn-default btn-block" href="#/profile">
+                        Cancel
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <input class="btn btn-lg btn-danger btn-block" type="submit" value="Save">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
