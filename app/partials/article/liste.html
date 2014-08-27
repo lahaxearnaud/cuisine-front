@@ -1,50 +1,51 @@
 <div data-extend-template="/layout.html">
     <div data-block="content">
-		<div ng-show="articles">
-			<div class="row">
-				<div class="col-sm-6 col-xs-6 recipe-item recipes-list" ng-repeat="article in articles">
-					<div>
-						<img alt="{{ article.title }}" src="{{ article.image }}" ng-click="goArticle(article.id)" class="article-link" ng-if="article.image.length"/>
-						<img alt="{{ article.title }}" src="http://placehold.it/150x150&text=..." ng-click="goArticle(article.id)" class="article-link" ng-if="!article.image.length"/>
-						<div class="info">
-							<h2 class="title article-link" ng-click="goArticle(article.id)">
-								{{ article.title }}
-							</h2>
-							<ul>
-								<li>
-									<a href="{{ article.url }}">
-										<span ng-if="article.sourceFavicon.length">
-											<img alt="" class="favicon" src="{{ article.sourceFavicon }}"/>
-										</span>
-										<span ng-if="!article.sourceFavicon.length">
-											<fa name="globe"></fa>
-										</span>
-										{{ article.sourceSite }}
+        <div ng-show="articles">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 recipe-item recipes-list" ng-repeat="article in articles">
+                    <div>
+                        <img alt="{{ article.title }}" ng-src="{{ article.image }}" ng-click="goArticle(article.id)" class="article-link" ng-if="article.image.length" />
+                        <img alt="{{ article.title }}" src="http://placehold.it/150x150&text=..." ng-click="goArticle(article.id)" class="article-link" ng-if="!article.image.length" />
+                        <div class="info">
+                            <h2 class="title article-link" ng-click="goArticle(article.id)">
+                                {{ article.title }}
+                            </h2>
+                            <ul>
+                                <li>
+                                    <a href="{{ article.url }}">
+                                        <span ng-if="article.sourceFavicon.length">
+                                            <img alt="" class="favicon" ng-src="{{ article.sourceFavicon }}" />
+                                        </span>
+                                        <span ng-if="!article.sourceFavicon.length">
+                                            <fa name="globe"></fa>
+                                        </span>
+                                        {{ article.sourceSite }}
 
-										<a class="pull-right" href="#/categories/{{ article.category.id }}/articles">
-											{{ article.category.name }}
-										</a>
-									</a>
-								</li>
-							</ul>
-						</div>
-						<div class="social">
-							<ul>
-								<li class="twitter" style="width:34%;">
-									<a social-twitter status="{{ article.title }} {{ siteUrl('#/recipes/' + article.id) }}">
-										<fa name="twitter" ></fa>
-									</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-			<pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" items-per-page="itemsPerPage" ></pagination>
-		</div>
+                                        <a class="pull-right" href="#/categories/{{ article.category.id }}/articles">
+                                            <fa name="tag"></fa>
+                                            {{ article.category.name }}
+                                        </a>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="social">
+                            <ul>
+                                <li class="twitter" style="width:34%;">
+                                    <a social-twitter status="{{ article.title }} {{ siteUrl('#/recipes/' + article.id) }}">
+                                        <fa name="twitter"></fa>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <pagination total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" items-per-page="itemsPerPage" ng-show="totalItems > itemsPerPage"></pagination>
+        </div>
 
-		<div ng-if="articles.length == 0">
-			<alert>No recipes found</alert>
-		</div>
-	</div>
+        <div ng-if="articles.length == 0">
+            <alert>No recipes found</alert>
+        </div>
+    </div>
 </div>

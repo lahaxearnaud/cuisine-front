@@ -1,92 +1,88 @@
 .favicon {
-	width: 12px;
-	height: 12px;
+    width: 12px;
+    height: 12px;
 }
-
 .recipes-list {
-	list-style: none;
-	margin: 0px;
-	padding-left: 3px;
-	padding-right: 3px;
+    list-style: none;
+    margin: 0px;
+    padding-left: 3px;
+    padding-right: 3px;
 }
-
 .recipes-list > div {
-	background-color: rgb(255, 255, 255);
-	box-shadow: 0px 0px 5px rgb(51, 51, 51);
-	box-shadow: 0px 0px 5px rgba(51, 51, 51, 0.7);
-	padding: 0px;
-	margin: 0px 0px 20px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0px 0px 5px rgb(51, 51, 51);
+    box-shadow: 0px 0px 5px rgba(51, 51, 51, 0.7);
+    padding: 0px;
+    margin: 0px 0px 20px;
 }
 .recipes-list > div > time {
-	display: inline-block;
-	width: 100%;
-	color: rgb(255, 255, 255);
-	background-color: rgb(197, 44, 102);
-	padding: 5px;
-	text-align: center;
-	text-transform: uppercase;
+    display: inline-block;
+    width: 100%;
+    color: rgb(255, 255, 255);
+    background-color: rgb(197, 44, 102);
+    padding: 5px;
+    text-align: center;
+    text-transform: uppercase;
 }
 .recipes-list > div:nth-child(even) > time {
-	background-color: rgb(165, 82, 167);
+    background-color: rgb(165, 82, 167);
 }
 .recipes-list > div > time > span {
-	display: none;
+    display: none;
 }
 .recipes-list > div > time > .day {
-	display: block;
-	font-size: 56pt;
-	font-weight: 100;
-	line-height: 1;
+    display: block;
+    font-size: 56pt;
+    font-weight: 100;
+    line-height: 1;
 }
 .recipes-list > div time > .month {
-	display: block;
-	font-size: 24pt;
-	font-weight: 900;
-	line-height: 1;
+    display: block;
+    font-size: 24pt;
+    font-weight: 900;
+    line-height: 1;
 }
 .recipes-list > div > img {
-	width: 100%;
+    width: 100%;
 }
 .recipes-list > div > .info {
-	padding-top: 5px;
-	text-align: center;
+    padding-top: 5px;
+    text-align: center;
 }
 .recipes-list > div > .info > .title {
-	font-size: 17pt;
-	font-weight: 700;
-	margin: 0px;
+    font-size: 17pt;
+    font-weight: 700;
+    margin: 0px;
 }
 .recipes-list > div > .info > .desc {
-	font-size: 13pt;
-	font-weight: 300;
-	margin: 0px;
+    font-size: 13pt;
+    font-weight: 300;
+    margin: 0px;
 }
-.recipes-list > div > .info > ul,
+.recipes-list > div > .info > ul, .recipes-list > div > .social > ul {
+    display: table;
+    list-style: none;
+    margin: 10px 0px 0px;
+    padding: 0px;
+    width: 100%;
+    text-align: center;
+}
 .recipes-list > div > .social > ul {
-	display: table;
-	list-style: none;
-	margin: 10px 0px 0px;
-	padding: 0px;
-	width: 100%;
-	text-align: center;
+    margin: 0px;
 }
-.recipes-list > div > .social > ul {
-	margin: 0px;
-}
-.recipes-list > div > .info > ul > div,
-.recipes-list > div > .social > ul > div {
-	display: table-cell;
-	cursor: pointer;
-	color: rgb(30, 30, 30);
-	font-size: 11pt;
-	font-weight: 300;
+.recipes-list > div > .info > ul > div, .recipes-list > div > .social > ul > div {
+    display: table-cell;
+    cursor: pointer;
+    color: rgb(30, 30, 30);
+    font-size: 11pt;
+    font-weight: 300;
     padding: 3px 0px;
 }
 .recipes-list > div > .info > ul > div > a {
-	display: block;
-	width: 100%;
-	color: rgb(30, 30, 30);
-	text-decoration: none;
+    display: block;
+    width: 100%;
+    color: rgb(30, 30, 30);
+    text-decoration: none;
 }
 .recipes-list > div > .social > ul > div {
     padding: 0px;
@@ -94,97 +90,101 @@
 .recipes-list > div > .social > ul > div > a {
     padding: 3px 0px;
 }
-.recipes-list > div > .info > ul > div:hover,
-.recipes-list > div > .social > ul > div:hover {
-	color: rgb(30, 30, 30);
-	background-color: rgb(200, 200, 200);
+.recipes-list > div > .info > ul > div:hover, .recipes-list > div > .social > ul > div:hover {
+    color: rgb(30, 30, 30);
+    background-color: rgb(200, 200, 200);
 }
-.facebook a,
-.twitter a,
-.google-plus a {
-	display: block;
-	width: 100%;
-	color: rgb(75, 110, 168) !important;
+.facebook a, .twitter a, .google-plus a {
+    display: block;
+    width: 100%;
+    color: rgb(75, 110, 168) !important;
 }
 .twitter a {
-	color: rgb(79, 213, 248) !important;
+    color: rgb(79, 213, 248) !important;
 }
 .google-plus a {
-	color: rgb(221, 75, 57) !important;
+    color: rgb(221, 75, 57) !important;
 }
 .facebook:hover a {
-	color: rgb(255, 255, 255) !important;
-	background-color: rgb(75, 110, 168) !important;
+    color: rgb(255, 255, 255) !important;
+    background-color: rgb(75, 110, 168) !important;
 }
 .twitter:hover a {
-	color: rgb(255, 255, 255) !important;
-	background-color: rgb(79, 213, 248) !important;
+    color: rgb(255, 255, 255) !important;
+    background-color: rgb(79, 213, 248) !important;
 }
 .google-plus:hover a {
-	color: rgb(255, 255, 255) !important;
-	background-color: rgb(221, 75, 57) !important;
+    color: rgb(255, 255, 255) !important;
+    background-color: rgb(221, 75, 57) !important;
 }
-
+@media (max-width: 768px) {
+    .recipes-list > div > img {
+        max-width: 200px;
+        padding-top: 5px;
+    }
+    .recipes-list>div>.info>ul, .recipes-list>div>.social>ul {
+        padding: 5px;
+    }
+    .recipes-list > div {
+        text-align: center;
+    }
+}
 @media (min-width: 768px) {
-	.recipes-list > div {
-		position: relative;
-		display: block;
-		width: 100%;
-		height: 120px;
-		padding: 0px;
-	}
-	.recipes-list > div > time,
-	.recipes-list > div > img  {
-		display: inline-block;
-	}
-	.recipes-list > div > time,
-	.recipes-list > div > img {
-		width: 120px;
-		float: left;
-	}
-	.recipes-list > div > .info {
-		background-color: rgb(245, 245, 245);
-		overflow: hidden;
-	}
-	.recipes-list > div > time,
-	.recipes-list > div > img {
-		width: 120px;
-		height: 120px;
-		padding: 0px;
-		margin: 0px;
-	}
-	.recipes-list > div > .info {
-		position: relative;
-		height: 120px;
-		text-align: left;
-		padding-right: 40px;
-	}
-	.recipes-list > div > .info > .title,
-	.recipes-list > div > .info > .desc {
-		padding: 0px 10px;
-	}
-	.recipes-list > div > .info > ul {
-		position: absolute;
-		left: 0px;
-		bottom: 0px;
-	}
-	.recipes-list > div > .social {
-		position: absolute;
-		top: 0px;
-		right: 0px;
-		display: block;
-		width: 40px;
-	}
+    .recipes-list > div {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 120px;
+        padding: 0px;
+    }
+    .recipes-list > div > time, .recipes-list > div > img {
+        display: inline-block;
+    }
+    .recipes-list > div > time, .recipes-list > div > img {
+        width: 120px;
+        float: left;
+    }
+    .recipes-list > div > .info {
+        background-color: rgb(245, 245, 245);
+        overflow: hidden;
+    }
+    .recipes-list > div > time, .recipes-list > div > img {
+        width: 120px;
+        height: 120px;
+        padding: 0px;
+        margin: 0px;
+    }
+    .recipes-list > div > .info {
+        position: relative;
+        height: 120px;
+        text-align: left;
+        padding-right: 40px;
+    }
+    .recipes-list > div > .info > .title, .recipes-list > div > .info > .desc {
+        padding: 0px 10px;
+    }
+    .recipes-list > div > .info > ul {
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+    }
+    .recipes-list > div > .social {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        display: block;
+        width: 40px;
+    }
     .recipes-list > div > .social > ul {
         border-left: 1px solid rgb(230, 230, 230);
     }
-	.recipes-list > div > .social > ul > li {
-		display: block;
+    .recipes-list > div > .social > ul > li {
+        display: block;
         padding: 0px;
-	}
-	.recipes-list > div > .social > ul > li > a {
-		display: block;
-		width: 40px;
-		padding: 10px 0px 9px;
-	}
+    }
+    .recipes-list > div > .social > ul > li > a {
+        display: block;
+        width: 40px;
+        padding: 10px 0px 9px;
+    }
 }

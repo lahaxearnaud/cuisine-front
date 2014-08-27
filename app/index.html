@@ -57,7 +57,7 @@
 
     <script type="text/ng-template" id="autocompleteTemplate.html">
       <a>
-          <img src="{{ match.model.image }}" width="32">
+          <img ng-src="{{ match.model.image }}" width="32">
           <span bind-html-unsafe="match.label | typeaheadHighlight:query"></span>
       </a>
     </script>

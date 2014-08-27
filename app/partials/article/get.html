@@ -35,11 +35,10 @@
 			</div>
 	    </div>
 
-	    <div class="col-md-12" ng-show="article.notes">
+	    <div class="col-md-12">
 	    	<h2>Notes</h2>
-
 			<ul class="media-list">
-			  <li class="media well">
+			  <li class="media well" >
 					<div class="pull-left">
 			    		<img class="media-object" gravatar-src="authentification.email" gravatar-size="50">
 			    	</div>
@@ -49,19 +48,18 @@
 						<form name="noteForm" role="form" ng-submit="submitForm(noteForm.$valid)" >
 							<div class="form-group" ng-class="{'has-error': errors.body}">
 								<textarea class="form-control" type="text" name="body" ng-model="note.body" required ng-required="true" rows="5"></textarea>
-	                            <div btf-markdown="note.body"></div>
+								<div ng-if="note.body.length">
+									<h3>Preview</h3>
+	                            	<div btf-markdown="note.body"></div>
+	                            </div>
 	                            <span class="help-inline" ng-if="errors.body">{{ errors.body }}</span>
                         	</div>
 
-                        	<div class="row">
-	                            <div class="col-md-6 col-md-offset-6">
-	                                <input class="btn btn-lg btn-primary btn-block" type="submit" value="Save">
-	                            </div>
-                        	</div>
+	                        <input class="btn btn-lg btn-primary btn-block" type="submit" value="Add">
 						</form>
 			    	</div>
 			  </li>
-			  <li class="media well" ng-repeat="note in article.notes">
+			  <li class="media well" ng-repeat="note in article.notes" ng-show="article.notes">
 			  	<div class="pull-left">
 			    	<img class="media-object" gravatar-src="note.user.email" gravatar-size="50">
 			    </div>

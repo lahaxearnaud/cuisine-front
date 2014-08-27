@@ -1,12 +1,32 @@
 /**
  * Created by arnaud on 10/08/14.
  */
+app.run(['Restangular', '$rootScope', '$location',
+    function(Restangular, $rootScope, $location) {
+        Restangular.setErrorInterceptor(function (response, deferred, responseHandler) {
+            if(response.status === 401) {
+                Restangular.setDefaultHeaders({
+                    "X-Auth-Token": ''
+                });
+
+                $rootScope.authentification = {
+                    'token': '',
+                    'id': 0,
+                    'username': '',
+                    'logged': false
+                };
+
+                $location.path('/login');
+            }
+
+            return true; // error not handled
+        });
+}]);
+
+
 app.config(['RestangularProvider', function (RestangularProvider) {
     RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
-    RestangularProvider.setErrorInterceptor(function (response, deferred, responseHandler) {
-        return true; // error not handled
-    });
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
 

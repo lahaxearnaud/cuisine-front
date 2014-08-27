@@ -9,4 +9,8 @@ app.config(['$routeProvider',
             templateUrl: 'partials/home.html',
             controller: 'user.logout'
         });
+        $routeProvider.when('/profile', {
+            templateUrl: 'partials/user/profile.html',
+            controller: 'user.profile'
+        });
 }]);
