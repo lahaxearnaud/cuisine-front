@@ -93,6 +93,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
     RestangularProvider.addElementTransformer('users', true, function(users) {
             users.addRestangularMethod('changePassword', 'post', 'password');
+            users.addRestangularMethod('subscribe', 'post', 'subscribe');
 
             return users;
     });

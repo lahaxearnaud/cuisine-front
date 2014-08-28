@@ -20,4 +20,10 @@ app.config(['$routeProvider',
             templateUrl: 'partials/user/edit.html',
             controller: 'user.edit'
         });
+
+        $routeProvider.when('/subscribe', {
+            templateUrl: 'partials/subscribe.html',
+            controller: 'user.subscribe',
+            publicAccess: true
+        });
 }]);

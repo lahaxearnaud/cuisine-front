@@ -16,3 +16,7 @@ body {
 .article-link {
 	cursor: pointer;
 }
+
+.panel-login {
+	margin-top: 15%;
+}

@@ -171,6 +171,12 @@ app.config(['$routeProvider',
             templateUrl: 'partials/user/edit.html',
             controller: 'user.edit'
         });
+
+        $routeProvider.when('/subscribe', {
+            templateUrl: 'partials/subscribe.html',
+            controller: 'user.subscribe',
+            publicAccess: true
+        });
 }]);
 app.run(['Restangular', '$cookieStore', '$rootScope', '$route', '$location', '$log',
     function(Restangular, $cookieStore, $rootScope, $route, $location, $log) {
@@ -347,6 +353,7 @@ app.config(['RestangularProvider', function (RestangularProvider) {
 
     RestangularProvider.addElementTransformer('users', true, function(users) {
             users.addRestangularMethod('changePassword', 'post', 'password');
+            users.addRestangularMethod('subscribe', 'post', 'subscribe');
 
             return users;
     });
@@ -772,6 +779,43 @@ app.controller('user.edit', ['$scope', 'Restangular', '$log',
         }
     }
 ]);
+
+app.controller('user.subscribe', ['$scope', 'Restangular', '$log',
+    function ($scope, Restangular, $log) {
+        $log = $log.getInstance('user.subscribe');
+
+        $scope.errors = {};
+
+        $scope.alert = {
+            'type' : '',
+            'message' :''
+        };
+
+        $scope.submitForm = function() {
+            $log.debug($scope.user);
+            Restangular.all('users').subscribe($scope.user).then(function (result) {
+                $log.debug(result);
+                if(result.success === true) {
+                    $scope.alert.type = 'success';
+                    $scope.alert.message = 'Account created';
+                }
+            }, function(result) {
+                $log.debug(result);
+                if(result.data.password) {
+                    $scope.errors.password = result.data.password;
+                }
+                if(result.data.email) {
+                    $scope.errors.email = result.data.email;
+                }
+                if(result.data.username) {
+                    $scope.errors.username = result.data.username;
+                }
+            });
+        };
+    }
+]);
+
+
 
 /* Filters */
 
