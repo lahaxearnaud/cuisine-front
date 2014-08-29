@@ -1,0 +1,16 @@
+language: node_js
+
+node_js:
+  - "0.10"
+
+before_install:
+  - npm install -g bower gulp
+  - bower install
+  - npm install
+
+script:
+  - gulp assets:js
+  - gulp assets:css
+  - gulp html
+  - gulp assets:img
+  - gulp bower:build
