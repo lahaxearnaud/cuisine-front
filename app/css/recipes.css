@@ -145,7 +145,6 @@
         float: left;
     }
     .recipes-list > div > .info {
-        background-color: rgb(245, 245, 245);
         overflow: hidden;
     }
     .recipes-list > div > time, .recipes-list > div > img {

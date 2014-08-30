@@ -1,6 +1,6 @@
-<div data-extend-template="/layout.html">
-    <div data-block="content">
-        <h1>Change password</h1>
+<div data-extend-template="/layout-panel.html">
+    <div data-block="panel-title">Change password</div>
+    <div data-block="panel-content">
         <alert type="{{ alert.type }}" ng-if="alert.message.length">{{ alert.message }}</alert>
         <form name="changePassword" role="form" ng-submit="submitForm(changePassword.$valid)">
             <div class="form-group" ng-class="{'has-error': errors.oldPassword}">
@@ -22,12 +22,12 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6">
-                    <a class="btn btn-lg btn-default btn-block" href="#/user/profile">
+                <div class="col-sm-6">
+                    <a class="btn btn-lg btn-warning btn-block" href="#/user/profile">
                         Cancel
                     </a>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <input class="btn btn-lg btn-danger btn-block" type="submit" value="Save">
                 </div>
             </div>

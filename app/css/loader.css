@@ -1,0 +1,8 @@
+#loading-bar .bar {
+    background: #FFB61E;
+}
+
+#loading-bar-spinner .spinner-icon {
+    border-top-color:  #FFB61E;
+    border-left-color: #FFB61E;
+}

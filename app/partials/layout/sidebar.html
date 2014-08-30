@@ -1,7 +1,5 @@
-<div class="col-sm-3 col-md-2 sidebar">
-  <ul class="nav nav-sidebar">
-    <li ng-repeat="category in categories">
+<div class="list-group">
+	<div ng-repeat="category in categories" class="list-group-item">
       <a href="#/categories/{{category.id}}/articles">{{ category.name }}</a>
-    </li>
-  </ul>
+    </div>
 </div>

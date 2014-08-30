@@ -1,4 +1,4 @@
-<nav class="navbar navbar-default" role="navigation" ng-if="authentification.logged">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" ng-if="authentification.logged">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -16,7 +16,7 @@
         <div class="col-sm-4 col-md-4" ng-controller="search.autocomplete" ng-if="authentification.logged">
             <form class="navbar-form" ng-submit="searchForm()">
                 <div class="input-group search-field">
-                  <input type="text" class="form-control" placeholder="Search" ng-model="query" name="query" typeahead-on-select='display($item);' typeahead="article as article.title for article in getArticles($viewValue) | filter:$viewValue | limitTo:8" typeahead-min-length="2" typeahead-template-url="autocompleteTemplate.html" typeahead-wait-ms="5" autocomplete="off">
+                  <input type="text" class="form-control" placeholder="Search" ng-model="query" name="query" typeahead-on-select='display($item);' typeahead="article as article.title for article in getArticles($viewValue) | filter:$viewValue | limitTo:8" typeahead-min-length="3" typeahead-template-url="autocompleteTemplate.html" typeahead-wait-ms="5" autocomplete="off" typeahead-wait-ms="20">
                     <div class="input-group-btn">
                         <button class="btn btn-default" type="submit"><fa name="search"></fa></button>
                     </div>

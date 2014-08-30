@@ -46,3 +46,14 @@
 .search-query:focus{
     width: 260px;
 }
+
+.search-field ul li a {
+    background-color: #fff;
+}
+
+.search-field ul li.active,
+.search-field ul li.active a,
+.search-field ul li.active a:hover {
+    background-color: #F2F1EF;
+    color: #434A54;
+}

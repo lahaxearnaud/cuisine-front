@@ -2,10 +2,11 @@
     <div data-block="content">
 		<div class="col-md-12" ng-show="article">
 		    <h1>{{ article.title }}</h1>
-			<img src="{{ article.image }}" ng-if="article.image.length" class="img-rounded">
+			<img src="{{ article.image }}" ng-if="article.image.length" class="img-rounded left recipe-image">
 
-		    <div btf-markdown="article.body"></div>
-		    <div>
+		    <div btf-markdown="article.body" class="recipe-body"></div>
+
+		    <div class="cb recipe-meta">
 				<span class="badge">Posted {{ article.created_at }}</span>
 
 				<a href="{{ article.url }}" target="_blank">

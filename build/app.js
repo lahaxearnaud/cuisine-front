@@ -264,6 +264,7 @@ app.config(['logExProvider', function(logExProvider) {
 
 app.run(['Restangular', '$rootScope', '$location', 'authToken',
     function(Restangular, $rootScope, $location, authToken) {
+        Restangular.setDefaultHttpFields({cache: true});
         Restangular.setErrorInterceptor(function (response, deferred, responseHandler, authToken) {
             if(response.status === 401) {
                 Restangular.setDefaultHeaders({
