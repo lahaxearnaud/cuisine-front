@@ -45,6 +45,7 @@ var appFiles =  [
         "app/js/modules/*.js",
         "app/js/routes/*.js",
         "app/js/config/*.js",
+        "env/*.js",
         "app/js/services/*.js",
         "app/js/controllers/*.js",
         "app/js/filters/*.js",

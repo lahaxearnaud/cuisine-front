@@ -1,12 +1,13 @@
 /**
  * Created by arnaud on 10/08/14.
  */
-app.run(['Restangular', '$rootScope', '$location',
-    function(Restangular, $rootScope, $location) {
-        Restangular.setErrorInterceptor(function (response, deferred, responseHandler) {
+
+app.run(['Restangular', '$rootScope', '$location', 'authToken',
+    function(Restangular, $rootScope, $location, authToken) {
+        Restangular.setErrorInterceptor(function (response, deferred, responseHandler, authToken) {
             if(response.status === 401) {
                 Restangular.setDefaultHeaders({
-                    "X-Auth-Token": ''
+                    authToken: ''
                 });
 
                 $rootScope.authentification = {
@@ -24,8 +25,8 @@ app.run(['Restangular', '$rootScope', '$location',
 }]);
 
 
-app.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
+app.config(['RestangularProvider', 'apiUrl', function (RestangularProvider, apiUrl) {
+    RestangularProvider.setBaseUrl(apiUrl);
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {

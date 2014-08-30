@@ -231,14 +231,14 @@ function isAllowOrRedirect($log, $location, publicRoutes, current, isLogged) {
         $location.path('/login');
     }
 }
-app.run(['loader', '$rootScope', '$location', function(loader, $rootScope, $location ) {
+app.run(['loader', '$rootScope', '$location', 'baseUrl', function(loader, $rootScope, $location, baseUrl ) {
     loader.execute();
 
     $rootScope.goArticle = function ( id ) {
       $location.path( '/recipes/' + id );
     };
 
-    $rootScope.baseUrl = 'http://localhost:3333/';
+    $rootScope.baseUrl = baseUrl;
     $rootScope.siteUrl = function(segments) {
         return $rootScope.baseUrl + segments;
     }
@@ -261,12 +261,13 @@ app.config(['logExProvider', function(logExProvider) {
 /**
  * Created by arnaud on 10/08/14.
  */
-app.run(['Restangular', '$rootScope', '$location',
-    function(Restangular, $rootScope, $location) {
-        Restangular.setErrorInterceptor(function (response, deferred, responseHandler) {
+
+app.run(['Restangular', '$rootScope', '$location', 'authToken',
+    function(Restangular, $rootScope, $location, authToken) {
+        Restangular.setErrorInterceptor(function (response, deferred, responseHandler, authToken) {
             if(response.status === 401) {
                 Restangular.setDefaultHeaders({
-                    "X-Auth-Token": ''
+                    authToken: ''
                 });
 
                 $rootScope.authentification = {
@@ -284,8 +285,8 @@ app.run(['Restangular', '$rootScope', '$location',
 }]);
 
 
-app.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setBaseUrl('http://cuisine.dev/api/v1/');
+app.config(['RestangularProvider', 'apiUrl', function (RestangularProvider, apiUrl) {
+    RestangularProvider.setBaseUrl(apiUrl);
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
 
         RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
@@ -372,6 +373,19 @@ app.config(['RestangularProvider', function (RestangularProvider) {
     });
 
 }]);
+if(location.hostname.match('localhost')) {
+	console.log('### DEV ###');
+	app.constant('baseUrl', 'http://localhost:3333/app/');
+	app.constant('apiUrl', 'http://cuisine.dev/api/v1/');
+	app.constant('authToken', 'X-Auth-Token');
+}
+
+if(!location.hostname.match('localhost')) {
+	console.log('### PROD ###');
+	app.constant('baseUrl', 'http://cuisine.lahaxe.fr/app/');
+	app.constant('apiUrl', 'http://api-cuisine.lahaxe.fr/api/v1/');
+	app.constant('authToken', 'X-Auth-Token');
+}
 app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangular, $rootScope, $log) {
 	    this.execute = function() {
 			if(!$rootScope.authentification.logged) {
