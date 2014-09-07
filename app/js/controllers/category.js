@@ -73,3 +73,41 @@ app.controller('categories.add', ['$rootScope', '$scope', 'Restangular', '$log',
 
     $scope.errors = {};
 }]);
+
+app.controller('categories.edit', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', '$location',
+    function ($rootScope, $scope, Restangular, $routeParams, $log, $location) {
+
+    $log = $log.getInstance('categories.edit');
+
+    var category_id = $routeParams.id;
+    if(!category_id) {
+        $location.path('/app');
+    }
+    $log.debug('Edit category : ' + category_id);
+
+    Restangular.one("categories", category_id).get().then(function(category) {
+        $scope.category = category;
+    });
+
+    $scope.submitForm = function() {
+        delete $scope.category.user;
+        $scope.category.put().then(function(result){
+            if(result.success === undefined || !result.success) {
+                if(result.name) {
+                    $scope.errors.name = result.name[0];
+                }
+                if(result.color) {
+                    $scope.errors.color = result.color[0];
+                }
+
+                $log.debug('Validation errors' + $scope.errors);
+            } else {
+                $log.debug('Category edited #' + result.id);
+                $rootScope.categories[result.id] = $scope.category;
+                $location.path("/recipes");
+            }
+        });
+    };
+
+    $scope.errors = {};
+}]);

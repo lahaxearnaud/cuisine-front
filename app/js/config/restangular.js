@@ -2,8 +2,8 @@
  * Created by arnaud on 10/08/14.
  */
 
-app.run(['Restangular', '$rootScope', '$location', 'authToken',
-    function(Restangular, $rootScope, $location, authToken) {
+app.run(['Restangular', '$rootScope', '$location', 'authToken', '$cacheFactory',
+    function(Restangular, $rootScope, $location, authToken, $cacheFactory) {
         Restangular.setDefaultHttpFields({cache: true});
         Restangular.setErrorInterceptor(function (response, deferred, responseHandler, authToken) {
             if(response.status === 401) {
@@ -23,10 +23,20 @@ app.run(['Restangular', '$rootScope', '$location', 'authToken',
 
             return true; // error not handled
         });
+
+        var cache = $cacheFactory.get('$http');
+        Restangular.setResponseInterceptor(function(response, operation) {
+           if (operation === 'put' || operation === 'post' || operation === 'delete') {
+               cache.removeAll();
+           }
+
+           return response;
+       });
 }]);
 
 
-app.config(['RestangularProvider', 'apiUrl', function (RestangularProvider, apiUrl) {
+app.config(['RestangularProvider', 'apiUrl',
+    function (RestangularProvider, apiUrl) {
     RestangularProvider.setBaseUrl(apiUrl);
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
 
@@ -112,5 +122,4 @@ app.config(['RestangularProvider', 'apiUrl', function (RestangularProvider, apiU
 
             return articles;
     });
-
 }]);

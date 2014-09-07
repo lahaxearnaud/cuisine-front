@@ -9,4 +9,9 @@ app.config(['$routeProvider',
             templateUrl: 'partials/category/add.html',
             controller: 'categories.add',
         });
+
+        $routeProvider.when('/categories/:id/edit', {
+            templateUrl: 'partials/category/edit.html',
+            controller: 'categories.edit',
+        });
 }]);

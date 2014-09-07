@@ -1,5 +1,8 @@
 <div class="list-group">
-	<div ng-repeat="category in categories" class="list-group-item" ng-style="{'border-left-color':category.color}" ng-show="!$first">
-      <a href="#/categories/{{category.id}}/articles">{{ category.name }}</a>
+	<div ng-repeat="category in categories" class="list-group-item" ng-style="{'border-left-color':category.color}" ng-show="!$first" ng-mouseover="showEditCategory = category.id" ng-mouseleave="showEditCategory = -1">
+		<a href="#/categories/{{category.id}}/articles">{{ category.name }}</a>
+		<a href="#/categories/{{category.id}}/edit" class="right edit-btn" ng-hide="showEditCategory != category.id">
+			<fa name="edit"></fa>
+		</a>
     </div>
 </div>

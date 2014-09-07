@@ -1,5 +1,5 @@
-<div data-extend-template="/layout-panel.html">
-	<div data-block="panel-title">Add a category</div>
+<div data-extend-template="/layout-panel-footer.html">
+	<div data-block="panel-title">Edit a category</div>
     <div data-block="panel-content">
         <form name="addCategoryForm" ng-submit="submitForm(addCategoryForm.$valid)" role="form">
             <fieldset>
@@ -18,13 +18,18 @@
 
                 <div class="row">
 					<div class="col-md-6">
-						<a class="btn btn-lg btn-default btn-block" href="#/recipes">Cancel</a>
+						<a class="btn btn-lg btn-warning btn-block" href="#/recipes">Cancel</a>
 					</div>
 					<div class="col-md-6">
-						<input class="btn btn-lg btn-danger btn-block" type="submit" value="Save">
+						<input class="btn btn-lg btn-primary btn-block" type="submit" value="Save">
 					</div>
 				</div>
 			</fieldset>
         </form>
+	</div>
+	<div data-block="panel-footer">
+		<a href="#/categories/{{ category.id }}/delete" data-original-title="Edit profile" data-toggle="tooltip" type="button" class="btn btn-sm btn-danger">
+            <fa name="remove"></fa> Delete
+        </a>
 	</div>
 </div>

@@ -154,6 +154,11 @@ app.config(['$routeProvider',
             templateUrl: 'partials/category/add.html',
             controller: 'categories.add',
         });
+
+        $routeProvider.when('/categories/:id/edit', {
+            templateUrl: 'partials/category/edit.html',
+            controller: 'categories.edit',
+        });
 }]);
 app.config(['$routeProvider',
     function($routeProvider) {
@@ -268,8 +273,8 @@ app.config(['logExProvider', function(logExProvider) {
  * Created by arnaud on 10/08/14.
  */
 
-app.run(['Restangular', '$rootScope', '$location', 'authToken',
-    function(Restangular, $rootScope, $location, authToken) {
+app.run(['Restangular', '$rootScope', '$location', 'authToken', '$cacheFactory',
+    function(Restangular, $rootScope, $location, authToken, $cacheFactory) {
         Restangular.setDefaultHttpFields({cache: true});
         Restangular.setErrorInterceptor(function (response, deferred, responseHandler, authToken) {
             if(response.status === 401) {
@@ -289,10 +294,20 @@ app.run(['Restangular', '$rootScope', '$location', 'authToken',
 
             return true; // error not handled
         });
+
+        var cache = $cacheFactory.get('$http');
+        Restangular.setResponseInterceptor(function(response, operation) {
+           if (operation === 'put' || operation === 'post' || operation === 'delete') {
+               cache.removeAll();
+           }
+
+           return response;
+       });
 }]);
 
 
-app.config(['RestangularProvider', 'apiUrl', function (RestangularProvider, apiUrl) {
+app.config(['RestangularProvider', 'apiUrl',
+    function (RestangularProvider, apiUrl) {
     RestangularProvider.setBaseUrl(apiUrl);
     RestangularProvider.setDefaultRequestParams('jsonp', {callback: 'JSON_CALLBACK'});
 
@@ -378,7 +393,6 @@ app.config(['RestangularProvider', 'apiUrl', function (RestangularProvider, apiU
 
             return articles;
     });
-
 }]);
 if(location.hostname.match('localhost')) {
 	console.log('### DEV ###');
@@ -697,6 +711,44 @@ app.controller('categories.add', ['$rootScope', '$scope', 'Restangular', '$log',
         'name' : '',
         'color' : '',
         'user_id': $rootScope.authentification.id
+    };
+
+    $scope.errors = {};
+}]);
+
+app.controller('categories.edit', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', '$location',
+    function ($rootScope, $scope, Restangular, $routeParams, $log, $location) {
+
+    $log = $log.getInstance('categories.edit');
+
+    var category_id = $routeParams.id;
+    if(!category_id) {
+        $location.path('/app');
+    }
+    $log.debug('Edit category : ' + category_id);
+
+    Restangular.one("categories", category_id).get().then(function(category) {
+        $scope.category = category;
+    });
+
+    $scope.submitForm = function() {
+        delete $scope.category.user;
+        $scope.category.put().then(function(result){
+            if(result.success === undefined || !result.success) {
+                if(result.name) {
+                    $scope.errors.name = result.name[0];
+                }
+                if(result.color) {
+                    $scope.errors.color = result.color[0];
+                }
+
+                $log.debug('Validation errors' + $scope.errors);
+            } else {
+                $log.debug('Category edited #' + result.id);
+                $rootScope.categories[result.id] = $scope.category;
+                $location.path("/recipes");
+            }
+        });
     };
 
     $scope.errors = {};
