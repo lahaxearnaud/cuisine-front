@@ -7,18 +7,18 @@
 	        <div class="panel-body">
 	            <form name="addArticleForm" ng-submit="submitForm(addArticleForm.$valid)" ng-init="setFormScope(this)" role="form">
 	                <fieldset>
-		<div class="form-group" ng-class="{'has-error': errors.url}">
-		<label>Url</label>
+						<div class="form-group" ng-class="{'has-error': errors.url}">
+							<label>Url</label>
 	                        <input class="form-control" type="text" id="url" name="url" ng-model="article.url" required ng-required="false" ng-blur="urlExtract()">
 	                        <span class="help-inline" ng-if="errors.url">{{ errors.url }}</span>
 	                    </div>
 	                    <div class="form-group" ng-class="{'has-error': errors.title}">
-		<label>Title</label>
+							<label>Title</label>
 	                        <input class="form-control" type="text" id="title" name="title" ng-model="article.title" required ng-required="true">
 	                        <span class="help-inline" ng-if="errors.title">{{ errors.title }}</span>
 	                    </div>
 	                    <div class="form-group" ng-class="{'has-error': errors.body}">
-		<label>Recette</label>
+							<label>Recette</label>
 	                        <tabset justified="true">
 							    <tab heading="Editor">
 								<textarea class="form-control" type="text" id="body" name="body" ng-model="article.body" required ng-required="true" rows="10"></textarea>
@@ -30,8 +30,8 @@
 	                        <span class="help-inline" ng-if="errors.body">{{ errors.body }}</span>
 	                    </div>
 	                    <div class="form-group" ng-class="{'has-error': errors.category_id}">
-		<label>Category</label>
-		<select class="form-control" ng-model="article.category_id" ng-options="category.id as category.name for category in categories"></select>
+							<label>Category</label>
+							<select class="form-control" ng-model="article.category_id" ng-options="category.id as category.name for category in categories"></select>
 	                        <span class="help-inline" ng-if="errors.body">{{ errors.category_id }}</span>
 	                    </div>
 						<div class="row">

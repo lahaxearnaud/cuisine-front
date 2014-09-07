@@ -14,6 +14,7 @@ var app = angular.module('cook', [
     'picardy.fontawesome',
     'log.ex.uo',
     'btford.markdown',
+    'colorpicker.module',
     'cook.filters',
     'cook.services',
     'cook.directives',
@@ -147,6 +148,11 @@ app.config(['$routeProvider',
         $routeProvider.when('/categories/:id/articles', {
             templateUrl: 'partials/article/liste.html',
             controller: 'category.articles',
+        });
+
+        $routeProvider.when('/categories/add', {
+            templateUrl: 'partials/category/add.html',
+            controller: 'categories.add',
         });
 }]);
 app.config(['$routeProvider',
@@ -396,7 +402,11 @@ app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangul
 	        $log.debug('Initialisation');
 			$log.getInstance('dataLoader');
 			    Restangular.all("categories").getList().then(function(categories) {
-		        $rootScope.categories = categories;
+			    var categoriesTableByID = [];
+			    _(categories).forEach(function(value) {
+			    	categoriesTableByID[value.id] = value;
+			    });
+		        $rootScope.categories = categoriesTableByID;
 		        $log.debug('categories loadded');
 		    });
 	    };
@@ -625,7 +635,7 @@ app.controller('category.articles', ['$scope', 'Restangular', '$routeParams', '$
     if(!category_id) {
         $location.path('/app');
     }
-    $log.debug('Category : ' + $scope.category_id);
+    $log.debug('Category : ' + category_id);
 
     $scope.currentPage = 1;
     if($routeParams.page) {
@@ -654,6 +664,42 @@ app.controller('category.articles', ['$scope', 'Restangular', '$routeParams', '$
             $scope.articles = articles;
         });
     };
+}]);
+
+app.controller('categories.add', ['$rootScope', '$scope', 'Restangular', '$log', '$location',
+    function ($rootScope, $scope, Restangular, $log, $location) {
+
+    $log = $log.getInstance('categories.add');
+
+    $log.debug('Add categories');
+
+    $scope.submitForm = function() {
+        Restangular.all('categories').post($scope.category).then(function(result){
+            if(result.success === undefined || !result.success) {
+                if(result.name) {
+                    $scope.errors.name = result.name[0];
+                }
+                if(result.color) {
+                    $scope.errors.color = result.color[0];
+                }
+
+                $log.debug('Validation errors' + $scope.errors);
+            } else {
+                $log.debug('Post added ! #' + result.id);
+                $scope.category.id = result.id;
+                $rootScope.categories[result.id] = $scope.category;
+                $location.path("/recipes");
+            }
+        });
+    };
+
+    $scope.category = {
+        'name' : '',
+        'color' : '',
+        'user_id': $rootScope.authentification.id
+    };
+
+    $scope.errors = {};
 }]);
 angular.module('cook.controllers', [])
 	.controller('main', ['$scope', '$log', function ($scope, $log) {

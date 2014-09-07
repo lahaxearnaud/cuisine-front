@@ -32,7 +32,8 @@
     "angular-logex": "~0.0.7",
     "fontawesome": "~4.1.0",
     "angular-markdown-directive": "~0.3.0",
-    "angular-social-links": "~0.0.6"
+    "angular-social-links": "~0.0.6",
+    "angular-bootstrap-colorpicker": "~3.0.8"
   },
   "overrides": {
     "bootstrap": {
@@ -40,6 +41,9 @@
     },
     "fontawesome": {
       "ignore": true
+    },
+    "jquery": {
+      "main": "dist/jquery.js"
     },
     "angular": {
       "main": "angular.js"
@@ -88,6 +92,9 @@
     },
     "angular-social-links": {
       "main": "angular-social-links.js"
+    },
+    "angular-bootstrap-colorpicker": {
+      "main": "js/bootstrap-colorpicker-module.js"
     }
   }
 }

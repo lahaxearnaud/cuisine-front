@@ -187,3 +187,7 @@
         padding: 10px 0px 9px;
     }
 }
+
+.recipes-image {
+    border-left: 5px solid;
+}

@@ -1,5 +1,5 @@
 <div class="list-group">
-	<div ng-repeat="category in categories" class="list-group-item">
+	<div ng-repeat="category in categories" class="list-group-item" ng-style="{'border-left-color':category.color}" ng-show="!$first">
       <a href="#/categories/{{category.id}}/articles">{{ category.name }}</a>
     </div>
 </div>

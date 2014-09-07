@@ -30,6 +30,12 @@
     margin-left: -20px;
 }
 
+
+.sidebar .list-group .list-group-item {
+    border-left: 5px;
+    border-left-style: solid;
+}
+
 .sidebar .list-group .list-group-item:hover,
 .sidebar .list-group .list-group-item:focus {
     color: #fff;

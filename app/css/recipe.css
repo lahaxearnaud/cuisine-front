@@ -5,6 +5,11 @@
     padding-top: 10px;
 }
 .recipe-image {
-	margin-right: 6px;
+	margin-left: 6px;
 	margin-bottom: 6px;
+	float: right;
+}
+
+.recipe-body * img {
+	max-width: 200px;
 }

@@ -1,0 +1,36 @@
+<div data-extend-template="/layout.html">
+	<div data-block="content">
+	    <div class="panel panel-default">
+	        <div class="panel-heading">
+	            <h3 class="panel-title">Add a category</h3>
+	        </div>
+	        <div class="panel-body">
+	            <form name="addCategoryForm" ng-submit="submitForm(addCategoryForm.$valid)" role="form">
+	                <fieldset>
+						<div class="form-group" ng-class="{'has-error': errors.name}">
+							<label>Name</label>
+	                        <input class="form-control" type="text" id="name" name="name" ng-model="category.name" required ng-required="false">
+	                        <span class="help-inline" ng-if="errors.name">{{ errors.name }}</span>
+	                    </div>
+
+	                    <label>color</label>
+	                    <div class="form-group input-group" ng-class="{'has-error': errors.color}">
+	                        <input colorpicker class="form-control" type="text" id="color" ng-model="category.color" required ng-required="false">
+	                        <div class="input-group-addon" ng-style="{'background-color':category.color}"></div>
+	                        <span class="help-inline" ng-if="errors.color">{{ errors.color }}</span>
+	                    </div>
+
+	                    <div class="row">
+							<div class="col-md-6">
+								<a class="btn btn-lg btn-default btn-block" href="#/recipes">Cancel</a>
+							</div>
+							<div class="col-md-6">
+								<input class="btn btn-lg btn-danger btn-block" type="submit" value="Save">
+							</div>
+						</div>
+					</fieldset>
+	            </form>
+	        </div>
+	    </div>
+	</div>
+</div>

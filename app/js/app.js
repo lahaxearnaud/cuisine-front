@@ -14,6 +14,7 @@ var app = angular.module('cook', [
     'picardy.fontawesome',
     'log.ex.uo',
     'btford.markdown',
+    'colorpicker.module',
     'cook.filters',
     'cook.services',
     'cook.directives',

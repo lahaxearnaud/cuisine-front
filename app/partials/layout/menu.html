@@ -13,7 +13,7 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <div class="col-sm-4 col-md-4" ng-controller="search.autocomplete" ng-if="authentification.logged">
+        <div class="col-sm-6 col-md-6" ng-controller="search.autocomplete" ng-if="authentification.logged">
             <form class="navbar-form" ng-submit="searchForm()">
                 <div class="input-group search-field">
                   <input type="text" class="form-control" placeholder="Search" ng-model="query" name="query" typeahead-on-select='display($item);' typeahead="article as article.title for article in getArticles($viewValue) | filter:$viewValue | limitTo:8" typeahead-min-length="3" typeahead-template-url="autocompleteTemplate.html" typeahead-wait-ms="5" autocomplete="off" typeahead-wait-ms="20">
@@ -31,6 +31,7 @@
           </a>
           <ul class="dropdown-menu" role="menu">
               <li><a href="#/recipes/add">Recipe</a></li>
+              <li><a href="#/categories/add">Category</a></li>
           </ul>
         </li>
         <li><a href="#/user/profile">Welcome {{ authentification.username }}</a></li>
