@@ -2,8 +2,8 @@
  * Created by arnaud on 10/08/14.
  */
 
-app.run(['Restangular', '$rootScope', '$location', 'authToken', '$cacheFactory',
-    function(Restangular, $rootScope, $location, authToken, $cacheFactory) {
+app.run(['Restangular', '$rootScope', '$location', 'authToken', '$cacheFactory', 'loader',
+    function(Restangular, $rootScope, $location, authToken, $cacheFactory, loader) {
         Restangular.setDefaultHttpFields({cache: true});
         Restangular.setErrorInterceptor(function (response, deferred, responseHandler, authToken) {
             if(response.status === 401) {
@@ -26,8 +26,9 @@ app.run(['Restangular', '$rootScope', '$location', 'authToken', '$cacheFactory',
 
         var cache = $cacheFactory.get('$http');
         Restangular.setResponseInterceptor(function(response, operation) {
-           if (operation === 'put' || operation === 'post' || operation === 'delete') {
+           if (operation === 'put' || operation === 'post' || operation === 'remove') {
                cache.removeAll();
+               loader.execute();
            }
 
            return response;

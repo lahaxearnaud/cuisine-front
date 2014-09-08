@@ -14,4 +14,9 @@ app.config(['$routeProvider',
             templateUrl: 'partials/category/edit.html',
             controller: 'categories.edit',
         });
+
+        $routeProvider.when('/categories/:id/delete', {
+            templateUrl: 'partials/category/delete.html',
+            controller: 'categories.delete',
+        });
 }]);

@@ -68,7 +68,8 @@ app.controller('categories.add', ['$rootScope', '$scope', 'Restangular', '$log',
     $scope.category = {
         'name' : '',
         'color' : '',
-        'user_id': $rootScope.authentification.id
+        'user_id': $rootScope.authentification.id,
+        'id': 0
     };
 
     $scope.errors = {};
@@ -110,4 +111,21 @@ app.controller('categories.edit', ['$rootScope', '$scope', 'Restangular', '$rout
     };
 
     $scope.errors = {};
+}]);
+
+app.controller('categories.delete', ['$scope', 'Restangular', '$routeParams', '$log', '$location', '$rootScope',
+    function ($scope, Restangular, $routeParams, $log, $location, $rootScope) {
+    $log = $log.getInstance('category.delete');
+
+    $log.debug('Delete category #' + $routeParams.id );
+
+    Restangular.one("categories", $routeParams.id).get().then(function(category) {
+        $scope.category = category;
+    });
+
+    $scope.submitForm = function() {
+        $scope.category.remove();
+        delete $rootScope.categories[$routeParams.id];
+        $location.path('/recipes');
+    };
 }]);

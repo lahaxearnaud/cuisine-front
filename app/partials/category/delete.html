@@ -1,0 +1,16 @@
+<div data-extend-template="/layout-panel.html">
+	<div data-block="panel-title">Delete a category</div>
+    <div data-block="panel-content">
+	    <form name="deleteForm" role="form" ng-submit="submitForm(deleteForm.$valid)">
+	        <p>Do you really want to delete : {{ category.name }} ?</p>
+			<div class="row">
+				<div class="col-md-6">
+					<a class="btn btn-lg btn-default btn-block" href="#/categories/{{ category.id }}/edit">No</a>
+				</div>
+				<div class="col-md-6">
+					<input class="btn btn-lg btn-danger btn-block" type="submit" value="Yes">
+				</div>
+			</div>
+	    </form>
+	</div>
+</div>
