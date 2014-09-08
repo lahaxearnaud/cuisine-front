@@ -52,7 +52,7 @@ app.config(['RestangularProvider', 'apiUrl',
                     'email': data.user.email,
                     'logged': true
                 };
-            } else if ((operation === "getList" || operation === "search") && what !== 'categories') {
+            } else if ((operation === "getList" || operation === "search" || what === "noCategory") && what !== 'categories') {
                 extractedData = data.data;
                 extractedData.meta = {
                     'perPage': data.per_page,
@@ -61,6 +61,7 @@ app.config(['RestangularProvider', 'apiUrl',
                     'from': data.from,
                     'to': data.to
                 };
+                console.log('BINGO');
             } else {
                 extractedData = data;
             }
@@ -120,6 +121,8 @@ app.config(['RestangularProvider', 'apiUrl',
     RestangularProvider.addElementTransformer('articles', true, function(articles) {
             articles.addRestangularMethod('search', 'get', 'search');
             articles.addRestangularMethod('extract', 'post', 'extractFromUrl');
+            articles.addRestangularMethod('existNoCategory', 'get', 'existNoCategory');
+            articles.addRestangularMethod('noCategory', 'get', 'noCategory');
 
             return articles;
     });

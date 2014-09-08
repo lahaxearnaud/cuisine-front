@@ -31,6 +31,39 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
     };
 }]);
 
+app.controller('article.uncategorize', ['$scope', 'Restangular', '$routeParams', '$log',
+    function ($scope, Restangular, $routeParams, $log) {
+
+    $log = $log.getInstance('article.list');
+
+    $scope.currentPage = 1;
+    if($routeParams.page) {
+        $scope.currentPage = $routeParams.page;
+    }
+
+    $log.debug('Page ' + $scope.currentPage );
+
+    Restangular.all("articles").noCategory({'page': $scope.currentPage}).then(function(articles) {
+        $scope.articles = articles;
+        $scope.totalItems = articles.meta.total;
+        $scope.itemsPerPage = articles.meta.perPage;
+    });
+
+    $scope.setPage = function (pageNumber) {
+        $scope.currentPage = pageNumber;
+        $log.debug('Change to  ' + pageNumber );
+    };
+
+    $scope.pageChanged = function() {
+        $log.debug('Page changed to: ' + $scope.currentPage);
+        Restangular.all("articles").noCategory({
+            'page': $scope.currentPage
+        }).then(function(articles) {
+            $scope.articles = articles;
+        });
+    };
+}]);
+
 app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 
     function ($rootScope, $scope, Restangular, $routeParams, $log) {
     $log = $log.getInstance('article.get');

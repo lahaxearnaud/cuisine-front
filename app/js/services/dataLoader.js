@@ -6,9 +6,15 @@ app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangul
 
 	        $log.debug('Initialisation');
 			$log.getInstance('dataLoader');
-			    Restangular.all("categories").getList().then(function(categories) {
+
+			Restangular.all("categories").getList().then(function(categories) {
 		        $rootScope.categories = categories;
 		        $log.debug('categories loadded');
+		    });
+
+			Restangular.all("articles").existNoCategory().then(function(result) {
+		        $rootScope.existNoCategory = result.count;
+		        $log.debug('Bool no categories loadded');
 		    });
 	    };
 }]);

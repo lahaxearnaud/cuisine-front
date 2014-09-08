@@ -12,6 +12,11 @@ app.config(['$routeProvider',
             controller: 'article.add'
         });
 
+        $routeProvider.when('/recipes/uncategorize', {
+            templateUrl: 'partials/article/liste.html',
+            controller: 'article.uncategorize'
+        });
+
         $routeProvider.when('/recipes/:id', {
             templateUrl: 'partials/article/get.html',
             controller: 'article.get'

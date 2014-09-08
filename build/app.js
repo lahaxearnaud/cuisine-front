@@ -123,6 +123,11 @@ app.config(['$routeProvider',
             controller: 'article.add'
         });
 
+        $routeProvider.when('/recipes/uncategorize', {
+            templateUrl: 'partials/article/liste.html',
+            controller: 'article.uncategorize'
+        });
+
         $routeProvider.when('/recipes/:id', {
             templateUrl: 'partials/article/get.html',
             controller: 'article.get'
@@ -328,7 +333,7 @@ app.config(['RestangularProvider', 'apiUrl',
                     'email': data.user.email,
                     'logged': true
                 };
-            } else if ((operation === "getList" || operation === "search") && what !== 'categories') {
+            } else if ((operation === "getList" || operation === "search" || what === "noCategory") && what !== 'categories') {
                 extractedData = data.data;
                 extractedData.meta = {
                     'perPage': data.per_page,
@@ -337,6 +342,7 @@ app.config(['RestangularProvider', 'apiUrl',
                     'from': data.from,
                     'to': data.to
                 };
+                console.log('BINGO');
             } else {
                 extractedData = data;
             }
@@ -396,6 +402,8 @@ app.config(['RestangularProvider', 'apiUrl',
     RestangularProvider.addElementTransformer('articles', true, function(articles) {
             articles.addRestangularMethod('search', 'get', 'search');
             articles.addRestangularMethod('extract', 'post', 'extractFromUrl');
+            articles.addRestangularMethod('existNoCategory', 'get', 'existNoCategory');
+            articles.addRestangularMethod('noCategory', 'get', 'noCategory');
 
             return articles;
     });
@@ -421,9 +429,15 @@ app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangul
 
 	        $log.debug('Initialisation');
 			$log.getInstance('dataLoader');
-			    Restangular.all("categories").getList().then(function(categories) {
+
+			Restangular.all("categories").getList().then(function(categories) {
 		        $rootScope.categories = categories;
 		        $log.debug('categories loadded');
+		    });
+
+			Restangular.all("articles").existNoCategory().then(function(result) {
+		        $rootScope.existNoCategory = result.count;
+		        $log.debug('Bool no categories loadded');
 		    });
 	    };
 }]);
@@ -457,6 +471,39 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
     $scope.pageChanged = function() {
         $log.debug('Page changed to: ' + $scope.currentPage);
         Restangular.all("articles").getList({
+            'page': $scope.currentPage
+        }).then(function(articles) {
+            $scope.articles = articles;
+        });
+    };
+}]);
+
+app.controller('article.uncategorize', ['$scope', 'Restangular', '$routeParams', '$log',
+    function ($scope, Restangular, $routeParams, $log) {
+
+    $log = $log.getInstance('article.list');
+
+    $scope.currentPage = 1;
+    if($routeParams.page) {
+        $scope.currentPage = $routeParams.page;
+    }
+
+    $log.debug('Page ' + $scope.currentPage );
+
+    Restangular.all("articles").noCategory({'page': $scope.currentPage}).then(function(articles) {
+        $scope.articles = articles;
+        $scope.totalItems = articles.meta.total;
+        $scope.itemsPerPage = articles.meta.perPage;
+    });
+
+    $scope.setPage = function (pageNumber) {
+        $scope.currentPage = pageNumber;
+        $log.debug('Change to  ' + pageNumber );
+    };
+
+    $scope.pageChanged = function() {
+        $log.debug('Page changed to: ' + $scope.currentPage);
+        Restangular.all("articles").noCategory({
             'page': $scope.currentPage
         }).then(function(articles) {
             $scope.articles = articles;
