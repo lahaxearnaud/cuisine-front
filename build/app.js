@@ -263,6 +263,28 @@ app.run(['loader', '$rootScope', '$location', 'baseUrl', function(loader, $rootS
     $rootScope.siteUrl = function(segments) {
         return $rootScope.baseUrl + segments;
     }
+
+	$rootScope.categories = [];
+  	$rootScope.getCategory = function(id) {
+    	for (var key in $rootScope.categories){
+			var element = $rootScope.categories[key];
+			console.log(element);
+			if(element != null && element.id === id) {
+				return element;
+        	}
+        }
+
+        return null;
+    };
+
+    $rootScope.updateCategory = function(id, category) {
+    	for (var key in $rootScope.categories){
+			var element = $rootScope.categories[key];
+			if(element != null && element.id === id) {
+				$rootScope.categories[key] = category;
+        	}
+        }
+    };
 }]);
 app.config(['logExProvider', function(logExProvider) {
     logExProvider.enableLogging(true);
@@ -342,7 +364,6 @@ app.config(['RestangularProvider', 'apiUrl',
                     'from': data.from,
                     'to': data.to
                 };
-                console.log('BINGO');
             } else {
                 extractedData = data;
             }
@@ -429,7 +450,7 @@ app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangul
 
 	        $log.debug('Initialisation');
 			$log.getInstance('dataLoader');
-
+			$rootScope.categories = [];
 			Restangular.all("categories").getList().then(function(categories) {
 		        $rootScope.categories = categories;
 		        $log.debug('categories loadded');

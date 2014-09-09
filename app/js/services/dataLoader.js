@@ -6,7 +6,7 @@ app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangul
 
 	        $log.debug('Initialisation');
 			$log.getInstance('dataLoader');
-
+			$rootScope.categories = [];
 			Restangular.all("categories").getList().then(function(categories) {
 		        $rootScope.categories = categories;
 		        $log.debug('categories loadded');

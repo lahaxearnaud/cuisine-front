@@ -61,7 +61,6 @@ app.config(['RestangularProvider', 'apiUrl',
                     'from': data.from,
                     'to': data.to
                 };
-                console.log('BINGO');
             } else {
                 extractedData = data;
             }
