@@ -453,24 +453,22 @@ blockquote {
  * pagination
  * --------------------------------------------------
  */
-.pagination > li > a, .pagination > li > span {
+.pagination > li > a, 
+.pagination > li > span {
   color: #434a54;
-  background-color: white;
-  border-color: #ccd1d9;
+  border-color: #967adc;
 }
 .pagination > li > a:hover, .pagination > li > span:hover, .pagination > li > a:focus, .pagination > li > span:focus {
   color: white;
-  background-color: #ccd1d9;
   border-color: #ccd1d9;
 }
 .pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus {
   color: white;
-  background-color: #8cc152;
-  border-color: #8cc152;
+  background-color: #967adc;
+  border-color: #967adc;
 }
 .pagination > .disabled > span, .pagination > .disabled > span:hover, .pagination > .disabled > span:focus, .pagination > .disabled > a, .pagination > .disabled > a:hover, .pagination > .disabled > a:focus {
   color: #e6e9ed;
-  background-color: white;
   border-color: #ccd1d9;
 }
 
