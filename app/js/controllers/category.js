@@ -65,9 +65,13 @@ app.controller('categories.add', ['$rootScope', '$scope', 'Restangular', '$log',
         });
     };
 
+    $scope.reloadColor = function() {
+        $scope.category.color = randomColor();
+    }
+
     $scope.category = {
         'name' : '',
-        'color' : '',
+        'color' : randomColor(),
         'user_id': $rootScope.authentification.id,
         'id': 0
     };

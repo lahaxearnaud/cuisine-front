@@ -13,7 +13,7 @@
                             </h2>
                             <ul>
                                 <li>
-                                    <a href="{{ article.url }}">
+                                    <a href="{{ article.url }}" ng-show="article.url.length > 0">
                                         <span ng-if="article.sourceFavicon.length">
                                             <img alt="" class="favicon" ng-src="{{ article.sourceFavicon }}" />
                                         </span>
@@ -21,11 +21,13 @@
                                             <fa name="globe"></fa>
                                         </span>
                                         {{ article.sourceSite }}
-
-                                        <a class="pull-right" href="#/categories/{{ article.category.id }}/articles">
-                                            <fa name="tag"></fa>
-                                            {{ article.category.name }}
-                                        </a>
+                                    </a>
+                                    <span ng-hide="article.url.length > 0">
+                                        {{ article.author.username | capitalize}}
+                                    </span>
+                                    <a class="pull-right" href="#/categories/{{ article.category.id }}/articles">
+                                        <fa name="tag"></fa>
+                                        {{ article.category.name }}
                                     </a>
                                 </li>
                             </ul>

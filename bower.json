@@ -33,7 +33,8 @@
     "fontawesome": "~4.1.0",
     "angular-markdown-directive": "~0.3.0",
     "angular-social-links": "~0.0.6",
-    "angular-bootstrap-colorpicker": "~3.0.8"
+    "angular-bootstrap-colorpicker": "~3.0.8",
+    "randomColor": "~0.1.1"
   },
   "overrides": {
     "bootstrap": {
@@ -95,6 +96,9 @@
     },
     "angular-bootstrap-colorpicker": {
       "main": "js/bootstrap-colorpicker-module.js"
+    },
+    "randomColor": {
+      "main": "randomColor.js"
     }
   }
 }

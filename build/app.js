@@ -268,7 +268,6 @@ app.run(['loader', '$rootScope', '$location', 'baseUrl', function(loader, $rootS
   	$rootScope.getCategory = function(id) {
     	for (var key in $rootScope.categories){
 			var element = $rootScope.categories[key];
-			console.log(element);
 			if(element != null && element.id === id) {
 				return element;
         	}
@@ -297,6 +296,12 @@ app.run(['loader', '$rootScope', '$location', 'baseUrl', function(loader, $rootS
         }
     };
 }]);
+
+app.filter('capitalize', function() {
+    return function(input, all) {
+      return (!!input) ? input.replace(/([^\W_]+[^\s-]*) */g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}) : '';
+    }
+  });
 app.config(['logExProvider', function(logExProvider) {
     logExProvider.enableLogging(true);
 }]);
@@ -788,9 +793,13 @@ app.controller('categories.add', ['$rootScope', '$scope', 'Restangular', '$log',
         });
     };
 
+    $scope.reloadColor = function() {
+        $scope.category.color = randomColor();
+    }
+
     $scope.category = {
         'name' : '',
-        'color' : '',
+        'color' : randomColor(),
         'user_id': $rootScope.authentification.id,
         'id': 0
     };

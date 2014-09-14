@@ -11,6 +11,9 @@
 
                 <label>color</label>
                 <div class="form-group input-group" ng-class="{'has-error': errors.color}">
+                    <div class="input-group-addon" ng-click="reloadColor()" style="cursor: pointer">
+                            <fa name="refresh"></fa>
+                    </div>
                     <input colorpicker class="form-control" type="text" id="color" ng-model="category.color" required ng-required="false">
                     <div class="input-group-addon" ng-style="{'background-color':category.color}"></div>
                     <span class="help-inline" ng-if="errors.color">{{ errors.color }}</span>
