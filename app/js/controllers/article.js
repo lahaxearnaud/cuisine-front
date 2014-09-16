@@ -121,6 +121,32 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
         $scope.article = article;
         updateNotes($scope.currentPage);
     });
+
+    $scope.changeQuantity = function(currentYield) {
+        var ratio = currentYield / $scope.yieldInitial;
+        for(var i = 0; i < $scope.quantities.length; i++) {
+            $scope.quantities[i].text($scope.quantitiesInitial[i] * ratio);
+        }
+        $scope.currentYield = $scope.yieldInitial * ratio;
+        $scope.yield.text($scope.currentYield);
+    }
+
+    $scope.parse = function() {
+        var domArticle = $('.recipe-body');
+        $scope.yield = $('strong', domArticle);
+        $scope.yieldInitial = parseInt($scope.yield.text());
+        $scope.currentYield = $scope.yieldInitial;
+        $scope.quantities = $('em', domArticle);
+        $scope.quantitiesInitial = new Array();
+        for(var i = 0; i < $scope.quantities.length; i++) {
+            $scope.quantities[i] = $($scope.quantities[i]);
+            $scope.quantitiesInitial[i] = parseInt($scope.quantities[i].text());
+        }
+    }
+
+    $scope.yields = _.range(1, 15);
+    $scope.currentYield = 1;
+
 }]);
 
 app.controller('article.delete', ['$scope', 'Restangular', '$routeParams', '$log', '$location', function ($scope, Restangular, $routeParams, $log, $location) {
