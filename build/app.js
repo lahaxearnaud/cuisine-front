@@ -479,6 +479,73 @@ app.service('loader', [ 'Restangular', '$rootScope', '$log', function (Restangul
 	    };
 }]);
 
+app.factory('math', function () {
+    return {
+        closestFraction: function (value, tol) {
+            if (!tol) {
+                tol = 0.05;
+            }
+
+            if (Math.floor(value) == value) {
+                return {numerator: value, denominator: 1};
+            }
+
+            var original_value = value;
+            var iteration = 0;
+            var denominator = 1, last_d = 0, numerator;
+            while (iteration < 20) {
+                value = 1 / (value - Math.floor(value));
+                var _d = denominator;
+                denominator = Math.floor(denominator * value + last_d);
+                last_d = _d;
+                numerator = Math.ceil(original_value * denominator);
+
+                if (Math.abs(numerator / denominator - original_value) < tol) {
+                    break;
+                }
+
+                iteration++;
+            }
+            return {numerator: numerator, denominator: denominator};
+        },
+
+        getValue: function (str) {
+            try {
+                return eval(str);
+            } catch(err) {
+                return false
+            }
+        },
+
+        getRatio: function (initial, final) {
+            return final / initial;
+        },
+
+        applyRation: function (value, ratio) {
+            return value * ratio;
+        },
+
+        toString: function (faction) {
+            if(faction.denominator ===  1) {
+                return faction.numerator;
+            }
+
+            var value = faction.numerator/faction.denominator;
+            var rounded = Math.round(value * 100) / 100;
+
+            // only two decimals
+            if(rounded == value) {
+                var decimal = (rounded - Math.floor(value)) * 100;
+                if(_.indexOf([25, 50, 75], decimal) != -1) {
+                    return rounded;
+                }
+            }
+
+            return faction.numerator + "/" + faction.denominator + ' (' + rounded + ')';
+        }
+    };
+});
+
 angular.module('cook.services', []).
   value('version', '0.1');
 
@@ -548,8 +615,8 @@ app.controller('article.uncategorize', ['$scope', 'Restangular', '$routeParams',
     };
 }]);
 
-app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 
-    function ($rootScope, $scope, Restangular, $routeParams, $log) {
+app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 'math',
+    function ($rootScope, $scope, Restangular, $routeParams, $log, math) {
     $log = $log.getInstance('article.get');
 
     $log.debug('Get article #' + $routeParams.id );
@@ -607,9 +674,12 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
     });
 
     $scope.changeQuantity = function(currentYield) {
-        var ratio = currentYield / $scope.yieldInitial;
+        var ratio = math.getRatio($scope.yieldInitial, currentYield);
+
         for(var i = 0; i < $scope.quantities.length; i++) {
-            $scope.quantities[i].text($scope.quantitiesInitial[i] * ratio);
+            if($scope.quantities[i]) {
+                $scope.quantities[i].text(math.toString(math.closestFraction(math.applyRation($scope.quantitiesInitial[i], ratio))));
+            }
         }
         $scope.currentYield = $scope.yieldInitial * ratio;
         $scope.yield.text($scope.currentYield);
@@ -617,14 +687,21 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
 
     $scope.parse = function() {
         var domArticle = $('.recipe-body');
-        $scope.yield = $('strong', domArticle);
-        $scope.yieldInitial = parseInt($scope.yield.text());
+        $scope.yield = $('strong:eq(0)', domArticle);
+        console.log($scope.yield.text());
+        $scope.yieldInitial = math.getValue($scope.yield.text());
         $scope.currentYield = $scope.yieldInitial;
         $scope.quantities = $('em', domArticle);
         $scope.quantitiesInitial = new Array();
         for(var i = 0; i < $scope.quantities.length; i++) {
             $scope.quantities[i] = $($scope.quantities[i]);
-            $scope.quantitiesInitial[i] = parseInt($scope.quantities[i].text());
+
+            var parsedValue = math.getValue($scope.quantities[i].text());
+            if(parsedValue) {
+                $scope.quantitiesInitial[i] = math.getValue($scope.quantities[i].text());
+            } else {
+                delete $scope.quantities[i];
+            }
         }
     }
 

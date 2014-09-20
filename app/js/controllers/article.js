@@ -64,8 +64,8 @@ app.controller('article.uncategorize', ['$scope', 'Restangular', '$routeParams',
     };
 }]);
 
-app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 
-    function ($rootScope, $scope, Restangular, $routeParams, $log) {
+app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 'math',
+    function ($rootScope, $scope, Restangular, $routeParams, $log, math) {
     $log = $log.getInstance('article.get');
 
     $log.debug('Get article #' + $routeParams.id );
@@ -123,9 +123,12 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
     });
 
     $scope.changeQuantity = function(currentYield) {
-        var ratio = currentYield / $scope.yieldInitial;
+        var ratio = math.getRatio($scope.yieldInitial, currentYield);
+
         for(var i = 0; i < $scope.quantities.length; i++) {
-            $scope.quantities[i].text($scope.quantitiesInitial[i] * ratio);
+            if($scope.quantities[i]) {
+                $scope.quantities[i].text(math.toString(math.closestFraction(math.applyRation($scope.quantitiesInitial[i], ratio))));
+            }
         }
         $scope.currentYield = $scope.yieldInitial * ratio;
         $scope.yield.text($scope.currentYield);
@@ -133,14 +136,21 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
 
     $scope.parse = function() {
         var domArticle = $('.recipe-body');
-        $scope.yield = $('strong', domArticle);
-        $scope.yieldInitial = parseInt($scope.yield.text());
+        $scope.yield = $('strong:eq(0)', domArticle);
+        console.log($scope.yield.text());
+        $scope.yieldInitial = math.getValue($scope.yield.text());
         $scope.currentYield = $scope.yieldInitial;
         $scope.quantities = $('em', domArticle);
         $scope.quantitiesInitial = new Array();
         for(var i = 0; i < $scope.quantities.length; i++) {
             $scope.quantities[i] = $($scope.quantities[i]);
-            $scope.quantitiesInitial[i] = parseInt($scope.quantities[i].text());
+
+            var parsedValue = math.getValue($scope.quantities[i].text());
+            if(parsedValue) {
+                $scope.quantitiesInitial[i] = math.getValue($scope.quantities[i].text());
+            } else {
+                delete $scope.quantities[i];
+            }
         }
     }
 
