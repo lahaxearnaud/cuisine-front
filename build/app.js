@@ -533,6 +533,10 @@ app.factory('math', function () {
             var value = faction.numerator/faction.denominator;
             var rounded = Math.round(value * 100) / 100;
 
+            if(rounded > 15) {
+                return Math.floor(value);
+            }
+
             // only two decimals
             if(rounded == value) {
                 var decimal = (rounded - Math.floor(value)) * 100;
@@ -688,8 +692,18 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
     $scope.parse = function() {
         var domArticle = $('.recipe-body');
         $scope.yield = $('strong:eq(0)', domArticle);
-        console.log($scope.yield.text());
+        console.log($scope.yield);
+        if(!$scope.yield) {
+            $('#yieldChanger').remove();
+
+            return;
+        }
         $scope.yieldInitial = math.getValue($scope.yield.text());
+        if(!$scope.yieldInitial) {
+            $('#yieldChanger').remove();
+
+            return;
+        }
         $scope.currentYield = $scope.yieldInitial;
         $scope.quantities = $('em', domArticle);
         $scope.quantitiesInitial = new Array();

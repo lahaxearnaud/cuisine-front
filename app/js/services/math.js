@@ -52,6 +52,10 @@ app.factory('math', function () {
             var value = faction.numerator/faction.denominator;
             var rounded = Math.round(value * 100) / 100;
 
+            if(rounded > 15) {
+                return Math.floor(value);
+            }
+
             // only two decimals
             if(rounded == value) {
                 var decimal = (rounded - Math.floor(value)) * 100;

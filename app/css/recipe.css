@@ -12,4 +12,11 @@
 
 .recipe-body * img {
 	max-width: 200px;
+    display: block;
+    padding: 5px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto
 }

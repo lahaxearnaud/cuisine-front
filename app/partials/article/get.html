@@ -4,16 +4,18 @@
 		    <h1>{{ article.title }}</h1>
 			<img src="{{ article.image }}" ng-if="article.image.length" class="img-rounded left recipe-image">
 
-			<a class="btn btn-link" ng-click="parse(); isCollapsed = !isCollapsed;" ng-show="!isCollapsed">
-				Change yield
-			</a>
+            <div id="yieldChanger">
+                <a class="btn btn-link" ng-click="parse(); isCollapsed = !isCollapsed;" ng-show="!isCollapsed">
+                    Change yield
+                </a>
 
-			<div class="form-inline" collapse="!isCollapsed">
-				<div class="form-group">
-				    <label>Number of personnes</label>
-					<select ng-model="currentYield" ng-change="changeQuantity(currentYield)" ng-options="yield for yield in yields" class="form-control"></select>
-				</div>
-			</div>
+                <div class="form-inline" collapse="!isCollapsed">
+                    <div class="form-group">
+                        <label>Number of personnes</label>
+                        <select ng-model="currentYield" ng-change="changeQuantity(currentYield)" ng-options="yield for yield in yields" class="form-control"></select>
+                    </div>
+                </div>
+            </div>
 
 		    <div btf-markdown="article.body" class="recipe-body"></div>
 

@@ -137,8 +137,18 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
     $scope.parse = function() {
         var domArticle = $('.recipe-body');
         $scope.yield = $('strong:eq(0)', domArticle);
-        console.log($scope.yield.text());
+        console.log($scope.yield);
+        if(!$scope.yield) {
+            $('#yieldChanger').remove();
+
+            return;
+        }
         $scope.yieldInitial = math.getValue($scope.yield.text());
+        if(!$scope.yieldInitial) {
+            $('#yieldChanger').remove();
+
+            return;
+        }
         $scope.currentYield = $scope.yieldInitial;
         $scope.quantities = $('em', domArticle);
         $scope.quantitiesInitial = new Array();
