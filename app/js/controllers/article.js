@@ -64,8 +64,8 @@ app.controller('article.uncategorize', ['$scope', 'Restangular', '$routeParams',
     };
 }]);
 
-app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 'math',
-    function ($rootScope, $scope, Restangular, $routeParams, $log, math) {
+app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routeParams', '$log', 'math', 'apiUrl',
+    function ($rootScope, $scope, Restangular, $routeParams, $log, math, apiUrl) {
     $log = $log.getInstance('article.get');
 
     $log.debug('Get article #' + $routeParams.id );
@@ -103,7 +103,7 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
         Restangular.all('notes').post({
             'article_id': $scope.article.id,
             'user_id': $scope.authentification.id,
-            'body': $scope.note.body,
+            'body': $scope.note.body
         }).then(function(result) {
             if(result.success === undefined || !result.success) {
                 if(result.body) {
@@ -166,8 +166,9 @@ app.controller('article.get', ['$rootScope', '$scope', 'Restangular', '$routePar
 
     $scope.yields = _.range(1, 15);
     $scope.currentYield = 1;
-
+    $scope.downloadUrl = apiUrl + 'articles/export/' + $routeParams.id + "?auth_token=" + $rootScope.authentification.token;
 }]);
+
 
 app.controller('article.delete', ['$scope', 'Restangular', '$routeParams', '$log', '$location', function ($scope, Restangular, $routeParams, $log, $location) {
     $log = $log.getInstance('article.delete');
