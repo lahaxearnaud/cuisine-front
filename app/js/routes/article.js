@@ -3,37 +3,37 @@ app.config(['$routeProvider',
     function($routeProvider) {
 
         $routeProvider.when('/recipes/search', {
-            templateUrl: 'partials/article/liste.html',
+            templateUrl: 'app/partials/article/liste.html',
             controller: 'article.search'
         });
 
         $routeProvider.when('/recipes/add', {
-            templateUrl: 'partials/article/add.html',
+            templateUrl: 'app/partials/article/add.html',
             controller: 'article.add'
         });
 
         $routeProvider.when('/recipes/uncategorize', {
-            templateUrl: 'partials/article/liste.html',
+            templateUrl: 'app/partials/article/liste.html',
             controller: 'article.uncategorize'
         });
 
         $routeProvider.when('/recipes/:id', {
-            templateUrl: 'partials/article/get.html',
+            templateUrl: 'app/partials/article/get.html',
             controller: 'article.get'
         });
 
         $routeProvider.when('/recipes/:id/delete', {
-            templateUrl: 'partials/article/delete.html',
+            templateUrl: 'app/partials/article/delete.html',
             controller: 'article.delete'
         });
 
         $routeProvider.when('/recipes/:id/edit', {
-            templateUrl: 'partials/article/edit.html',
+            templateUrl: 'app/partials/article/edit.html',
             controller: 'article.edit'
         });
 
         $routeProvider.when('/recipes', {
-            templateUrl: 'partials/article/liste.html',
+            templateUrl: 'app/partials/article/liste.html',
             controller: 'article.list'
         });
 }]);

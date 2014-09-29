@@ -1,28 +1,28 @@
 app.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.when('/login', {
-            templateUrl: 'partials/login.html',
+            templateUrl: 'app/partials/login.html',
             controller: 'user.login',
             publicAccess: true
         });
 
         $routeProvider.when('/logout', {
-            templateUrl: 'partials/home.html',
+            templateUrl: 'app/partials/home.html',
             controller: 'user.logout'
         });
 
         $routeProvider.when('/user/profile', {
-            templateUrl: 'partials/user/profile.html',
+            templateUrl: 'app/partials/user/profile.html',
             controller: 'user.profile'
         });
 
         $routeProvider.when('/user/edit', {
-            templateUrl: 'partials/user/edit.html',
+            templateUrl: 'app/partials/user/edit.html',
             controller: 'user.edit'
         });
 
         $routeProvider.when('/subscribe', {
-            templateUrl: 'partials/subscribe.html',
+            templateUrl: 'app/partials/subscribe.html',
             controller: 'user.subscribe',
             publicAccess: true
         });

@@ -6,7 +6,7 @@ var gulp = require("gulp"),
     connect = require('gulp-connect'),
     inject = require("gulp-inject"),
     imagemin = require('gulp-imagemin'),
-    rewriteCSS = require('gulp-rewrite-css')
+    rewriteCSS = require('gulp-rewrite-css'),
     bower = require('gulp-bower'),
     prettify = require('gulp-jsbeautifier'),
     gulpBowerFiles = require('gulp-bower-files');
@@ -18,17 +18,6 @@ var gulp = require("gulp"),
  *  Configs
  * =============================================
  */
-/**
-    'bower_components/angular/angular.js',
-    'bower_components/angular-route/angular-route.js',
-    'bower_components/lodash/dist/lodash.js',
-    'bower_components/restangular/dist/restangular.js',
-    'bower_components/angular-cookies/angular-cookies.js',
-    'bower_components/angular-loading-bar/build/loading-bar.js',
-    'bower_components/angular-gravatar/build/md5.js',
-    'bower_components/angular-gravatar/build/angular-gravatar.js'
-];
-**/
 
 var bowerCssToIntegrate = [
     'bower_components/bootstrap/dist/css/bootstrap.css',
@@ -49,7 +38,8 @@ var appFiles =  [
         "app/js/services/*.js",
         "app/js/controllers/*.js",
         "app/js/filters/*.js",
-        "app/js/directives/*.js"
+        "app/js/directives/*.js",
+        "app/js/jquery/*.js"
     ];
 
 var logWatch = function(event) {
