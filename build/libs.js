@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.23
+ * @license AngularJS v1.2.25
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.23/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.25/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -1987,11 +1987,11 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.23',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.25',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
-  dot: 23,
-  codeName: 'superficial-malady'
+  dot: 25,
+  codeName: 'hypnotic-gesticulation'
 };
 
 
@@ -4581,6 +4581,13 @@ function Browser(window, document, $log, $sniffer) {
     urlChangeListeners.push(callback);
     return callback;
   };
+
+  /**
+   * Checks whether the url has changed outside of Angular.
+   * Needs to be exported to be able to check for changes that have been done in sync,
+   * as hashchange/popstate events fire in async.
+   */
+  self.$$checkUrlChange = fireUrlChange;
 
   //////////////////////////////////////////////////////////////
   // Misc API
@@ -8407,7 +8414,7 @@ function $HttpProvider() {
           if (isObject(v)) {
             if (isDate(v)){
               v = v.toISOString();
-            } else if (isObject(v)) {
+            } else {
               v = toJson(v);
             }
           }
@@ -8857,7 +8864,7 @@ function $InterpolateProvider() {
      * @description
      * Symbol to denote the start of expression in the interpolated string. Defaults to `{{`.
      *
-     * Use {@link ng.$interpolateProvider#startSymbol $interpolateProvider#startSymbol} to change
+     * Use {@link ng.$interpolateProvider#startSymbol `$interpolateProvider.startSymbol`} to change
      * the symbol.
      *
      * @returns {string} start symbol.
@@ -8873,7 +8880,7 @@ function $InterpolateProvider() {
      * @description
      * Symbol to denote the end of expression in the interpolated string. Defaults to `}}`.
      *
-     * Use {@link ng.$interpolateProvider#endSymbol $interpolateProvider#endSymbol} to change
+     * Use {@link ng.$interpolateProvider#endSymbol `$interpolateProvider.endSymbol`} to change
      * the symbol.
      *
      * @returns {string} end symbol.
@@ -9463,17 +9470,16 @@ LocationHashbangInHtml5Url.prototype =
    * Change path, search and hash, when called with parameter and return `$location`.
    *
    * @param {string=} url New url without base prefix (e.g. `/path?a=b#hash`)
-   * @param {string=} replace The path that will be changed
    * @return {string} url
    */
-  url: function(url, replace) {
+  url: function(url) {
     if (isUndefined(url))
       return this.$$url;
 
     var match = PATH_MATCH.exec(url);
     if (match[1]) this.path(decodeURIComponent(match[1]));
     if (match[2] || match[1]) this.search(match[3] || '');
-    this.hash(match[5] || '', replace);
+    this.hash(match[5] || '');
 
     return this;
   },
@@ -9531,10 +9537,11 @@ LocationHashbangInHtml5Url.prototype =
    * Note: Path should always begin with forward slash (/), this method will add the forward slash
    * if it is missing.
    *
-   * @param {string=} path New path
+   * @param {(string|number)=} path New path
    * @return {string} path
    */
   path: locationGetterSetter('$$path', function(path) {
+    path = path ? path.toString() : '';
     return path.charAt(0) == '/' ? path : '/' + path;
   }),
 
@@ -9570,7 +9577,7 @@ LocationHashbangInHtml5Url.prototype =
    * If the argument is a hash object containing an array of values, these values will be encoded
    * as duplicate search parameters in the url.
    *
-   * @param {(string|Array<string>|boolean)=} paramValue If `search` is a string, then `paramValue`
+   * @param {(string|Number|Array<string>|boolean)=} paramValue If `search` is a string or number, then `paramValue`
    * will override only a single search property.
    *
    * If `paramValue` is an array, it will override the property of the `search` component of
@@ -9589,7 +9596,8 @@ LocationHashbangInHtml5Url.prototype =
       case 0:
         return this.$$search;
       case 1:
-        if (isString(search)) {
+        if (isString(search) || isNumber(search)) {
+          search = search.toString();
           this.$$search = parseKeyValue(search);
         } else if (isObject(search)) {
           // remove object undefined or null properties
@@ -9626,10 +9634,12 @@ LocationHashbangInHtml5Url.prototype =
    *
    * Change hash fragment when called with parameter and return `$location`.
    *
-   * @param {string=} hash New hash fragment
+   * @param {(string|number)=} hash New hash fragment
    * @return {string} hash
    */
-  hash: locationGetterSetter('$$hash', identity),
+  hash: locationGetterSetter('$$hash', function(hash) {
+    return hash ? hash.toString() : '';
+  }),
 
   /**
    * @ngdoc method
@@ -10824,7 +10834,7 @@ Parser.prototype = {
       var context = contextGetter ? contextGetter(scope, locals) : scope;
 
       for (var i = 0; i < argsFn.length; i++) {
-        args.push(argsFn[i](scope, locals));
+        args.push(ensureSafeObject(argsFn[i](scope, locals), parser.text));
       }
       var fnPtr = fn(scope, locals, context) || noop;
 
@@ -10912,13 +10922,15 @@ Parser.prototype = {
 //////////////////////////////////////////////////
 
 function setter(obj, path, setValue, fullExp, options) {
+  ensureSafeObject(obj, fullExp);
+
   //needed?
   options = options || {};
 
   var element = path.split('.'), key;
   for (var i = 0; element.length > 1; i++) {
     key = ensureSafeMemberName(element.shift(), fullExp);
-    var propertyObj = obj[key];
+    var propertyObj = ensureSafeObject(obj[key], fullExp);
     if (!propertyObj) {
       propertyObj = {};
       obj[key] = propertyObj;
@@ -10938,7 +10950,6 @@ function setter(obj, path, setValue, fullExp, options) {
     }
   }
   key = ensureSafeMemberName(element.shift(), fullExp);
-  ensureSafeObject(obj, fullExp);
   ensureSafeObject(obj[key], fullExp);
   obj[key] = setValue;
   return setValue;
@@ -12002,10 +12013,26 @@ function $RootScopeProvider(){
     /**
      * @ngdoc property
      * @name $rootScope.Scope#$id
-     * @returns {number} Unique scope ID (monotonically increasing alphanumeric sequence) useful for
-     *   debugging.
+     *
+     * @description
+     * Unique scope ID (monotonically increasing) useful for debugging.
      */
 
+     /**
+      * @ngdoc property
+      * @name $rootScope.Scope#$parent
+      *
+      * @description
+      * Reference to the parent scope.
+      */
+
+      /**
+       * @ngdoc property
+       * @name $rootScope.Scope#$root
+       *
+       * @description
+       * Reference to the root scope.
+       */
 
     Scope.prototype = {
       constructor: Scope,
@@ -12017,9 +12044,8 @@ function $RootScopeProvider(){
        * @description
        * Creates a new child {@link ng.$rootScope.Scope scope}.
        *
-       * The parent scope will propagate the {@link ng.$rootScope.Scope#$digest $digest()} and
-       * {@link ng.$rootScope.Scope#$digest $digest()} events. The scope can be removed from the
-       * scope hierarchy using {@link ng.$rootScope.Scope#$destroy $destroy()}.
+       * The parent scope will propagate the {@link ng.$rootScope.Scope#$digest $digest()} event.
+       * The scope can be removed from the scope hierarchy using {@link ng.$rootScope.Scope#$destroy $destroy()}.
        *
        * {@link ng.$rootScope.Scope#$destroy $destroy()} must be called on a scope when it is
        * desired for the scope and its child scopes to be permanently detached from the parent and
@@ -12472,6 +12498,8 @@ function $RootScopeProvider(){
             logIdx, logMsg, asyncTask;
 
         beginPhase('$digest');
+        // Check for changes to browser url that happened in sync before the call to $digest
+        $browser.$$checkUrlChange();
 
         lastDirtyWatch = null;
 
@@ -14525,16 +14553,6 @@ function $WindowProvider(){
  * For more information about how angular filters work, and how to create your own filters, see
  * {@link guide/filter Filters} in the Angular Developer Guide.
  */
-/**
- * @ngdoc method
- * @name $filterProvider#register
- * @description
- * Register filter factory function.
- *
- * @param {String} name Name of the filter.
- * @param {Function} fn The filter factory function which is injectable.
- */
-
 
 /**
  * @ngdoc service
@@ -14573,7 +14591,7 @@ function $FilterProvider($provide) {
 
   /**
    * @ngdoc method
-   * @name $controllerProvider#register
+   * @name $filterProvider#register
    * @param {string|Object} name Name of the filter function, or an object map of filters where
    *    the keys are the filter names and the values are the filter factories.
    * @returns {Object} Registered filter instance, or if a map of filters was provided then a map
@@ -14646,7 +14664,9 @@ function $FilterProvider($provide) {
  *     which have property `name` containing "M" and property `phone` containing "1". A special
  *     property name `$` can be used (as in `{$:"text"}`) to accept a match against any
  *     property of the object. That's equivalent to the simple substring match with a `string`
- *     as described above.
+ *     as described above. The predicate can be negated by prefixing the string with `!`.
+ *     For Example `{name: "!M"}` predicate will return an array of items which have property `name`
+ *     not containing "M".
  *
  *   - `function(value)`: A predicate function can be used to write arbitrary filters. The function is
  *     called for each element of `array`. The final result is an array of those elements that
@@ -14995,6 +15015,10 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
     number = +(Math.round(+(number.toString() + 'e' + fractionSize)).toString() + 'e' + -fractionSize);
 
+    if (number === 0) {
+      isNegative = false;
+    }
+
     var fraction = ('' + number).split(DECIMAL_SEP);
     var whole = fraction[0];
     fraction = fraction[1] || '';
@@ -15164,8 +15188,8 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZE']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+
  *   * `'mediumTime'`: equivalent to `'h:mm:ss a'` for en_US locale (e.g. 12:05:08 pm)
  *   * `'shortTime'`: equivalent to `'h:mm a'` for en_US locale (e.g. 12:05 pm)
  *
- *   `format` string can contain literal values. These need to be quoted with single quotes (e.g.
- *   `"h 'in the morning'"`). In order to output single quote, use two single quotes in a sequence
+ *   `format` string can contain literal values. These need to be escaped by surrounding with single quotes (e.g.
+ *   `"h 'in the morning'"`). In order to output a single quote, escape it - i.e., two single quotes in a sequence
  *   (e.g. `"h 'o''clock'"`).
  *
  * @param {(Date|number|string)} date Date to format either as Date object, milliseconds (string or
@@ -15185,6 +15209,8 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZE']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+
           <span>{{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}</span><br>
        <span ng-non-bindable>{{1288323623006 | date:'MM/dd/yyyy @ h:mma'}}</span>:
           <span>{{'1288323623006' | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+       <span ng-non-bindable>{{1288323623006 | date:"MM/dd/yyyy 'at' h:mma"}}</span>:
+          <span>{{'1288323623006' | date:"MM/dd/yyyy 'at' h:mma"}}</span><br>
      </file>
      <file name="protractor.js" type="protractor">
        it('should format date', function() {
@@ -15194,6 +15220,8 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZE']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+
             toMatch(/2010\-10\-2\d \d{2}:\d{2}:\d{2} (\-|\+)?\d{4}/);
          expect(element(by.binding("'1288323623006' | date:'MM/dd/yyyy @ h:mma'")).getText()).
             toMatch(/10\/2\d\/2010 @ \d{1,2}:\d{2}(AM|PM)/);
+         expect(element(by.binding("'1288323623006' | date:\"MM/dd/yyyy 'at' h:mma\"")).getText()).
+            toMatch(/10\/2\d\/2010 at \d{1,2}:\d{2}(AM|PM)/);
        });
      </file>
    </example>
@@ -15555,7 +15583,7 @@ function limitToFilter(){
 orderByFilter.$inject = ['$parse'];
 function orderByFilter($parse){
   return function(array, sortPredicate, reverseOrder) {
-    if (!isArray(array)) return array;
+    if (!(isArrayLike(array))) return array;
     if (!sortPredicate) return array;
     sortPredicate = isArray(sortPredicate) ? sortPredicate: [sortPredicate];
     sortPredicate = map(sortPredicate, function(predicate){
@@ -16142,8 +16170,9 @@ function FormController(element, attrs, $scope, $animate) {
   // convenience method for easy toggling of classes
   function toggleValidCss(isValid, validationErrorKey) {
     validationErrorKey = validationErrorKey ? '-' + snake_case(validationErrorKey, '-') : '';
-    $animate.removeClass(element, (isValid ? INVALID_CLASS : VALID_CLASS) + validationErrorKey);
-    $animate.addClass(element, (isValid ? VALID_CLASS : INVALID_CLASS) + validationErrorKey);
+    $animate.setClass(element,
+      (isValid ? VALID_CLASS : INVALID_CLASS) + validationErrorKey,
+      (isValid ? INVALID_CLASS : VALID_CLASS) + validationErrorKey);
   }
 
   /**
@@ -16358,8 +16387,6 @@ function FormController(element, attrs, $scope, $animate) {
  * hitting enter in any of the input fields will trigger the click handler on the *first* button or
  * input[type=submit] (`ngClick`) *and* a submit handler on the enclosing form (`ngSubmit`)
  *
- * @param {string=} name Name of the form. If specified, the form controller will be published into
- *                       related scope, under this name.
  *
  * ## Animation Hooks
  *
@@ -16437,6 +16464,8 @@ function FormController(element, attrs, $scope, $animate) {
       </file>
     </example>
  *
+ * @param {string=} name Name of the form. If specified, the form controller will be published into
+ *                       related scope, under this name.
  */
 var formDirectiveFactory = function(isNgForm) {
   return ['$timeout', function($timeout) {
@@ -17020,7 +17049,7 @@ function textInputType(scope, element, attr, ctrl, $sniffer, $browser) {
     // a row.
     var revalidate = validity && ctrl.$$hasNativeValidators;
     if (ctrl.$viewValue !== value || (value === '' && revalidate)) {
-      if (scope.$$phase) {
+      if (scope.$root.$$phase) {
         ctrl.$setViewValue(value);
       } else {
         scope.$apply(function() {
@@ -19062,7 +19091,9 @@ var ngControllerDirective = [function() {
       <button ng-click="count = count + 1" ng-init="count=0">
         Increment
       </button>
-      count: {{count}}
+      <span>
+        count: {{count}}
+      <span>
      </file>
      <file name="protractor.js" type="protractor">
        it('should check ng-click', function() {
@@ -19080,19 +19111,32 @@ var ngControllerDirective = [function() {
  * Events that are handled via these handler are always configured not to propagate further.
  */
 var ngEventDirectives = {};
+
+// For events that might fire synchronously during DOM manipulation
+// we need to execute their event handlers asynchronously using $evalAsync,
+// so that they are not executed in an inconsistent state.
+var forceAsyncEvents = {
+  'blur': true,
+  'focus': true
+};
 forEach(
   'click dblclick mousedown mouseup mouseover mouseout mousemove mouseenter mouseleave keydown keyup keypress submit focus blur copy cut paste'.split(' '),
-  function(name) {
-    var directiveName = directiveNormalize('ng-' + name);
-    ngEventDirectives[directiveName] = ['$parse', function($parse) {
+  function(eventName) {
+    var directiveName = directiveNormalize('ng-' + eventName);
+    ngEventDirectives[directiveName] = ['$parse', '$rootScope', function($parse, $rootScope) {
       return {
         compile: function($element, attr) {
           var fn = $parse(attr[directiveName]);
           return function ngEventHandler(scope, element) {
-            element.on(lowercase(name), function(event) {
-              scope.$apply(function() {
+            element.on(eventName, function(event) {
+              var callback = function() {
                 fn(scope, {$event:event});
-              });
+              };
+              if (forceAsyncEvents[eventName] && $rootScope.$$phase) {
+                scope.$evalAsync(callback);
+              } else {
+                scope.$apply(callback);
+              }
             });
           };
         }
@@ -19409,6 +19453,10 @@ forEach(
  * @description
  * Specify custom behavior on focus event.
  *
+ * Note: As the `focus` event is executed synchronously when calling `input.focus()`
+ * AngularJS executes the expression using `scope.$evalAsync` if the event is fired
+ * during an `$apply` to ensure a consistent state.
+ *
  * @element window, input, select, textarea, a
  * @priority 0
  * @param {expression} ngFocus {@link guide/expression Expression} to evaluate upon
@@ -19424,6 +19472,14 @@ forEach(
  *
  * @description
  * Specify custom behavior on blur event.
+ *
+ * A [blur event](https://developer.mozilla.org/en-US/docs/Web/Events/blur) fires when
+ * an element has lost focus.
+ *
+ * Note: As the `blur` event is executed synchronously also during DOM manipulations
+ * (e.g. removing a focussed input),
+ * AngularJS executes the expression using `scope.$evalAsync` if the event is fired
+ * during an `$apply` to ensure a consistent state.
  *
  * @element window, input, select, textarea, a
  * @priority 0
@@ -20505,8 +20561,9 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
                if (block && block.scope) lastBlockMap[block.id] = block;
              });
              // This is a duplicate and we need to throw an error
-             throw ngRepeatMinErr('dupes', "Duplicates in a repeater are not allowed. Use 'track by' expression to specify unique keys. Repeater: {0}, Duplicate key: {1}",
-                                                                                                                                                    expression,       trackById);
+             throw ngRepeatMinErr('dupes',
+                  "Duplicates in a repeater are not allowed. Use 'track by' expression to specify unique keys. Repeater: {0}, Duplicate key: {1}, Duplicate value: {2}",
+                  expression, trackById, toJson(value));
            } else {
              // new never before seen block
              nextBlockOrder[index] = { id: trackById };
@@ -20597,8 +20654,8 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
  *
  * @description
  * The `ngShow` directive shows or hides the given HTML element based on the expression
- * provided to the ngShow attribute. The element is shown or hidden by removing or adding
- * the `ng-hide` CSS class onto the element. The `.ng-hide` CSS class is predefined
+ * provided to the `ngShow` attribute. The element is shown or hidden by removing or adding
+ * the `.ng-hide` CSS class onto the element. The `.ng-hide` CSS class is predefined
  * in AngularJS and sets the display style to none (using an !important flag).
  * For CSP mode please add `angular-csp.css` to your html file (see {@link ng.directive:ngCsp ngCsp}).
  *
@@ -20610,8 +20667,8 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
  * <div ng-show="myValue" class="ng-hide"></div>
  * ```
  *
- * When the ngShow expression evaluates to false then the ng-hide CSS class is added to the class attribute
- * on the element causing it to become hidden. When true, the ng-hide CSS class is removed
+ * When the `ngShow` expression evaluates to false then the `.ng-hide` CSS class is added to the class attribute
+ * on the element causing it to become hidden. When true, the `.ng-hide` CSS class is removed
  * from the element causing the element not to appear hidden.
  *
  * <div class="alert alert-warning">
@@ -20621,7 +20678,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
  *
  * ## Why is !important used?
  *
- * You may be wondering why !important is used for the .ng-hide CSS class. This is because the `.ng-hide` selector
+ * You may be wondering why !important is used for the `.ng-hide` CSS class. This is because the `.ng-hide` selector
  * can be easily overridden by heavier selectors. For example, something as simple
  * as changing the display style on a HTML list item would make hidden elements appear visible.
  * This also becomes a bigger issue when dealing with CSS frameworks.
@@ -20630,7 +20687,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
  * specificity (when !important isn't used with any conflicting styles). If a developer chooses to override the
  * styling to change how to hide an element then it is just a matter of using !important in their own CSS code.
  *
- * ### Overriding .ng-hide
+ * ### Overriding `.ng-hide`
  *
  * By default, the `.ng-hide` class will style the element with `display:none!important`. If you wish to change
  * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
@@ -20648,7 +20705,7 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
  *
  * By default you don't need to override in CSS anything and the animations will work around the display style.
  *
- * ## A note about animations with ngShow
+ * ## A note about animations with `ngShow`
  *
  * Animations in ngShow/ngHide work with the show and hide events that are triggered when the directive expression
  * is true and false. This system works like the animation system present with ngClass except that
@@ -20673,8 +20730,8 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
  * property to block during animation states--ngAnimate will handle the style toggling automatically for you.
  *
  * @animations
- * addClass: .ng-hide - happens after the ngShow expression evaluates to a truthy value and the just before contents are set to visible
- * removeClass: .ng-hide - happens after the ngShow expression evaluates to a non truthy value and just before the contents are set to hidden
+ * addClass: `.ng-hide` - happens after the `ngShow` expression evaluates to a truthy value and the just before contents are set to visible
+ * removeClass: `.ng-hide` - happens after the `ngShow` expression evaluates to a non truthy value and just before the contents are set to hidden
  *
  * @element ANY
  * @param {expression} ngShow If the {@link guide/expression expression} is truthy
@@ -20754,7 +20811,7 @@ var ngShowDirective = ['$animate', function($animate) {
  *
  * @description
  * The `ngHide` directive shows or hides the given HTML element based on the expression
- * provided to the ngHide attribute. The element is shown or hidden by removing or adding
+ * provided to the `ngHide` attribute. The element is shown or hidden by removing or adding
  * the `ng-hide` CSS class onto the element. The `.ng-hide` CSS class is predefined
  * in AngularJS and sets the display style to none (using an !important flag).
  * For CSP mode please add `angular-csp.css` to your html file (see {@link ng.directive:ngCsp ngCsp}).
@@ -20767,8 +20824,8 @@ var ngShowDirective = ['$animate', function($animate) {
  * <div ng-hide="myValue"></div>
  * ```
  *
- * When the ngHide expression evaluates to true then the .ng-hide CSS class is added to the class attribute
- * on the element causing it to become hidden. When false, the ng-hide CSS class is removed
+ * When the `.ngHide` expression evaluates to true then the `.ng-hide` CSS class is added to the class attribute
+ * on the element causing it to become hidden. When false, the `.ng-hide` CSS class is removed
  * from the element causing the element not to appear hidden.
  *
  * <div class="alert alert-warning">
@@ -20778,7 +20835,7 @@ var ngShowDirective = ['$animate', function($animate) {
  *
  * ## Why is !important used?
  *
- * You may be wondering why !important is used for the .ng-hide CSS class. This is because the `.ng-hide` selector
+ * You may be wondering why !important is used for the `.ng-hide` CSS class. This is because the `.ng-hide` selector
  * can be easily overridden by heavier selectors. For example, something as simple
  * as changing the display style on a HTML list item would make hidden elements appear visible.
  * This also becomes a bigger issue when dealing with CSS frameworks.
@@ -20787,7 +20844,7 @@ var ngShowDirective = ['$animate', function($animate) {
  * specificity (when !important isn't used with any conflicting styles). If a developer chooses to override the
  * styling to change how to hide an element then it is just a matter of using !important in their own CSS code.
  *
- * ### Overriding .ng-hide
+ * ### Overriding `.ng-hide`
  *
  * By default, the `.ng-hide` class will style the element with `display:none!important`. If you wish to change
  * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
@@ -20805,7 +20862,7 @@ var ngShowDirective = ['$animate', function($animate) {
  *
  * By default you don't need to override in CSS anything and the animations will work around the display style.
  *
- * ## A note about animations with ngHide
+ * ## A note about animations with `ngHide`
  *
  * Animations in ngShow/ngHide work with the show and hide events that are triggered when the directive expression
  * is true and false. This system works like the animation system present with ngClass, except that the `.ng-hide`
@@ -20829,8 +20886,8 @@ var ngShowDirective = ['$animate', function($animate) {
  * property to block during animation states--ngAnimate will handle the style toggling automatically for you.
  *
  * @animations
- * removeClass: .ng-hide - happens after the ngHide expression evaluates to a truthy value and just before the contents are set to hidden
- * addClass: .ng-hide - happens after the ngHide expression evaluates to a non truthy value and just before the contents are set to visible
+ * removeClass: `.ng-hide` - happens after the `ngHide` expression evaluates to a truthy value and just before the contents are set to hidden
+ * addClass: `.ng-hide` - happens after the `ngHide` expression evaluates to a non truthy value and just before the contents are set to visible
  *
  * @element ANY
  * @param {expression} ngHide If the {@link guide/expression expression} is truthy then
@@ -21683,6 +21740,19 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
         ctrl.$render = render;
 
         scope.$watchCollection(valuesFn, render);
+        scope.$watchCollection(function () {
+          var locals = {},
+              values = valuesFn(scope);
+          if (values) {
+            var toDisplay = new Array(values.length);
+            for (var i = 0, ii = values.length; i < ii; i++) {
+              locals[valueName] = values[i];
+              toDisplay[i] = displayFn(scope, locals);
+            }
+            return toDisplay;
+          }
+        }, render);
+
         if ( multiple ) {
           scope.$watchCollection(function() { return ctrl.$modelValue; }, render);
         }
@@ -21956,7 +22026,7 @@ var styleDirective = valueFn({
  * angular-ui-bootstrap
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.11.0 - 2014-05-01
+ * Version: 0.11.2 - 2014-09-26
  * License: MIT
  */
 angular.module("ui.bootstrap", ["ui.bootstrap.tpls", "ui.bootstrap.transition","ui.bootstrap.collapse","ui.bootstrap.accordion","ui.bootstrap.alert","ui.bootstrap.bindHtml","ui.bootstrap.buttons","ui.bootstrap.carousel","ui.bootstrap.dateparser","ui.bootstrap.position","ui.bootstrap.datepicker","ui.bootstrap.dropdown","ui.bootstrap.modal","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating","ui.bootstrap.tabs","ui.bootstrap.timepicker","ui.bootstrap.typeahead"]);
@@ -22701,7 +22771,7 @@ angular.module('ui.bootstrap.dateparser', [])
     }
   };
 
-  this.createParser = function(format) {
+  function createParser(format) {
     var map = [], regex = format.split('');
 
     angular.forEach(formatCodeToRegex, function(data, code) {
@@ -22726,17 +22796,17 @@ angular.module('ui.bootstrap.dateparser', [])
       regex: new RegExp('^' + regex.join('') + '$'),
       map: orderByFilter(map, 'index')
     };
-  };
+  }
 
   this.parse = function(input, format) {
-    if ( !angular.isString(input) ) {
+    if ( !angular.isString(input) || !format ) {
       return input;
     }
 
     format = $locale.DATETIME_FORMATS[format] || format;
 
     if ( !this.parsers[format] ) {
-      this.parsers[format] = this.createParser(format);
+      this.parsers[format] = createParser(format);
     }
 
     var parser = this.parsers[format],
@@ -22962,7 +23032,7 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
     self[key] = angular.isDefined($attrs[key]) ? (index < 8 ? $interpolate($attrs[key])($scope.$parent) : $scope.$parent.$eval($attrs[key])) : datepickerConfig[key];
   });
 
-  // Watchable attributes
+  // Watchable date attributes
   angular.forEach(['minDate', 'maxDate'], function( key ) {
     if ( $attrs[key] ) {
       $scope.$parent.$watch($parse($attrs[key]), function(value) {
@@ -23409,12 +23479,24 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
         });
       }
 
-      angular.forEach(['minDate', 'maxDate'], function( key ) {
+      scope.watchData = {};
+      angular.forEach(['minDate', 'maxDate', 'datepickerMode'], function( key ) {
         if ( attrs[key] ) {
-          scope.$parent.$watch($parse(attrs[key]), function(value){
-            scope[key] = value;
+          var getAttribute = $parse(attrs[key]);
+          scope.$parent.$watch(getAttribute, function(value){
+            scope.watchData[key] = value;
           });
-          datepickerEl.attr(cameltoDash(key), key);
+          datepickerEl.attr(cameltoDash(key), 'watchData.' + key);
+
+          // Propagate changes from datepicker to outside
+          if ( key === 'datepickerMode' ) {
+            var setAttribute = getAttribute.assign;
+            scope.$watch('watchData.' + key, function(value, oldvalue) {
+              if ( value !== oldvalue ) {
+                setAttribute(scope.$parent, value);
+              }
+            });
+          }
         }
       });
       if (attrs.dateDisabled) {
@@ -23525,6 +23607,9 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
       };
 
       var $popup = $compile(popupEl)(scope);
+      // Prevent jQuery cache memory leak (template is now redundant after linking)
+      popupEl.remove();
+
       if ( appendToBody ) {
         $document.find('body').append($popup);
       } else {
@@ -23586,7 +23671,8 @@ angular.module('ui.bootstrap.dropdown', [])
   };
 
   var closeDropdown = function( evt ) {
-    if (evt && evt.isDefaultPrevented()) {
+    var toggleElement = openScope.getToggleElement();
+    if ( evt && toggleElement && toggleElement[0].contains(evt.target) ) {
         return;
     }
 
@@ -23631,6 +23717,10 @@ angular.module('ui.bootstrap.dropdown', [])
   // Allow other directives to watch status
   this.isOpen = function() {
     return scope.isOpen;
+  };
+
+  scope.getToggleElement = function() {
+    return self.toggleElement;
   };
 
   scope.focusToggleElement = function() {
@@ -23774,7 +23864,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       restrict: 'EA',
       replace: true,
       templateUrl: 'template/modal/backdrop.html',
-      link: function (scope) {
+      link: function (scope, element, attrs) {
+        scope.backdropClass = attrs.backdropClass || '';
 
         scope.animate = false;
 
@@ -23805,8 +23896,18 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         $timeout(function () {
           // trigger CSS transitions
           scope.animate = true;
-          // focus a freshly-opened modal
-          element[0].focus();
+
+          /**
+           * Auto-focusing of a freshly-opened modal element causes any child elements
+           * with the autofocus attribute to loose focus. This is an issue on touch
+           * based devices which will show and then hide the onscreen keyboard.
+           * Attempts to refocus the autofocus element via JavaScript will not reopen
+           * the onscreen keyboard. Fixed by updated the focusing logic to only autofocus
+           * the modal element if the modal does not contain an autofocus element.
+           */
+          if (!element[0].querySelectorAll('[autofocus]').length) {
+            element[0].focus();
+          }
         });
 
         scope.close = function (evt) {
@@ -23820,6 +23921,17 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       }
     };
   }])
+
+  .directive('modalTransclude', function () {
+    return {
+      link: function($scope, $element, $attrs, controller, $transclude) {
+        $transclude($scope.$parent, function(clone) {
+          $element.empty();
+          $element.append(clone);
+        });
+      }
+    };
+  })
 
   .factory('$modalStack', ['$transition', '$timeout', '$document', '$compile', '$rootScope', '$$stackedMap',
     function ($transition, $timeout, $document, $compile, $rootScope, $$stackedMap) {
@@ -23892,7 +24004,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
           });
         } else {
           // Ensure this call is async
-          $timeout(afterAnimating, 0);
+          $timeout(afterAnimating);
         }
 
         function afterAnimating() {
@@ -23937,7 +24049,9 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         if (currBackdropIndex >= 0 && !backdropDomEl) {
           backdropScope = $rootScope.$new(true);
           backdropScope.index = currBackdropIndex;
-          backdropDomEl = $compile('<div modal-backdrop></div>')(backdropScope);
+          var angularBackgroundDomEl = angular.element('<div modal-backdrop></div>');
+          angularBackgroundDomEl.attr('backdrop-class', modal.backdropClass);
+          backdropDomEl = $compile(angularBackgroundDomEl)(backdropScope);
           body.append(backdropDomEl);
         }
 
@@ -23957,17 +24071,17 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       };
 
       $modalStack.close = function (modalInstance, result) {
-        var modalWindow = openedWindows.get(modalInstance).value;
+        var modalWindow = openedWindows.get(modalInstance);
         if (modalWindow) {
-          modalWindow.deferred.resolve(result);
+          modalWindow.value.deferred.resolve(result);
           removeModalWindow(modalInstance);
         }
       };
 
       $modalStack.dismiss = function (modalInstance, reason) {
-        var modalWindow = openedWindows.get(modalInstance).value;
+        var modalWindow = openedWindows.get(modalInstance);
         if (modalWindow) {
-          modalWindow.deferred.reject(reason);
+          modalWindow.value.deferred.reject(reason);
           removeModalWindow(modalInstance);
         }
       };
@@ -24001,14 +24115,15 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 
           function getTemplatePromise(options) {
             return options.template ? $q.when(options.template) :
-              $http.get(options.templateUrl, {cache: $templateCache}).then(function (result) {
-                return result.data;
+              $http.get(angular.isFunction(options.templateUrl) ? (options.templateUrl)() : options.templateUrl,
+                {cache: $templateCache}).then(function (result) {
+                  return result.data;
               });
           }
 
           function getResolvePromises(resolves) {
             var promisesArr = [];
-            angular.forEach(resolves, function (value, key) {
+            angular.forEach(resolves, function (value) {
               if (angular.isFunction(value) || angular.isArray(value)) {
                 promisesArr.push($q.when($injector.invoke(value)));
               }
@@ -24064,6 +24179,9 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
                 });
 
                 ctrlInstance = $controller(modalOptions.controller, ctrlLocals);
+                if (modalOptions.controllerAs) {
+                  modalScope[modalOptions.controllerAs] = ctrlInstance;
+                }
               }
 
               $modalStack.open(modalInstance, {
@@ -24072,6 +24190,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
                 content: tplAndVars[0],
                 backdrop: modalOptions.backdrop,
                 keyboard: modalOptions.keyboard,
+                backdropClass: modalOptions.backdropClass,
                 windowClass: modalOptions.windowClass,
                 windowTemplateUrl: modalOptions.windowTemplateUrl,
                 size: modalOptions.size
@@ -25382,7 +25501,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
   .factory('typeaheadParser', ['$parse', function ($parse) {
 
   //                      00000111000000000000022200000000000000003333333333333330000000000044000
-  var TYPEAHEAD_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+(.*)$/;
+  var TYPEAHEAD_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)$/;
 
   return {
     parse:function (input) {
@@ -25548,6 +25667,18 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //Declare the timeout promise var outside the function scope so that stacked calls can be cancelled later 
       var timeoutPromise;
 
+      var scheduleSearchWithTimeout = function(inputValue) {
+        timeoutPromise = $timeout(function () {
+          getMatchesAsync(inputValue);
+        }, waitTime);
+      };
+
+      var cancelPreviousTimeout = function() {
+        if (timeoutPromise) {
+          $timeout.cancel(timeoutPromise);
+        }
+      };
+
       //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
       //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
       modelCtrl.$parsers.unshift(function (inputValue) {
@@ -25556,17 +25687,14 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
         if (inputValue && inputValue.length >= minSearch) {
           if (waitTime > 0) {
-            if (timeoutPromise) {
-              $timeout.cancel(timeoutPromise);//cancel previous timeout
-            }
-            timeoutPromise = $timeout(function () {
-              getMatchesAsync(inputValue);
-            }, waitTime);
+            cancelPreviousTimeout();
+            scheduleSearchWithTimeout(inputValue);
           } else {
             getMatchesAsync(inputValue);
           }
         } else {
           isLoadingSetter(originalScope, false);
+          cancelPreviousTimeout();
           resetMatches();
         }
 
@@ -25774,7 +25902,7 @@ angular.module("template/accordion/accordion.html", []).run(["$templateCache", f
 
 angular.module("template/alert/alert.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("template/alert/alert.html",
-    "<div class=\"alert\" ng-class=\"{'alert-{{type || 'warning'}}': true, 'alert-dismissable': closeable}\" role=\"alert\">\n" +
+    "<div class=\"alert\" ng-class=\"['alert-' + (type || 'warning'), closeable ? 'alert-dismissable' : null]\" role=\"alert\">\n" +
     "    <button ng-show=\"closeable\" type=\"button\" class=\"close\" ng-click=\"close()\">\n" +
     "        <span aria-hidden=\"true\">&times;</span>\n" +
     "        <span class=\"sr-only\">Close</span>\n" +
@@ -25903,7 +26031,7 @@ angular.module("template/datepicker/year.html", []).run(["$templateCache", funct
 
 angular.module("template/modal/backdrop.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("template/modal/backdrop.html",
-    "<div class=\"modal-backdrop fade\"\n" +
+    "<div class=\"modal-backdrop fade {{ backdropClass }}\"\n" +
     "     ng-class=\"{in: animate}\"\n" +
     "     ng-style=\"{'z-index': 1040 + (index && 1 || 0) + index*10}\"\n" +
     "></div>\n" +
@@ -25913,7 +26041,7 @@ angular.module("template/modal/backdrop.html", []).run(["$templateCache", functi
 angular.module("template/modal/window.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("template/modal/window.html",
     "<div tabindex=\"-1\" role=\"dialog\" class=\"modal fade\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\" ng-click=\"close($event)\">\n" +
-    "    <div class=\"modal-dialog\" ng-class=\"{'modal-sm': size == 'sm', 'modal-lg': size == 'lg'}\"><div class=\"modal-content\" ng-transclude></div></div>\n" +
+    "    <div class=\"modal-dialog\" ng-class=\"{'modal-sm': size == 'sm', 'modal-lg': size == 'lg'}\"><div class=\"modal-content\" modal-transclude></div></div>\n" +
     "</div>");
 }]);
 
@@ -26001,16 +26129,8 @@ angular.module("template/tabs/tab.html", []).run(["$templateCache", function($te
     "");
 }]);
 
-angular.module("template/tabs/tabset-titles.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("template/tabs/tabset-titles.html",
-    "<ul class=\"nav {{type && 'nav-' + type}}\" ng-class=\"{'nav-stacked': vertical}\">\n" +
-    "</ul>\n" +
-    "");
-}]);
-
 angular.module("template/tabs/tabset.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("template/tabs/tabset.html",
-    "\n" +
     "<div>\n" +
     "  <ul class=\"nav nav-{{type || 'tabs'}}\" ng-class=\"{'nav-stacked': vertical, 'nav-justified': justified}\" ng-transclude></ul>\n" +
     "  <div class=\"tab-content\">\n" +
@@ -26062,18 +26182,19 @@ angular.module("template/typeahead/typeahead-match.html", []).run(["$templateCac
 
 angular.module("template/typeahead/typeahead-popup.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("template/typeahead/typeahead-popup.html",
-    "<ul class=\"dropdown-menu\" ng-if=\"isOpen()\" ng-style=\"{top: position.top+'px', left: position.left+'px'}\" style=\"display: block;\" role=\"listbox\" aria-hidden=\"{{!isOpen()}}\">\n" +
+    "<ul class=\"dropdown-menu\" ng-show=\"isOpen()\" ng-style=\"{top: position.top+'px', left: position.left+'px'}\" style=\"display: block;\" role=\"listbox\" aria-hidden=\"{{!isOpen()}}\">\n" +
     "    <li ng-repeat=\"match in matches track by $index\" ng-class=\"{active: isActive($index) }\" ng-mouseenter=\"selectActive($index)\" ng-click=\"selectMatch($index)\" role=\"option\" id=\"{{match.id}}\">\n" +
     "        <div typeahead-match index=\"$index\" match=\"match\" query=\"query\" template-url=\"templateUrl\"></div>\n" +
     "    </li>\n" +
-    "</ul>");
+    "</ul>\n" +
+    "");
 }]);
 
 /*
  * angular-ui-bootstrap
  * http://angular-ui.github.io/bootstrap/
 
- * Version: 0.11.0 - 2014-05-01
+ * Version: 0.11.2 - 2014-09-26
  * License: MIT
  */
 angular.module("ui.bootstrap", ["ui.bootstrap.transition","ui.bootstrap.collapse","ui.bootstrap.accordion","ui.bootstrap.alert","ui.bootstrap.bindHtml","ui.bootstrap.buttons","ui.bootstrap.carousel","ui.bootstrap.dateparser","ui.bootstrap.position","ui.bootstrap.datepicker","ui.bootstrap.dropdown","ui.bootstrap.modal","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating","ui.bootstrap.tabs","ui.bootstrap.timepicker","ui.bootstrap.typeahead"]);
@@ -26817,7 +26938,7 @@ angular.module('ui.bootstrap.dateparser', [])
     }
   };
 
-  this.createParser = function(format) {
+  function createParser(format) {
     var map = [], regex = format.split('');
 
     angular.forEach(formatCodeToRegex, function(data, code) {
@@ -26842,17 +26963,17 @@ angular.module('ui.bootstrap.dateparser', [])
       regex: new RegExp('^' + regex.join('') + '$'),
       map: orderByFilter(map, 'index')
     };
-  };
+  }
 
   this.parse = function(input, format) {
-    if ( !angular.isString(input) ) {
+    if ( !angular.isString(input) || !format ) {
       return input;
     }
 
     format = $locale.DATETIME_FORMATS[format] || format;
 
     if ( !this.parsers[format] ) {
-      this.parsers[format] = this.createParser(format);
+      this.parsers[format] = createParser(format);
     }
 
     var parser = this.parsers[format],
@@ -27078,7 +27199,7 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.dateparser', 'ui.bootst
     self[key] = angular.isDefined($attrs[key]) ? (index < 8 ? $interpolate($attrs[key])($scope.$parent) : $scope.$parent.$eval($attrs[key])) : datepickerConfig[key];
   });
 
-  // Watchable attributes
+  // Watchable date attributes
   angular.forEach(['minDate', 'maxDate'], function( key ) {
     if ( $attrs[key] ) {
       $scope.$parent.$watch($parse($attrs[key]), function(value) {
@@ -27525,12 +27646,24 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
         });
       }
 
-      angular.forEach(['minDate', 'maxDate'], function( key ) {
+      scope.watchData = {};
+      angular.forEach(['minDate', 'maxDate', 'datepickerMode'], function( key ) {
         if ( attrs[key] ) {
-          scope.$parent.$watch($parse(attrs[key]), function(value){
-            scope[key] = value;
+          var getAttribute = $parse(attrs[key]);
+          scope.$parent.$watch(getAttribute, function(value){
+            scope.watchData[key] = value;
           });
-          datepickerEl.attr(cameltoDash(key), key);
+          datepickerEl.attr(cameltoDash(key), 'watchData.' + key);
+
+          // Propagate changes from datepicker to outside
+          if ( key === 'datepickerMode' ) {
+            var setAttribute = getAttribute.assign;
+            scope.$watch('watchData.' + key, function(value, oldvalue) {
+              if ( value !== oldvalue ) {
+                setAttribute(scope.$parent, value);
+              }
+            });
+          }
         }
       });
       if (attrs.dateDisabled) {
@@ -27641,6 +27774,9 @@ function ($compile, $parse, $document, $position, dateFilter, dateParser, datepi
       };
 
       var $popup = $compile(popupEl)(scope);
+      // Prevent jQuery cache memory leak (template is now redundant after linking)
+      popupEl.remove();
+
       if ( appendToBody ) {
         $document.find('body').append($popup);
       } else {
@@ -27702,7 +27838,8 @@ angular.module('ui.bootstrap.dropdown', [])
   };
 
   var closeDropdown = function( evt ) {
-    if (evt && evt.isDefaultPrevented()) {
+    var toggleElement = openScope.getToggleElement();
+    if ( evt && toggleElement && toggleElement[0].contains(evt.target) ) {
         return;
     }
 
@@ -27747,6 +27884,10 @@ angular.module('ui.bootstrap.dropdown', [])
   // Allow other directives to watch status
   this.isOpen = function() {
     return scope.isOpen;
+  };
+
+  scope.getToggleElement = function() {
+    return self.toggleElement;
   };
 
   scope.focusToggleElement = function() {
@@ -27890,7 +28031,8 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       restrict: 'EA',
       replace: true,
       templateUrl: 'template/modal/backdrop.html',
-      link: function (scope) {
+      link: function (scope, element, attrs) {
+        scope.backdropClass = attrs.backdropClass || '';
 
         scope.animate = false;
 
@@ -27921,8 +28063,18 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         $timeout(function () {
           // trigger CSS transitions
           scope.animate = true;
-          // focus a freshly-opened modal
-          element[0].focus();
+
+          /**
+           * Auto-focusing of a freshly-opened modal element causes any child elements
+           * with the autofocus attribute to loose focus. This is an issue on touch
+           * based devices which will show and then hide the onscreen keyboard.
+           * Attempts to refocus the autofocus element via JavaScript will not reopen
+           * the onscreen keyboard. Fixed by updated the focusing logic to only autofocus
+           * the modal element if the modal does not contain an autofocus element.
+           */
+          if (!element[0].querySelectorAll('[autofocus]').length) {
+            element[0].focus();
+          }
         });
 
         scope.close = function (evt) {
@@ -27936,6 +28088,17 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       }
     };
   }])
+
+  .directive('modalTransclude', function () {
+    return {
+      link: function($scope, $element, $attrs, controller, $transclude) {
+        $transclude($scope.$parent, function(clone) {
+          $element.empty();
+          $element.append(clone);
+        });
+      }
+    };
+  })
 
   .factory('$modalStack', ['$transition', '$timeout', '$document', '$compile', '$rootScope', '$$stackedMap',
     function ($transition, $timeout, $document, $compile, $rootScope, $$stackedMap) {
@@ -28008,7 +28171,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
           });
         } else {
           // Ensure this call is async
-          $timeout(afterAnimating, 0);
+          $timeout(afterAnimating);
         }
 
         function afterAnimating() {
@@ -28053,7 +28216,9 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
         if (currBackdropIndex >= 0 && !backdropDomEl) {
           backdropScope = $rootScope.$new(true);
           backdropScope.index = currBackdropIndex;
-          backdropDomEl = $compile('<div modal-backdrop></div>')(backdropScope);
+          var angularBackgroundDomEl = angular.element('<div modal-backdrop></div>');
+          angularBackgroundDomEl.attr('backdrop-class', modal.backdropClass);
+          backdropDomEl = $compile(angularBackgroundDomEl)(backdropScope);
           body.append(backdropDomEl);
         }
 
@@ -28073,17 +28238,17 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
       };
 
       $modalStack.close = function (modalInstance, result) {
-        var modalWindow = openedWindows.get(modalInstance).value;
+        var modalWindow = openedWindows.get(modalInstance);
         if (modalWindow) {
-          modalWindow.deferred.resolve(result);
+          modalWindow.value.deferred.resolve(result);
           removeModalWindow(modalInstance);
         }
       };
 
       $modalStack.dismiss = function (modalInstance, reason) {
-        var modalWindow = openedWindows.get(modalInstance).value;
+        var modalWindow = openedWindows.get(modalInstance);
         if (modalWindow) {
-          modalWindow.deferred.reject(reason);
+          modalWindow.value.deferred.reject(reason);
           removeModalWindow(modalInstance);
         }
       };
@@ -28117,14 +28282,15 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
 
           function getTemplatePromise(options) {
             return options.template ? $q.when(options.template) :
-              $http.get(options.templateUrl, {cache: $templateCache}).then(function (result) {
-                return result.data;
+              $http.get(angular.isFunction(options.templateUrl) ? (options.templateUrl)() : options.templateUrl,
+                {cache: $templateCache}).then(function (result) {
+                  return result.data;
               });
           }
 
           function getResolvePromises(resolves) {
             var promisesArr = [];
-            angular.forEach(resolves, function (value, key) {
+            angular.forEach(resolves, function (value) {
               if (angular.isFunction(value) || angular.isArray(value)) {
                 promisesArr.push($q.when($injector.invoke(value)));
               }
@@ -28180,6 +28346,9 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
                 });
 
                 ctrlInstance = $controller(modalOptions.controller, ctrlLocals);
+                if (modalOptions.controllerAs) {
+                  modalScope[modalOptions.controllerAs] = ctrlInstance;
+                }
               }
 
               $modalStack.open(modalInstance, {
@@ -28188,6 +28357,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.transition'])
                 content: tplAndVars[0],
                 backdrop: modalOptions.backdrop,
                 keyboard: modalOptions.keyboard,
+                backdropClass: modalOptions.backdropClass,
                 windowClass: modalOptions.windowClass,
                 windowTemplateUrl: modalOptions.windowTemplateUrl,
                 size: modalOptions.size
@@ -29498,7 +29668,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
   .factory('typeaheadParser', ['$parse', function ($parse) {
 
   //                      00000111000000000000022200000000000000003333333333333330000000000044000
-  var TYPEAHEAD_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+(.*)$/;
+  var TYPEAHEAD_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)$/;
 
   return {
     parse:function (input) {
@@ -29664,6 +29834,18 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //Declare the timeout promise var outside the function scope so that stacked calls can be cancelled later 
       var timeoutPromise;
 
+      var scheduleSearchWithTimeout = function(inputValue) {
+        timeoutPromise = $timeout(function () {
+          getMatchesAsync(inputValue);
+        }, waitTime);
+      };
+
+      var cancelPreviousTimeout = function() {
+        if (timeoutPromise) {
+          $timeout.cancel(timeoutPromise);
+        }
+      };
+
       //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
       //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
       modelCtrl.$parsers.unshift(function (inputValue) {
@@ -29672,17 +29854,14 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
         if (inputValue && inputValue.length >= minSearch) {
           if (waitTime > 0) {
-            if (timeoutPromise) {
-              $timeout.cancel(timeoutPromise);//cancel previous timeout
-            }
-            timeoutPromise = $timeout(function () {
-              getMatchesAsync(inputValue);
-            }, waitTime);
+            cancelPreviousTimeout();
+            scheduleSearchWithTimeout(inputValue);
           } else {
             getMatchesAsync(inputValue);
           }
         } else {
           isLoadingSetter(originalScope, false);
+          cancelPreviousTimeout();
           resetMatches();
         }
 
@@ -37962,7 +38141,7 @@ module.provider('Restangular', function() {
 })();
 
 /**
- * @license AngularJS v1.2.23
+ * @license AngularJS v1.2.25
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -38734,7 +38913,6 @@ ngRouteModule.directive('ngView', ngViewFillContentFactory);
                   controllerAs: 'chapter'
                 });
 
-              // configure html5 to get links working on jsfiddle
               $locationProvider.html5Mode(true);
           }])
           .controller('MainCtrl', ['$route', '$routeParams', '$location',
@@ -39202,7 +39380,7 @@ angular.module('cfp.loadingBar', [])
 })();       //
 
 /**
- * @license AngularJS v1.2.23
+ * @license AngularJS v1.2.25
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -39881,84 +40059,8 @@ angular.module('md5', []).factory('md5', function() {
 
 }).call(this);
 
-angular.module('picardy.fontawesome', [])
-	.directive('fa', function () {
-		return {
-			restrict: 'E',
-			template: '<i class="fa"></i>',
-			replace: true,
-			link: function (scope, element, attrs) {
-				
-				/*** STRING ATTRS ***/
-				// keep a state of the current attrs so that when they change,
-				// we can remove the old attrs before adding the new ones.
-				var currentClasses = {};
-
-				// generic function to bind string attrs
-				function _observeStringAttr (attr, baseClass) {
-					attrs.$observe(attr, function () {
-						baseClass = baseClass || 'fa-' + attr;
-						element.removeClass(currentClasses[attr]);
-						if (attrs[attr]) {
-							var className = [baseClass, attrs[attr]].join('-');
-							element.addClass(className);
-							currentClasses[attr] = className;
-						}
-					});
-				}
-
-				_observeStringAttr('name', 'fa');
-				_observeStringAttr('rotate');
-				_observeStringAttr('flip');
-
-				/**
-				 * size can be passed "large" or an integer
-				 */
-				attrs.$observe('size', function () {
-					var className;
-					element.removeClass(currentClasses.size);
-
-					if (attrs.size === 'large') {
-						className = 'fa-lg';
-					} else if (!isNaN(parseInt(attrs.size, 10))) {
-						className = 'fa-' + attrs.size + 'x';
-					}
-
-					element.addClass(className);
-					currentClasses.size = className;
-				});
-
-				/*** BOOLEAN ATTRS ***/
-				// generic function to bind boolean attrs
-				function _observeBooleanAttr (attr, className) {
-					attrs.$observe(attr, function () {
-						className = className || 'fa-' + attr;
-						var value = attr in attrs && attrs[attr] !== 'false' && attrs[attr] !== false;
-						element.toggleClass(className, value);
-					});
-				}
-
-				_observeBooleanAttr('border');
-				_observeBooleanAttr('fw');
-				_observeBooleanAttr('inverse');
-				_observeBooleanAttr('lg');
-				_observeBooleanAttr('spin');
-
-				/*** CONDITIONAL ATTRS ***/
-				// automatically populate fa-li if DOM structure indicates
-				element.toggleClass('fa-li', (
-					element.parent() &&
-					element.parent().parent() &&
-					element.parent().parent().hasClass('fa-ul') &&
-					element.parent().children()[0] === element[0]) &&
-					attrs.list !== 'false' &&
-					attrs.list !== false
-				);
-			}
-		};
-	});
 /**
- * Log Unobtrusive Extension v0.0.7
+ * Log Unobtrusive Extension v0.0.8-sha.6f1db6f
  *
  * Used within AngularJS to enhance functionality within the AngularJS $log service.
  *
@@ -39966,13 +40068,14 @@ angular.module('picardy.fontawesome', [])
  * @contributor Layton Whiteley
  * @contributor A confused individual <ferronrsmith@gmail.com>
  * @website http://www.theSolutionOptimist.com
- * (c) 2013 https://github.com/lwhiteley/AngularLogExtender
+ * (c) 2014 https://github.com/lwhiteley/AngularLogExtender
  * License: MIT
  *
  * Modifications made by @contributor Layton Whiteley:
  * - Modified to be a full stand-alone Angular Application for reuse
  * - Has global and feature level activation/disabling for $log
- * - Created and tested with AngularJS v.1.2.3
+ * - Supported sensitive field filtering
+ * - Created and tested with AngularJS versions : 1.0.4, 1.1.0, 1.2.25, 1.3.0-rc.2
  */
 angular.module("log.ex.uo", []).provider('logEx', ['$provide',
     function($provide) {
@@ -40032,6 +40135,27 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
         var useDefaultColors = true;
 
         /**
+         * list of known keys used to style logs
+         * @type {string[]}
+         */
+        var cssKeys = ['color', 'background', 'font-size', 'border'];
+
+        /**
+         * default string to put in place of filtered values
+         * @type {string}
+         */
+        var defaultFilterString = '[FILTERED]';
+
+        /**
+         * default configuration for filtering values of provided keys
+         * @type {object}
+         */
+        var filterConfig = {
+            filterString: defaultFilterString,
+            logFilters: []
+        };
+
+        /**
          * default colours for each log method
          * @type {object}
          */
@@ -40051,6 +40175,35 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
          * @type {string[]}
          */
         var allowedMethods = defaultLogMethods;
+        /**
+         * This is the default method responsible for formatting the prefix of all extended $log messages pushed to the console
+         * @see overrideLogPrefix to override the logPrefix
+         * @param {string=} className - name of the component class ($controller, $service etc.)
+         * @returns {string} - formatted string that will be prepended to log outputs
+         */
+        var defaultLogPrefixFn = function( /**{String=}*/ className) {
+            var separator = " >> ",
+                format = "MMM-dd-yyyy-h:mm:ssa",
+                now = $filter('date')(new Date(), format);
+            return "" + now + ((itypeof(className) !== 'string') ? "" : "::" + className) + separator;
+        };
+        /**
+         * The itypeof operator returns a string indicating the type of the unevaluated operand.
+         * @param {*} val - object to be evaluated
+         * @returns {String} -  returns a string with the type of the evaluated operand
+         */
+        var itypeof = function(val) {
+            return Object.prototype.toString.call(val).replace(/(\[|object|\s|\])/g, "").toLowerCase();
+        };
+
+        /**
+         * Evaluates an object to verify it is of type `object` or `array`
+         * @param {*} value - an object to be evaluated
+         * @returns boolean - returns true if parameter is of type object or array
+         */
+        var isObjectOrArray = function(value) {
+            return (/(object|array)/.test(itypeof(value)));
+        };
 
         /**
          * Trims whitespace at the beginning and/or end of a string
@@ -40061,15 +40214,6 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
             if (itypeof(value) === 'string')
                 return value.replace(/^\s*/, '').replace(/\s*$/, '');
             return "";
-        };
-
-        /**
-         * The itypeof operator returns a string indicating the type of the unevaluated operand.
-         * @param {*} val - object to be evaluated
-         * @returns {String} -  returns a string with the type of the evaluated operand
-         */
-        var itypeof = function(val) {
-            return Object.prototype.toString.call(val).replace(/(\[|object|\s|\])/g, "").toLowerCase();
         };
 
         /**
@@ -40107,46 +40251,18 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
         };
 
         /**
-         * The following method checks if useTemplate value is true and
-         * if the log arguments array length is two
-         * @param {boolean} useTemplate - flag that configures the usage of the template engine
-         * @param {*[]} args - list of log arguments that should match pattern creating template strings
-         * @returns {boolean} - returns true if log arguments match template pattern and useTemplate is set to true
+         * This method is responsible for generating the prefix of all extended $log messages pushed to the console
+         * @param {string=} className - name of the component class ($controller, $service etc.)
+         * @returns {string} - formatted string that will be prepended to log outputs
          */
-        var validateTemplateInputs = function(useTemplate, args) {
-            return isBoolean(useTemplate) && useTemplate && args.length == 2;
-        };
-        /**
-         * supplant is a string templating engine that replaces patterns
-         * in a string with values from a template object
-         * @param {string} template - string with patterns to be replaced by values
-         * @param {object} values - object with values to replace in template string
-         * @param {RegExp=} pattern - custom regular expression of pattern to replace in template string
-         * @returns {string} - returns formatted string if template and values match the required pattern
-         */
-        var supplant = function(template, values, /*{RegExp=}*/ pattern) {
-            var criteria1 = itypeof(template) !== 'string' && itypeof(values) !== 'object';
-            var criteria2 = itypeof(template) !== 'string' || itypeof(values) !== 'object';
-            if (criteria1 || criteria2) {
-                return Array.prototype.slice.call(arguments);
+        var getLogPrefix = function( /**{String=}*/ className) {
+            var prefix = '';
+            if (!useDefaultPrefix && logPrefixOverride) {
+                prefix = customLogPrefixFn(className);
+            } else {
+                prefix = defaultLogPrefixFn(className);
             }
-
-            pattern = itypeof(pattern) === 'regexp' ? pattern : /\{([^\{\}]*)\}/g;
-
-            return template.replace(pattern, function(a, b) {
-                var p = b.split('.'),
-                    r = values;
-
-                try {
-                    for (var s in p) {
-                        r = r[p[s]];
-                    }
-                } catch (e) {
-                    r = a;
-                }
-
-                return (typeof r === 'string' || typeof r === 'number') ? r : a;
-            });
+            return prefix;
         };
 
         /**
@@ -40185,7 +40301,12 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
          * @returns {boolean} - returns true if string contains any supported keys
          */
         var containsColorCssKeys = function(css) {
-            return isSubString('color', css) || isSubString('background', css) || isSubString('border', css);
+            for (var x = 0; x < cssKeys.length; x++) {
+                if (isSubString(cssKeys[x], css)) {
+                    return true;
+                }
+            }
+            return false;
         };
 
         /**
@@ -40212,38 +40333,76 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
             var output = canProcess ? ('' + prefix + message) : message;
             return canProcess ? (["%c" + output, colorCSS]) : [output];
         };
-
         /**
-         * This is the default method responsible for formatting the prefix of all extended $log messages pushed to the console
-         * @see overrideLogPrefix to override the logPrefix
-         * @param {string=} className - name of the component class ($controller, $service etc.)
-         * @returns {string} - formatted string that will be prepended to log outputs
+         * The following method checks if useTemplate value is true and
+         * if the log arguments array length is two
+         * @param {boolean} useTemplate - flag that configures the usage of the template engine
+         * @param {*[]} args - list of log arguments that should match pattern creating template strings
+         * @returns {boolean} - returns true if log arguments match template pattern and useTemplate is set to true
          */
-        var defaultLogPrefixFn = function( /**{String=}*/ className) {
-            var separator = " >> ",
-                format = "MMM-dd-yyyy-h:mm:ssa",
-                now = $filter('date')(new Date(), format);
-            return "" + now + ((itypeof(className) !== 'string') ? "" : "::" + className) + separator;
+        var validateTemplateInputs = function(useTemplate, args) {
+            return isBoolean(useTemplate) && useTemplate && args.length == 2;
         };
 
         /**
-         * This method is responsible for generating the prefix of all extended $log messages pushed to the console
-         * @param {string=} className - name of the component class ($controller, $service etc.)
-         * @returns {string} - formatted string that will be prepended to log outputs
+         * supplant is a string templating engine that replaces patterns
+         * in a string with values from a template object
+         * @example:
+         *    for  `var template = 'i am template string - {descriptor}';`
+         *         `var values = {descriptor: 'awesome'};`
+         *
+         *    when `var result = supplant(template, values);`
+         *    then `result` will be `i am template string - awesome`
+         *
+         * @param {string} template - string with patterns to be replaced by values
+         * @param {object} values - object with values to replace in template string
+         * @param {RegExp=} pattern - custom regular expression of pattern to replace in template string
+         * @returns {string|Array} - returns formatted string if template and values match the required pattern
          */
-        var getLogPrefix = function( /**{String=}*/ className) {
-            var prefix = '';
-            if ((!isBoolean(useDefaultPrefix) || !useDefaultPrefix) &&
-                isBoolean(logPrefixOverride) && logPrefixOverride &&
-                angular.isFunction(customLogPrefixFn)) {
-                prefix = customLogPrefixFn(className);
-            } else {
-                prefix = defaultLogPrefixFn(className);
+        var supplant = function(template, values, /*{RegExp=}*/ pattern) {
+            var criteria1 = itypeof(template) !== 'string' && itypeof(values) !== 'object';
+            var criteria2 = itypeof(template) !== 'string' || itypeof(values) !== 'object';
+            if (criteria1 || criteria2) {
+                return Array.prototype.slice.call(arguments);
             }
-            return prefix;
+            pattern = itypeof(pattern) === 'regexp' ? pattern : /\{([^\{\}]*)\}/g;
+
+            return template.replace(pattern, function(patternToReplace, replacementKey) {
+                var replacementKeyList = replacementKey.split('.'),
+                    replacements = values;
+                try {
+                    angular.forEach(replacementKeyList, function(value, key) {
+                        replacements = replacements[replacementKeyList[key]];
+                    });
+                } catch (e) {
+                    replacements = patternToReplace;
+                }
+                return (itypeof(replacements) === 'string' || itypeof(replacements) === 'number') ? replacements : patternToReplace;
+            });
         };
-        // Register our $log decorator with AngularJS $provider
-        //scroll down to the Configuration section to set the log settings
+        /**
+         * Evaluates an array of log arguments to be filtered using the provided or default filter keys
+         * @param {[] | Object} logArguments - array to be processed
+         * @returns {[] | Object} - returns a processed array with configured filter values replaced by filterString
+         */
+        var filterSensitiveValues = function(logArguments) {
+            if (isObjectOrArray(logArguments) && filterConfig.logFilters.length > 0) {
+                angular.forEach(logArguments, function(logValue, logKey) {
+                    angular.forEach(filterConfig.logFilters, function(filterValue) {
+                        // replace filtered values here
+                        if (itypeof(logValue) === 'object' &&
+                            logValue.hasOwnProperty(filterValue) && !isObjectOrArray(logValue[filterValue])) {
+                            logValue[filterValue] = filterConfig.filterString;
+                        } else if (isObjectOrArray(logValue)) {
+                            logArguments[logKey] = filterSensitiveValues(logValue);
+                        }
+                    });
+                });
+                return logArguments;
+            }
+            return logArguments;
+        };
+        // Register $log decorator with AngularJS $provider
         $provide.decorator('$log', ["$delegate",
             function($delegate) {
                 /** 
@@ -40309,10 +40468,10 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
                     };
 
                     /**
-                     * Converts an array to a object literal
+                     * Converts an array to a object literal & assign a no operation function as the value
                      * @private for internal use only
                      * @param {*[]} arr - array to be transformed to object literal
-                     * @returns {{getInstance: (exports.packets.noop|*|container.noop|noop|)}}
+                     * @returns {Object} - converted object
                      */
                     var arrToObject = function(arr) {
                         var result = {};
@@ -40359,8 +40518,8 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
                     };
                     /**
                      * Contains functionality for transforming the AngularJS $log
-                     * returns extended $log object
                      * @param $log {Object} - original angular $log to be enhanced
+                     * @returns {Object} - extended $log object
                      **/
                     var enhanceLogger = function($log) {
 
@@ -40379,6 +40538,11 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
                                 var activate = (useOverride) ? activateLogs(enabled, override) : enabled;
                                 if (activate) {
                                     var args = Array.prototype.slice.call(arguments);
+                                    // perform filter of sensitive values within objects and arrays
+                                    // if at least one filter key is available
+                                    if (filterConfig.logFilters.length > 0) {
+                                        args = filterSensitiveValues(args);
+                                    }
                                     var prefix = getLogPrefix(className);
                                     if (validateTemplateInputs(useTemplate, args)) {
                                         var data = (supplant.apply(null, args));
@@ -40430,7 +40594,6 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
                             return createLogObj(_$log, allowedMethods, prepareLogFn, [className, override, useOverride, useTemplate, colorCss]);
                         };
 
-
                         //declarations and functions , extensions
                         /**
                          * Used to enable/disable logging
@@ -40442,7 +40605,7 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
                          * Extends the $log object with the transformed native methods
                          * @param $log - $log instance
                          * @param {function} createLogObj -  defines transformation rules
-                         **/
+                         */
                         angular.extend($log, createLogObj($log, allowedMethods, prepareLogFn, [null, false, false, false, null]));
 
                         /**
@@ -40538,7 +40701,7 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
          * @param {boolean} flag - flag that configures disabling default log colors
          */
         var disableDefaultColors = function(flag) {
-            useDefaultColors = (isBoolean(flag) && flag) ? false : true;
+            useDefaultColors = (!(isBoolean(flag) && flag));
         };
 
         /**
@@ -40569,11 +40732,34 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
 
         /**
          * Used to force default log prefix functionality
-         * @param {boolean} flag - when passed true, it forces log-ex to use the default log prefix
+         * @param {boolean} flag - when passed true or flag is not set, it forces log-ex to use the default log prefix
          */
         var useDefaultLogPrefix = function(flag) {
-            if (isBoolean(flag)) {
+            if (angular.isUndefined(flag)) {
+                useDefaultPrefix = true;
+            } else if (isBoolean(flag)) {
                 useDefaultPrefix = flag;
+            }
+        };
+
+        /**
+         * Used to configure the filter feature configuration when logging out objects
+         * This will merge provided configs with the default and also validate
+         * that the fields are usable by the feature
+         * @param {Object} customConfig - config object to override/merge with default config
+         */
+        var configureLogFilters = function(customConfig) {
+            if (itypeof(customConfig) === 'object' &&
+                itypeof(customConfig.logFilters) === 'array' &&
+                customConfig.logFilters.length > 0) {
+
+                angular.forEach(customConfig.logFilters, function(value) {
+                    if (itypeof(value) === 'string' && filterConfig.logFilters.indexOf(value) < 0) {
+                        filterConfig.logFilters.push(value);
+                    }
+                });
+                filterConfig.filterString = (itypeof(customConfig.filterString) !== 'string') ? defaultFilterString : customConfig.filterString;
+
             }
         };
 
@@ -40585,14 +40771,15 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
         this.$get = function() {
             return {
                 name: 'Log Unobtrusive Extension',
-                version: '0.0.7',
+                version: '0.0.8-sha.6f1db6f',
                 enableLogging: enableLogging,
                 restrictLogMethods: restrictLogMethods,
                 overrideLogPrefix: overrideLogPrefix,
                 disableDefaultColors: disableDefaultColors,
                 setLogMethodColor: setLogMethodColor,
                 overrideLogMethodColors: overrideLogMethodColors,
-                useDefaultLogPrefix: useDefaultLogPrefix
+                useDefaultLogPrefix: useDefaultLogPrefix,
+                configureLogFilters: configureLogFilters
             };
         };
 
@@ -40604,11 +40791,12 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
         this.setLogMethodColor = setLogMethodColor;
         this.overrideLogMethodColors = overrideLogMethodColors;
         this.useDefaultLogPrefix = useDefaultLogPrefix;
+        this.configureLogFilters = configureLogFilters;
     }
 ]);
 
 /**
- * @license AngularJS v1.2.23
+ * @license AngularJS v1.2.25
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -42715,16 +42903,18 @@ if (typeof define === 'function' && define.amd) {
     '$window', '$location', function($window, $location) {
       return function(urlFactory) {
         return function(scope, element, attrs) {
-          var currentUrl, handler, url;
-          currentUrl = $location.absUrl();
+          var currentUrl, handler, popupWinAttrs, url;
+          currentUrl = element.attr('href') || $location.absUrl();
           url = urlFactory(scope, currentUrl);
+          popupWinAttrs = "status=no, width=" + (scope.socialWidth || 640) + ", height=" + (scope.socialWidth || 480) + ", resizable=yes, toolbar=no, menubar=no, scrollbars=no, location=no, directories=no";
           if (element[0].nodeName === 'A' && (attrs.href == null)) {
             element.attr('href', url);
-            element.attr('rel', 'nofollow');
           }
+          element.attr('rel', 'nofollow');
           handler = function(e) {
+            var win;
             e.preventDefault();
-            return $window.open(url, 'popupwindow', "scrollbars=yes,width=" + (attrs.socialWidth || 800) + ",height=" + (attrs.socialHeight || 600)).focus();
+            return win = $window.open(url, 'popupwindow', popupWinAttrs).focus();
           };
           element.on('click', handler);
           return scope.$on('$destroy', function() {
@@ -42739,7 +42929,10 @@ if (typeof define === 'function' && define.amd) {
         restrict: 'ACEM',
         scope: true,
         link: linker(function(scope, url) {
-          return "https://facebook.com/sharer.php?u=" + (encodeURIComponent(url));
+          var shareUrl;
+          shareUrl = ["https://facebook.com/sharer.php?"];
+          shareUrl.push("[url]=" + (encodeURIComponent(url)));
+          return shareUrl.join('&p');
         })
       };
     }
@@ -43670,6 +43863,82 @@ angular.module('colorpicker.module', [])
 
   return randomColor;
 }));
+angular.module('picardy.fontawesome', [])
+	.directive('fa', function () {
+		return {
+			restrict: 'E',
+			template: '<i class="fa"></i>',
+			replace: true,
+			link: function (scope, element, attrs) {
+				
+				/*** STRING ATTRS ***/
+				// keep a state of the current attrs so that when they change,
+				// we can remove the old attrs before adding the new ones.
+				var currentClasses = {};
+
+				// generic function to bind string attrs
+				function _observeStringAttr (attr, baseClass) {
+					attrs.$observe(attr, function () {
+						baseClass = baseClass || 'fa-' + attr;
+						element.removeClass(currentClasses[attr]);
+						if (attrs[attr]) {
+							var className = [baseClass, attrs[attr]].join('-');
+							element.addClass(className);
+							currentClasses[attr] = className;
+						}
+					});
+				}
+
+				_observeStringAttr('name', 'fa');
+				_observeStringAttr('rotate');
+				_observeStringAttr('flip');
+
+				/**
+				 * size can be passed "large" or an integer
+				 */
+				attrs.$observe('size', function () {
+					var className;
+					element.removeClass(currentClasses.size);
+
+					if (attrs.size === 'large') {
+						className = 'fa-lg';
+					} else if (!isNaN(parseInt(attrs.size, 10))) {
+						className = 'fa-' + attrs.size + 'x';
+					}
+
+					element.addClass(className);
+					currentClasses.size = className;
+				});
+
+				/*** BOOLEAN ATTRS ***/
+				// generic function to bind boolean attrs
+				function _observeBooleanAttr (attr, className) {
+					attrs.$observe(attr, function () {
+						className = className || 'fa-' + attr;
+						var value = attr in attrs && attrs[attr] !== 'false' && attrs[attr] !== false;
+						element.toggleClass(className, value);
+					});
+				}
+
+				_observeBooleanAttr('border');
+				_observeBooleanAttr('fw');
+				_observeBooleanAttr('inverse');
+				_observeBooleanAttr('lg');
+				_observeBooleanAttr('spin');
+
+				/*** CONDITIONAL ATTRS ***/
+				// automatically populate fa-li if DOM structure indicates
+				element.toggleClass('fa-li', (
+					element.parent() &&
+					element.parent().parent() &&
+					element.parent().parent().hasClass('fa-ul') &&
+					element.parent().children()[0] === element[0]) &&
+					attrs.list !== 'false' &&
+					attrs.list !== false
+				);
+			}
+		};
+	});
 /*
  * angular-markdown-directive v0.3.0
  * (c) 2013-2014 Brian Ford http://briantford.com

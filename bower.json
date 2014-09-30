@@ -43,6 +43,9 @@
     "fontawesome": {
       "ignore": true
     },
+      "font-awesome": {
+          "ignore": true
+      },
     "jquery": {
       "main": "dist/jquery.js"
     },
