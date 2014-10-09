@@ -33,6 +33,7 @@ app.controller('user.login', ['$scope', 'Restangular', '$cookieStore', '$rootSco
                     $location.path('/app');
                 }, function (auth) {
                     $log.warn('Connection failed for user ' + $scope.login.username);
+                    window.location.reload();
                 });
             }
         };

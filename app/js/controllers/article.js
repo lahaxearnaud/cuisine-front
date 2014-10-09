@@ -248,6 +248,10 @@ app.controller('article.add', ['$rootScope', '$scope', 'Restangular', '$routePar
     $log.debug('Add article');
 
     $scope.urlExtract = function() {
+        if(this.formScope.article.url.indexOf('://') === -1) {
+            this.formScope.article.url = 'http://' + this.formScope.article.url
+        }
+
         if(!this.formScope.article.title && !this.formScope.article.body) {
             Restangular.all('articles').extract({
                 'url': this.formScope.article.url,
