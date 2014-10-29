@@ -34,7 +34,7 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 app.controller('article.uncategorize', ['$scope', 'Restangular', '$routeParams', '$log',
     function ($scope, Restangular, $routeParams, $log) {
 
-    $log = $log.getInstance('article.list');
+    $log = $log.getInstance('article.uncategorize');
 
     $scope.currentPage = 1;
     if($routeParams.page) {
