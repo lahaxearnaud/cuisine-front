@@ -178,6 +178,12 @@ app.config(['$routeProvider',
             publicAccess: true
         });
 
+        $routeProvider.when('/lost/password', {
+            templateUrl: 'app/partials/user/lostPassword.html',
+            controller: 'user.lostPassword',
+            publicAccess: true
+        });
+
         $routeProvider.when('/logout', {
             templateUrl: 'app/partials/home.html',
             controller: 'user.logout'
@@ -427,6 +433,9 @@ app.config(['RestangularProvider', 'apiUrl',
             users.addRestangularMethod('changePassword', 'post', 'password');
             users.addRestangularMethod('subscribe', 'post', 'subscribe');
 
+            users.addRestangularMethod('lostPassword', 'post', 'passwordlost');
+            users.addRestangularMethod('changeLostPassword', 'post', 'passwordchange');
+
             return users;
     });
 
@@ -589,7 +598,7 @@ app.controller('article.list', ['$scope', 'Restangular', '$routeParams', '$log',
 app.controller('article.uncategorize', ['$scope', 'Restangular', '$routeParams', '$log',
     function ($scope, Restangular, $routeParams, $log) {
 
-    $log = $log.getInstance('article.list');
+    $log = $log.getInstance('article.uncategorize');
 
     $scope.currentPage = 1;
     if($routeParams.page) {
@@ -1159,7 +1168,34 @@ app.controller('user.subscribe', ['$scope', 'Restangular', '$log',
     }
 ]);
 
+app.controller('user.lostPassword', ['$scope', 'Restangular', '$log',
+    function ($scope, Restangular, $log) {
+        $log = $log.getInstance('user.lostPassword');
+        $scope.alert = {
+            'type' : '',
+            'message' :''
+        };
 
+        $scope.errors = {};
+
+        $scope.submitForm = function() {
+            $log.debug($scope.user);
+            Restangular.all('users').lostPassword($scope.user).then(function (result) {
+                $log.debug(result);
+                if(result.success === true) {
+                    $scope.alert.type = 'success';
+                    $scope.alert.message = 'An email has been send to you';
+                }
+            }, function(result) {
+                $log.debug(result);
+
+                if(result.data.email) {
+                    $scope.errors.email = result.data.email;
+                }
+            });
+        }
+    }
+]);
 
 /* Filters */
 

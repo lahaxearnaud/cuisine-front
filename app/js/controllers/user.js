@@ -143,4 +143,31 @@ app.controller('user.subscribe', ['$scope', 'Restangular', '$log',
     }
 ]);
 
+app.controller('user.lostPassword', ['$scope', 'Restangular', '$log',
+    function ($scope, Restangular, $log) {
+        $log = $log.getInstance('user.lostPassword');
+        $scope.alert = {
+            'type' : '',
+            'message' :''
+        };
 
+        $scope.errors = {};
+
+        $scope.submitForm = function() {
+            $log.debug($scope.user);
+            Restangular.all('users').lostPassword($scope.user).then(function (result) {
+                $log.debug(result);
+                if(result.success === true) {
+                    $scope.alert.type = 'success';
+                    $scope.alert.message = 'An email has been send to you';
+                }
+            }, function(result) {
+                $log.debug(result);
+
+                if(result.data.email) {
+                    $scope.errors.email = result.data.email;
+                }
+            });
+        }
+    }
+]);

@@ -6,6 +6,12 @@ app.config(['$routeProvider',
             publicAccess: true
         });
 
+        $routeProvider.when('/lost/password', {
+            templateUrl: 'app/partials/user/lostPassword.html',
+            controller: 'user.lostPassword',
+            publicAccess: true
+        });
+
         $routeProvider.when('/logout', {
             templateUrl: 'app/partials/home.html',
             controller: 'user.logout'

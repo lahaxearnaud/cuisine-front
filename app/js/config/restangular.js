@@ -108,6 +108,9 @@ app.config(['RestangularProvider', 'apiUrl',
             users.addRestangularMethod('changePassword', 'post', 'password');
             users.addRestangularMethod('subscribe', 'post', 'subscribe');
 
+            users.addRestangularMethod('lostPassword', 'post', 'passwordlost');
+            users.addRestangularMethod('changeLostPassword', 'post', 'passwordchange');
+
             return users;
     });
 
