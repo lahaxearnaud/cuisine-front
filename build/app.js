@@ -184,6 +184,12 @@ app.config(['$routeProvider',
             publicAccess: true
         });
 
+        $routeProvider.when('/lost/password/change', {
+            templateUrl: 'app/partials/user/changeLostPassword.html',
+            controller: 'user.changeLostPassword',
+            publicAccess: true
+        });
+
         $routeProvider.when('/logout', {
             templateUrl: 'app/partials/home.html',
             controller: 'user.logout'
@@ -1191,6 +1197,52 @@ app.controller('user.lostPassword', ['$scope', 'Restangular', '$log',
 
                 if(result.data.email) {
                     $scope.errors.email = result.data.email;
+                }
+            });
+        }
+    }
+]);
+
+app.controller('user.changeLostPassword', ['$scope', 'Restangular', '$log', '$routeParams',
+    function ($scope, Restangular, $log, $routeParams) {
+        $log = $log.getInstance('user.changeLostPassword');
+        $log.info($routeParams);
+
+        $scope.alert = {
+            'type' : '',
+            'message' :''
+        };
+
+        $scope.errors = {};
+
+        if($routeParams.token && $routeParams.email) {
+            $scope.user = {
+                email : $routeParams.email,
+                token : $routeParams.token
+            }
+        }
+
+
+        $scope.submitForm = function() {
+            $log.debug($scope.user);
+            Restangular.all('users').changeLostPassword($scope.user).then(function (result) {
+                $log.debug(result);
+                if(result.success === true) {
+                    $scope.alert.type = 'success';
+                    $scope.alert.message = 'Password changed';
+                }
+            }, function(result) {
+                $log.debug(result);
+
+                if(result.data.email) {
+                    $scope.errors.email = result.data.email;
+                }
+
+                if(result.data.newPassword) {
+                    $scope.errors.newPassword = result.data.newPassword;
+                }
+                if(result.data.oldPassword) {
+                    $scope.errors.oldPassword = result.data.oldPassword;
                 }
             });
         }

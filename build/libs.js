@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.25
+ * @license AngularJS v1.2.26
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -68,7 +68,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.25/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.26/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -417,7 +417,7 @@ function setHashKey(obj, h) {
  * @kind function
  *
  * @description
- * Extends the destination object `dst` by copying all of the properties from the `src` object(s)
+ * Extends the destination object `dst` by copying own enumerable properties from the `src` object(s)
  * to `dst`. You can specify multiple `src` objects.
  *
  * @param {Object} dst Destination object.
@@ -1987,11 +1987,11 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.25',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.26',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
-  dot: 25,
-  codeName: 'hypnotic-gesticulation'
+  dot: 26,
+  codeName: 'captivating-disinterest'
 };
 
 
@@ -5529,7 +5529,7 @@ function $TemplateCacheProvider() {
  * }
  * ```
  *
- * Below is an example using `$compileProvider`.
+ * ## Example
  *
  * <div class="alert alert-warning">
  * **Note**: Typically directives are registered with `module.directive`. The example below is
@@ -8037,12 +8037,13 @@ function $HttpProvider() {
     expect(data.getText()).toMatch(/Hello, \$http!/);
   });
 
-  it('should make a JSONP request to angularjs.org', function() {
-    sampleJsonpBtn.click();
-    fetchBtn.click();
-    expect(status.getText()).toMatch('200');
-    expect(data.getText()).toMatch(/Super Hero!/);
-  });
+// Commented out due to flakes. See https://github.com/angular/angular.js/issues/9185
+// it('should make a JSONP request to angularjs.org', function() {
+//   sampleJsonpBtn.click();
+//   fetchBtn.click();
+//   expect(status.getText()).toMatch('200');
+//   expect(data.getText()).toMatch(/Super Hero!/);
+// });
 
   it('should make JSONP request to invalid URL and invoke the error handler',
       function() {
@@ -15385,9 +15386,9 @@ var uppercaseFilter = valueFn(uppercase);
            }]);
        </script>
        <div ng-controller="ExampleController">
-         Limit {{numbers}} to: <input type="integer" ng-model="numLimit">
+         Limit {{numbers}} to: <input type="number" step="1" ng-model="numLimit">
          <p>Output numbers: {{ numbers | limitTo:numLimit }}</p>
-         Limit {{letters}} to: <input type="integer" ng-model="letterLimit">
+         Limit {{letters}} to: <input type="number" step="1" ng-model="letterLimit">
          <p>Output letters: {{ letters | limitTo:letterLimit }}</p>
        </div>
      </file>
@@ -15404,14 +15405,15 @@ var uppercaseFilter = valueFn(uppercase);
          expect(limitedLetters.getText()).toEqual('Output letters: abc');
        });
 
-       it('should update the output when -3 is entered', function() {
-         numLimitInput.clear();
-         numLimitInput.sendKeys('-3');
-         letterLimitInput.clear();
-         letterLimitInput.sendKeys('-3');
-         expect(limitedNumbers.getText()).toEqual('Output numbers: [7,8,9]');
-         expect(limitedLetters.getText()).toEqual('Output letters: ghi');
-       });
+       // There is a bug in safari and protractor that doesn't like the minus key
+       // it('should update the output when -3 is entered', function() {
+       //   numLimitInput.clear();
+       //   numLimitInput.sendKeys('-3');
+       //   letterLimitInput.clear();
+       //   letterLimitInput.sendKeys('-3');
+       //   expect(limitedNumbers.getText()).toEqual('Output numbers: [7,8,9]');
+       //   expect(limitedLetters.getText()).toEqual('Output letters: ghi');
+       // });
 
        it('should not exceed the maximum size of input array', function() {
          numLimitInput.clear();
@@ -18813,6 +18815,7 @@ var ngCloakDirective = ngDirective({
  *
  * @element ANY
  * @scope
+ * @priority 500
  * @param {expression} ngController Name of a globally accessible constructor function or an
  *     {@link guide/expression expression} that on the current scope evaluates to a
  *     constructor function. The controller instance can be published into a scope property
@@ -21925,6 +21928,7 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
                     id: option.id,
                     selected: option.selected
                 });
+                selectCtrl.addOption(option.label, element);
                 if (lastElement) {
                   lastElement.after(element);
                 } else {
@@ -21936,7 +21940,9 @@ var selectDirective = ['$compile', '$parse', function($compile,   $parse) {
             // remove any excessive OPTIONs in a group
             index++; // increment since the existingOptions[0] is parent element not OPTION
             while(existingOptions.length > index) {
-              existingOptions.pop().element.remove();
+              option = existingOptions.pop();
+              selectCtrl.removeOption(option.label);
+              option.element.remove();
             }
           }
           // remove any excessive OPTGROUPs from select
@@ -38141,7 +38147,7 @@ module.provider('Restangular', function() {
 })();
 
 /**
- * @license AngularJS v1.2.25
+ * @license AngularJS v1.2.26
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -38411,9 +38417,6 @@ function $RouteProvider(){
      * @example
      * This example shows how changing the URL hash causes the `$route` to match a route against the
      * URL, and the `ngView` pulls in the partial.
-     *
-     * Note that this example is using {@link ng.directive:script inlined templates}
-     * to get it working on jsfiddle as well.
      *
      * <example name="$route-service" module="ngRouteExample"
      *          deps="angular-route.js" fixBase="true">
@@ -39380,7 +39383,7 @@ angular.module('cfp.loadingBar', [])
 })();       //
 
 /**
- * @license AngularJS v1.2.25
+ * @license AngularJS v1.2.26
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -40042,7 +40045,7 @@ angular.module('md5', []).factory('md5', function() {
               opts = {};
             }
             opts = angular.extend(angular.copy(self.defaults), opts);
-            urlBase = self.secure ? 'https://secure' : 'http://www';
+            urlBase = self.secure ? 'https://secure' : '//www';
             src = hashRegex.test(src) ? src : md5(src);
             pieces = [urlBase, '.gravatar.com/avatar/', src];
             params = serialize(opts);
@@ -40796,7 +40799,7 @@ angular.module("log.ex.uo", []).provider('logEx', ['$provide',
 ]);
 
 /**
- * @license AngularJS v1.2.25
+ * @license AngularJS v1.3.2
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -40842,16 +40845,16 @@ var $sanitizeMinErr = angular.$$minErr('$sanitize');
  * @kind function
  *
  * @description
- *   The input is sanitized by parsing the html into tokens. All safe tokens (from a whitelist) are
+ *   The input is sanitized by parsing the HTML into tokens. All safe tokens (from a whitelist) are
  *   then serialized back to properly escaped html string. This means that no unsafe input can make
  *   it into the returned string, however, since our parser is more strict than a typical browser
  *   parser, it's possible that some obscure input, which would be recognized as valid HTML by a
- *   browser, won't make it through the sanitizer.
+ *   browser, won't make it through the sanitizer. The input may also contain SVG markup.
  *   The whitelist is configured using the functions `aHrefSanitizationWhitelist` and
  *   `imgSrcSanitizationWhitelist` of {@link ng.$compileProvider `$compileProvider`}.
  *
- * @param {string} html Html input.
- * @returns {string} Sanitized html.
+ * @param {string} html HTML input.
+ * @returns {string} Sanitized HTML.
  *
  * @example
    <example module="sanitizeExample" deps="angular-sanitize.js">
@@ -40995,6 +40998,12 @@ var inlineElements = angular.extend({}, optionalEndTagInlineElements, makeMap("a
         "bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s," +
         "samp,small,span,strike,strong,sub,sup,time,tt,u,var"));
 
+// SVG Elements
+// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Elements
+var svgElements = makeMap("animate,animateColor,animateMotion,animateTransform,circle,defs," +
+        "desc,ellipse,font-face,font-face-name,font-face-src,g,glyph,hkern,image,linearGradient," +
+        "line,marker,metadata,missing-glyph,mpath,path,polygon,polyline,radialGradient,rect,set," +
+        "stop,svg,switch,text,title,tspan,use");
 
 // Special Elements (can contain anything)
 var specialElements = makeMap("script,style");
@@ -41003,16 +41012,41 @@ var validElements = angular.extend({},
                                    voidElements,
                                    blockElements,
                                    inlineElements,
-                                   optionalEndTagElements);
+                                   optionalEndTagElements,
+                                   svgElements);
 
 //Attributes that have href and hence need to be sanitized
-var uriAttrs = makeMap("background,cite,href,longdesc,src,usemap");
-var validAttrs = angular.extend({}, uriAttrs, makeMap(
-    'abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,'+
+var uriAttrs = makeMap("background,cite,href,longdesc,src,usemap,xlink:href");
+
+var htmlAttrs = makeMap('abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,'+
     'color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,'+
     'ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,'+
     'scope,scrolling,shape,size,span,start,summary,target,title,type,'+
-    'valign,value,vspace,width'));
+    'valign,value,vspace,width');
+
+// SVG attributes (without "id" and "name" attributes)
+// https://wiki.whatwg.org/wiki/Sanitization_rules#svg_Attributes
+var svgAttrs = makeMap('accent-height,accumulate,additive,alphabetic,arabic-form,ascent,'+
+    'attributeName,attributeType,baseProfile,bbox,begin,by,calcMode,cap-height,class,color,'+
+    'color-rendering,content,cx,cy,d,dx,dy,descent,display,dur,end,fill,fill-rule,font-family,'+
+    'font-size,font-stretch,font-style,font-variant,font-weight,from,fx,fy,g1,g2,glyph-name,'+
+    'gradientUnits,hanging,height,horiz-adv-x,horiz-origin-x,ideographic,k,keyPoints,'+
+    'keySplines,keyTimes,lang,marker-end,marker-mid,marker-start,markerHeight,markerUnits,'+
+    'markerWidth,mathematical,max,min,offset,opacity,orient,origin,overline-position,'+
+    'overline-thickness,panose-1,path,pathLength,points,preserveAspectRatio,r,refX,refY,'+
+    'repeatCount,repeatDur,requiredExtensions,requiredFeatures,restart,rotate,rx,ry,slope,stemh,'+
+    'stemv,stop-color,stop-opacity,strikethrough-position,strikethrough-thickness,stroke,'+
+    'stroke-dasharray,stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,'+
+    'stroke-opacity,stroke-width,systemLanguage,target,text-anchor,to,transform,type,u1,u2,'+
+    'underline-position,underline-thickness,unicode,unicode-range,units-per-em,values,version,'+
+    'viewBox,visibility,width,widths,x,x-height,x1,x2,xlink:actuate,xlink:arcrole,xlink:role,'+
+    'xlink:show,xlink:title,xlink:type,xml:base,xml:lang,xml:space,xmlns,xmlns:xlink,y,y1,y2,'+
+    'zoomAndPan');
+
+var validAttrs = angular.extend({},
+                                uriAttrs,
+                                svgAttrs,
+                                htmlAttrs);
 
 function makeMap(str) {
   var obj = {}, items = str.split(','), i;
@@ -41033,7 +41067,7 @@ function makeMap(str) {
  * @param {string} html string
  * @param {object} handler
  */
-function htmlParser( html, handler ) {
+function htmlParser(html, handler) {
   if (typeof html !== 'string') {
     if (html === null || typeof html === 'undefined') {
       html = '';
@@ -41044,50 +41078,50 @@ function htmlParser( html, handler ) {
   var index, chars, match, stack = [], last = html, text;
   stack.last = function() { return stack[ stack.length - 1 ]; };
 
-  while ( html ) {
+  while (html) {
     text = '';
     chars = true;
 
     // Make sure we're not in a script or style element
-    if ( !stack.last() || !specialElements[ stack.last() ] ) {
+    if (!stack.last() || !specialElements[ stack.last() ]) {
 
       // Comment
-      if ( html.indexOf("<!--") === 0 ) {
+      if (html.indexOf("<!--") === 0) {
         // comments containing -- are not allowed unless they terminate the comment
         index = html.indexOf("--", 4);
 
-        if ( index >= 0 && html.lastIndexOf("-->", index) === index) {
-          if (handler.comment) handler.comment( html.substring( 4, index ) );
-          html = html.substring( index + 3 );
+        if (index >= 0 && html.lastIndexOf("-->", index) === index) {
+          if (handler.comment) handler.comment(html.substring(4, index));
+          html = html.substring(index + 3);
           chars = false;
         }
       // DOCTYPE
-      } else if ( DOCTYPE_REGEXP.test(html) ) {
-        match = html.match( DOCTYPE_REGEXP );
+      } else if (DOCTYPE_REGEXP.test(html)) {
+        match = html.match(DOCTYPE_REGEXP);
 
-        if ( match ) {
-          html = html.replace( match[0], '');
+        if (match) {
+          html = html.replace(match[0], '');
           chars = false;
         }
       // end tag
-      } else if ( BEGING_END_TAGE_REGEXP.test(html) ) {
-        match = html.match( END_TAG_REGEXP );
+      } else if (BEGING_END_TAGE_REGEXP.test(html)) {
+        match = html.match(END_TAG_REGEXP);
 
-        if ( match ) {
-          html = html.substring( match[0].length );
-          match[0].replace( END_TAG_REGEXP, parseEndTag );
+        if (match) {
+          html = html.substring(match[0].length);
+          match[0].replace(END_TAG_REGEXP, parseEndTag);
           chars = false;
         }
 
       // start tag
-      } else if ( BEGIN_TAG_REGEXP.test(html) ) {
-        match = html.match( START_TAG_REGEXP );
+      } else if (BEGIN_TAG_REGEXP.test(html)) {
+        match = html.match(START_TAG_REGEXP);
 
-        if ( match ) {
+        if (match) {
           // We only have a valid start-tag if there is a '>'.
-          if ( match[4] ) {
-            html = html.substring( match[0].length );
-            match[0].replace( START_TAG_REGEXP, parseStartTag );
+          if (match[4]) {
+            html = html.substring(match[0].length);
+            match[0].replace(START_TAG_REGEXP, parseStartTag);
           }
           chars = false;
         } else {
@@ -41097,29 +41131,29 @@ function htmlParser( html, handler ) {
         }
       }
 
-      if ( chars ) {
+      if (chars) {
         index = html.indexOf("<");
 
-        text += index < 0 ? html : html.substring( 0, index );
-        html = index < 0 ? "" : html.substring( index );
+        text += index < 0 ? html : html.substring(0, index);
+        html = index < 0 ? "" : html.substring(index);
 
-        if (handler.chars) handler.chars( decodeEntities(text) );
+        if (handler.chars) handler.chars(decodeEntities(text));
       }
 
     } else {
       html = html.replace(new RegExp("(.*)<\\s*\\/\\s*" + stack.last() + "[^>]*>", 'i'),
-        function(all, text){
+        function(all, text) {
           text = text.replace(COMMENT_REGEXP, "$1").replace(CDATA_REGEXP, "$1");
 
-          if (handler.chars) handler.chars( decodeEntities(text) );
+          if (handler.chars) handler.chars(decodeEntities(text));
 
           return "";
       });
 
-      parseEndTag( "", stack.last() );
+      parseEndTag("", stack.last());
     }
 
-    if ( html == last ) {
+    if (html == last) {
       throw $sanitizeMinErr('badparse', "The sanitizer was unable to parse the following block " +
                                         "of html: {0}", html);
     }
@@ -41129,22 +41163,22 @@ function htmlParser( html, handler ) {
   // Clean up any remaining tags
   parseEndTag();
 
-  function parseStartTag( tag, tagName, rest, unary ) {
+  function parseStartTag(tag, tagName, rest, unary) {
     tagName = angular.lowercase(tagName);
-    if ( blockElements[ tagName ] ) {
-      while ( stack.last() && inlineElements[ stack.last() ] ) {
-        parseEndTag( "", stack.last() );
+    if (blockElements[ tagName ]) {
+      while (stack.last() && inlineElements[ stack.last() ]) {
+        parseEndTag("", stack.last());
       }
     }
 
-    if ( optionalEndTagElements[ tagName ] && stack.last() == tagName ) {
-      parseEndTag( "", tagName );
+    if (optionalEndTagElements[ tagName ] && stack.last() == tagName) {
+      parseEndTag("", tagName);
     }
 
     unary = voidElements[ tagName ] || !!unary;
 
-    if ( !unary )
-      stack.push( tagName );
+    if (!unary)
+      stack.push(tagName);
 
     var attrs = {};
 
@@ -41157,22 +41191,22 @@ function htmlParser( html, handler ) {
 
         attrs[name] = decodeEntities(value);
     });
-    if (handler.start) handler.start( tagName, attrs, unary );
+    if (handler.start) handler.start(tagName, attrs, unary);
   }
 
-  function parseEndTag( tag, tagName ) {
+  function parseEndTag(tag, tagName) {
     var pos = 0, i;
     tagName = angular.lowercase(tagName);
-    if ( tagName )
+    if (tagName)
       // Find the closest opened tag of the same type
-      for ( pos = stack.length - 1; pos >= 0; pos-- )
-        if ( stack[ pos ] == tagName )
+      for (pos = stack.length - 1; pos >= 0; pos--)
+        if (stack[ pos ] == tagName)
           break;
 
-    if ( pos >= 0 ) {
+    if (pos >= 0) {
       // Close all the open elements, up the stack
-      for ( i = stack.length - 1; i >= pos; i-- )
-        if (handler.end) handler.end( stack[ i ] );
+      for (i = stack.length - 1; i >= pos; i--)
+        if (handler.end) handler.end(stack[ i ]);
 
       // Remove the open elements from the stack
       stack.length = pos;
@@ -41218,12 +41252,12 @@ function decodeEntities(value) {
 function encodeEntities(value) {
   return value.
     replace(/&/g, '&amp;').
-    replace(SURROGATE_PAIR_REGEXP, function (value) {
+    replace(SURROGATE_PAIR_REGEXP, function(value) {
       var hi = value.charCodeAt(0);
       var low = value.charCodeAt(1);
       return '&#' + (((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000) + ';';
     }).
-    replace(NON_ALPHANUMERIC_REGEXP, function(value){
+    replace(NON_ALPHANUMERIC_REGEXP, function(value) {
       return '&#' + value.charCodeAt(0) + ';';
     }).
     replace(/</g, '&lt;').
@@ -41240,11 +41274,11 @@ function encodeEntities(value) {
  *     comment: function(text) {}
  * }
  */
-function htmlSanitizeWriter(buf, uriValidator){
+function htmlSanitizeWriter(buf, uriValidator) {
   var ignore = false;
   var out = angular.bind(buf, buf.push);
   return {
-    start: function(tag, attrs, unary){
+    start: function(tag, attrs, unary) {
       tag = angular.lowercase(tag);
       if (!ignore && specialElements[tag]) {
         ignore = tag;
@@ -41252,7 +41286,7 @@ function htmlSanitizeWriter(buf, uriValidator){
       if (!ignore && validElements[tag] === true) {
         out('<');
         out(tag);
-        angular.forEach(attrs, function(value, key){
+        angular.forEach(attrs, function(value, key) {
           var lkey=angular.lowercase(key);
           var isImage = (tag === 'img' && lkey === 'src') || (lkey === 'background');
           if (validAttrs[lkey] === true &&
@@ -41267,7 +41301,7 @@ function htmlSanitizeWriter(buf, uriValidator){
         out(unary ? '/>' : '>');
       }
     },
-    end: function(tag){
+    end: function(tag) {
         tag = angular.lowercase(tag);
         if (!ignore && validElements[tag] === true) {
           out('</');
@@ -41278,7 +41312,7 @@ function htmlSanitizeWriter(buf, uriValidator){
           ignore = false;
         }
       },
-    chars: function(chars){
+    chars: function(chars) {
         if (!ignore) {
           out(encodeEntities(chars));
         }
@@ -42904,10 +42938,10 @@ if (typeof define === 'function' && define.amd) {
       return function(urlFactory) {
         return function(scope, element, attrs) {
           var currentUrl, handler, popupWinAttrs, url;
-          currentUrl = element.attr('href') || $location.absUrl();
+          currentUrl = attrs.customUrl || $location.absUrl();
           url = urlFactory(scope, currentUrl);
           popupWinAttrs = "status=no, width=" + (scope.socialWidth || 640) + ", height=" + (scope.socialWidth || 480) + ", resizable=yes, toolbar=no, menubar=no, scrollbars=no, location=no, directories=no";
-          if (element[0].nodeName === 'A' && (attrs.href == null)) {
+          if (element[0].nodeName === 'A' && ((attrs.href == null) || attrs.href === '')) {
             element.attr('href', url);
           }
           element.attr('rel', 'nofollow');
@@ -42931,8 +42965,8 @@ if (typeof define === 'function' && define.amd) {
         link: linker(function(scope, url) {
           var shareUrl;
           shareUrl = ["https://facebook.com/sharer.php?"];
-          shareUrl.push("[url]=" + (encodeURIComponent(url)));
-          return shareUrl.join('&p');
+          shareUrl.push("u=" + (encodeURIComponent(url)));
+          return shareUrl.join('');
         })
       };
     }
@@ -42945,7 +42979,7 @@ if (typeof define === 'function' && define.amd) {
         },
         link: linker(function(scope, url) {
           scope.status || (scope.status = "Check this out! - " + url);
-          return "https://twitter.com/home?status=" + (encodeURIComponent(scope.status));
+          return "https://twitter.com/intent/tweet?text=" + (encodeURIComponent(scope.status));
         })
       };
     }
